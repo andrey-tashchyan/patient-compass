@@ -19,8 +19,7 @@ import { useUpdatePatient } from "@/hooks/useUpdatePatient";
 import { Button } from "@/components/ui/button";
 import PatientChatPanel from "@/components/PatientChatPanel";
 import VoiceDictation from "@/components/VoiceDictation";
-import type { ProposedChange } from "@/components/VoiceDictation";
-import type { ClinicalNote, Medication, Diagnosis, Allergy } from "@/types/patient";
+import type { ClinicalNote } from "@/types/patient";
 
 const PatientDashboard = () => {
   const { id } = useParams<{ id: string }>();
@@ -206,51 +205,9 @@ const PatientDashboard = () => {
           medications: current.current_medications.map(m => m.name),
           allergies: current.allergies.map(a => a.allergen),
         }}
-        onSave={(newNote: ClinicalNote, approvedChanges: ProposedChange[]) => {
+        onSave={(newNote: ClinicalNote) => {
           const updated = JSON.parse(JSON.stringify(current)) as Patient;
           updated.clinical_notes = [newNote, ...updated.clinical_notes];
-
-          for (const change of approvedChanges) {
-            switch (change.change_type) {
-              case "stop_medication":
-                updated.current_medications = updated.current_medications.filter(
-                  (m) => m.name.toLowerCase() !== (change.medication_name || "").toLowerCase()
-                );
-                break;
-              case "start_medication":
-                updated.current_medications.push({
-                  name: change.medication_name || "",
-                  dosage: change.medication_dosage || "",
-                  frequency: change.medication_frequency || "",
-                  indication: change.medication_indication,
-                  prescribed_at: new Date().toISOString().split("T")[0],
-                });
-                break;
-              case "add_diagnosis":
-                updated.diagnoses.push({
-                  condition: change.diagnosis_condition || "",
-                  icd_code: change.diagnosis_icd_code,
-                  date_diagnosed: new Date().toISOString().split("T")[0],
-                  status: "active",
-                });
-                break;
-              case "resolve_diagnosis":
-                updated.diagnoses = updated.diagnoses.map((d) =>
-                  d.condition.toLowerCase() === (change.diagnosis_condition || "").toLowerCase()
-                    ? { ...d, status: "resolved" as const }
-                    : d
-                );
-                break;
-              case "add_allergy":
-                updated.allergies.push({
-                  allergen: change.allergy_allergen || "",
-                  reaction: change.allergy_reaction,
-                  recorded_at: new Date().toISOString().split("T")[0],
-                });
-                break;
-            }
-          }
-
           updatePatient.mutate(updated);
         }}
       />
