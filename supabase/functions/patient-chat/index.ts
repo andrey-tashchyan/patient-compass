@@ -95,6 +95,7 @@ IMPORTANT RULES:
           messages: [{ role: "system", content: systemPrompt }, ...messages],
           tools,
           tool_choice: "auto",
+          temperature: 0.2,
           stream: true,
         }),
       }
