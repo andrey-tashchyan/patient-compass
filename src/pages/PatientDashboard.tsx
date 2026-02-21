@@ -6,6 +6,7 @@ import AppHeader from "@/components/AppHeader";
 import IdentityLayer from "@/components/layers/IdentityLayer";
 import StateLayer from "@/components/layers/StateLayer";
 import HistoryLayer from "@/components/layers/HistoryLayer";
+import EncountersLayer from "@/components/layers/EncountersLayer";
 import InterventionLayer from "@/components/layers/InterventionLayer";
 import AssessmentLayer from "@/components/layers/AssessmentLayer";
 import NetworkLayer from "@/components/layers/NetworkLayer";
@@ -78,6 +79,7 @@ const PatientDashboard = () => {
 
         {/* Layers */}
         <div className="space-y-4">
+          <EncountersLayer patientId={patient.id} />
           <IdentityLayer identity={patient.identity} />
           <StateLayer state={patient.state} />
           <HistoryLayer history={patient.history} />
