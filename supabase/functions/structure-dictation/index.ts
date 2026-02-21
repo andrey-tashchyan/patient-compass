@@ -21,7 +21,9 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const systemPrompt = `You are a clinical documentation specialist. You will receive a raw voice dictation from a doctor describing a patient encounter. Your job is to structure it into a complete SOAP clinical note using the create_clinical_note tool.
+    const systemPrompt = `You are a clinical documentation specialist. You will receive a raw voice dictation from a doctor describing a patient encounter. Your job is to:
+1. Structure it into a complete SOAP clinical note
+2. Detect any actionable changes to the patient's record (e.g. stop/start medications, new diagnoses, resolved diagnoses, new allergies)
 
 Patient context:
 - Name: ${patientContext?.name || "Unknown"}
@@ -30,15 +32,19 @@ Patient context:
 - Current medications: ${patientContext?.medications?.join(", ") || "None listed"}
 - Known allergies: ${patientContext?.allergies?.join(", ") || "NKDA"}
 
-Rules:
-- Separate subjective complaints (what the patient reports) from objective findings (exam findings, vitals, test results)
-- If vitals are mentioned (e.g. "BP 120/80", "heart rate 72", "temp 98.6"), extract them into the vital_signs object
+Rules for the SOAP note:
+- Separate subjective complaints from objective findings
+- If vitals are mentioned, extract them into vital_signs
 - Formulate a clear assessment with differential diagnoses if applicable
 - Create an actionable plan with specific next steps
-- Infer the chief_complaint from the dictation
-- Set note_type to the most appropriate type (e.g. "Progress Note", "Follow-Up", "New Patient", "Urgent Care")
-- Set date_of_service to today's date: ${new Date().toISOString().split("T")[0]}
-- Use professional clinical language`;
+- Set date_of_service to today: ${new Date().toISOString().split("T")[0]}
+- Use professional clinical language
+
+Rules for proposed_changes:
+- Only include changes explicitly stated or strongly implied by the doctor
+- Each change should have a clear type: "stop_medication", "start_medication", "add_diagnosis", "resolve_diagnosis", "add_allergy"
+- Include a human-readable description of each change
+- Include the relevant data fields for each change type`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -56,21 +62,21 @@ Rules:
           {
             type: "function",
             function: {
-              name: "create_clinical_note",
-              description: "Create a structured SOAP clinical note from dictation",
+              name: "create_clinical_note_with_changes",
+              description: "Create a structured SOAP note AND detect any proposed changes to the patient record",
               parameters: {
                 type: "object",
                 properties: {
-                  note_type: { type: "string", description: "Type of clinical note (e.g. Progress Note, Follow-Up)" },
-                  date_of_service: { type: "string", description: "Date in YYYY-MM-DD format" },
-                  provider_name: { type: "string", description: "Provider name if mentioned, otherwise 'Dictating Provider'" },
-                  provider_credentials: { type: "string", description: "Provider credentials if mentioned, otherwise 'MD'" },
-                  chief_complaint: { type: "string", description: "Primary reason for the visit" },
-                  subjective: { type: "string", description: "Patient's reported symptoms, history, and complaints" },
-                  objective: { type: "string", description: "Physical exam findings, observations, test results" },
-                  assessment: { type: "string", description: "Clinical assessment and diagnoses" },
-                  plan: { type: "string", description: "Treatment plan and next steps" },
-                  follow_up_instructions: { type: "string", description: "Follow-up timing and instructions" },
+                  note_type: { type: "string" },
+                  date_of_service: { type: "string" },
+                  provider_name: { type: "string" },
+                  provider_credentials: { type: "string" },
+                  chief_complaint: { type: "string" },
+                  subjective: { type: "string" },
+                  objective: { type: "string" },
+                  assessment: { type: "string" },
+                  plan: { type: "string" },
+                  follow_up_instructions: { type: "string" },
                   vital_signs: {
                     type: "object",
                     properties: {
@@ -81,6 +87,30 @@ Rules:
                       bmi: { type: "number" },
                     },
                   },
+                  proposed_changes: {
+                    type: "array",
+                    description: "Actionable changes to the patient record detected from the dictation",
+                    items: {
+                      type: "object",
+                      properties: {
+                        change_type: {
+                          type: "string",
+                          enum: ["stop_medication", "start_medication", "add_diagnosis", "resolve_diagnosis", "add_allergy"],
+                        },
+                        description: { type: "string", description: "Human-readable description like 'Stop Metformin 500mg'" },
+                        medication_name: { type: "string" },
+                        medication_dosage: { type: "string" },
+                        medication_frequency: { type: "string" },
+                        medication_indication: { type: "string" },
+                        diagnosis_condition: { type: "string" },
+                        diagnosis_icd_code: { type: "string" },
+                        allergy_allergen: { type: "string" },
+                        allergy_reaction: { type: "string" },
+                      },
+                      required: ["change_type", "description"],
+                      additionalProperties: false,
+                    },
+                  },
                 },
                 required: ["note_type", "date_of_service", "provider_name", "provider_credentials", "subjective", "objective", "assessment", "plan"],
                 additionalProperties: false,
@@ -88,7 +118,7 @@ Rules:
             },
           },
         ],
-        tool_choice: { type: "function", function: { name: "create_clinical_note" } },
+        tool_choice: { type: "function", function: { name: "create_clinical_note_with_changes" } },
       }),
     });
 
@@ -122,8 +152,10 @@ Rules:
       });
     }
 
-    const note = JSON.parse(toolCall.function.arguments);
-    return new Response(JSON.stringify({ note }), {
+    const parsed = JSON.parse(toolCall.function.arguments);
+    const { proposed_changes, ...note } = parsed;
+
+    return new Response(JSON.stringify({ note, proposed_changes: proposed_changes || [] }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
