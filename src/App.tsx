@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import PatientDashboard from "./pages/PatientDashboard";
+import PrescriptionWindow from "./pages/PrescriptionWindow";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
           <Route path="/patient/:id" element={<ProtectedRoute><PatientDashboard /></ProtectedRoute>} />
+          <Route path="/patient/:id/prescribe" element={<ProtectedRoute><PrescriptionWindow /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
