@@ -1,75 +1,79 @@
 
 
-## Add Authentication and Database-Backed Patient Data
+## Add Patient from PDF Upload
 
-This plan adds a login/signup page, stores patient data in the database, and loads patients from the backend instead of mock data.
+Add an "Add Patient" button to the dashboard that opens a dialog where users upload a PDF of medical records. An AI agent parses the PDF text into the structured Patient format and saves it to the database.
 
 ### What you'll get
 
-1. A simple login/signup page at `/auth` with email and password
-2. A `patients` database table storing the full Patient data structure as JSONB
-3. Protected routes -- unauthenticated users are redirected to `/auth`
-4. Patient list and detail pages load data from the database
-5. Mock patients are seeded into the database on first login (so you have data to work with immediately)
+1. An "Add Patient" button on the dashboard next to the "Patients" label
+2. A dialog with a file upload area (drag-and-drop or click to browse) for PDF files
+3. A backend function that extracts text from the PDF and uses AI to parse it into structured patient data
+4. The parsed patient is inserted into the database and the list refreshes automatically
+5. Loading state and error handling throughout the flow
 
 ### How it works
 
-- The `patients` table has columns: `id`, `user_id` (owner), `patient_data` (JSONB holding the full Patient object), and `created_at`
-- Each user sees only their own patients (enforced by Row Level Security)
-- On first login, if a user has zero patients, the app seeds the 3 mock patients into their account
-- The existing dashboard and detail pages are rewired to fetch from the database using React Query
+```text
+User uploads PDF
+       |
+       v
+Frontend reads file, converts to base64
+       |
+       v
+Calls "parse-patient-pdf" edge function
+       |
+       v
+Edge function extracts text from PDF (pdf-parse library)
+       |
+       v
+Sends text + Patient schema to Lovable AI (Gemini 2.5 Pro)
+with tool calling to get structured JSON output
+       |
+       v
+Validates and returns structured Patient object
+       |
+       v
+Frontend inserts into patients table via Supabase client
+       |
+       v
+React Query invalidates cache, list refreshes
+```
 
 ### Technical details
 
-**Database migration (1 table + RLS):**
-```sql
-CREATE TABLE public.patients (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID NOT NULL,
-  patient_data JSONB NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT now()
-);
+**New edge function: `supabase/functions/parse-patient-pdf/index.ts`**
 
-ALTER TABLE public.patients ENABLE ROW LEVEL SECURITY;
+- Accepts a POST with `{ pdfBase64: string }` (the PDF file as base64)
+- Uses pdf-parse (npm) to extract raw text from the PDF
+- Sends the extracted text to the Lovable AI Gateway (`google/gemini-2.5-pro`) with tool calling
+- The tool schema mirrors the Patient interface exactly, ensuring structured output
+- Returns the parsed Patient JSON to the frontend
+- Handles errors: invalid PDF, AI parsing failure, rate limits (429), payment required (402)
 
-CREATE POLICY "Users can view own patients"
-  ON public.patients FOR SELECT
-  USING (auth.uid() = user_id);
+**Update `supabase/config.toml`:**
+- Add the `parse-patient-pdf` function with `verify_jwt = false` (auth validated in code)
 
-CREATE POLICY "Users can insert own patients"
-  ON public.patients FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
+**New component: `src/components/AddPatientDialog.tsx`**
 
-CREATE POLICY "Users can update own patients"
-  ON public.patients FOR UPDATE
-  USING (auth.uid() = user_id);
+- Dialog with file upload (accepts `.pdf` only, max 20MB)
+- Drag-and-drop zone with visual feedback
+- Shows progress states: uploading, parsing, saving
+- On success: inserts the patient into the database via Supabase client, invalidates the patients query, closes dialog, shows success toast
+- On error: shows error toast with message
 
-CREATE POLICY "Users can delete own patients"
-  ON public.patients FOR DELETE
-  USING (auth.uid() = user_id);
-```
+**Modified file: `src/pages/Index.tsx`**
 
-**Files to create:**
-- `src/pages/Auth.tsx` -- Login/signup page with email + password, toggling between sign-in and sign-up modes. Clean, minimal design matching the existing clinical aesthetic.
-- `src/hooks/useAuth.ts` -- Auth context/hook providing `user`, `loading`, `signOut` via `onAuthStateChange` listener.
-- `src/hooks/usePatients.ts` -- React Query hooks (`usePatients`, `usePatient`) that fetch from the `patients` table and map `patient_data` back to the `Patient` type. Includes auto-seed logic.
+- Add an "Add Patient" button (with Plus icon) next to the Patients label
+- Render the AddPatientDialog component
 
-**Files to modify:**
-- `src/App.tsx` -- Add `/auth` route. Wrap routes in an auth guard that redirects unauthenticated users to `/auth`.
-- `src/pages/Index.tsx` -- Replace `mockPatients` import with `usePatients()` hook. Show loading/empty states.
-- `src/pages/PatientDashboard.tsx` -- Replace `getPatientById` with `usePatient(id)` hook. Show loading state.
-- `src/components/PatientSearch.tsx` -- Accept patients as a prop or use the `usePatients` hook instead of importing mock data.
-- `src/components/AppHeader.tsx` -- Add a sign-out button using the auth hook.
+**AI Prompt Strategy:**
 
-**Files kept as-is:**
-- All layer components (DemographicsLayer, AllergiesLayer, etc.) -- they already accept typed props
-- `src/types/patient.ts` -- unchanged
-- `src/data/mockPatientData.ts` -- kept for seeding purposes only
-- All UI primitives, CSS
+The edge function uses tool calling (not raw JSON output) to extract structured data. The tool schema defines every field of the Patient interface. The system prompt instructs the AI to:
+- Generate a unique patient_id and medical_record_number if not found in the document
+- Extract all available clinical data: demographics, allergies, medications, diagnoses, lab results, imaging, diagnostic tests, clinical notes
+- Use reasonable defaults for required fields that aren't in the document
+- Map free-text diagnoses to appropriate status values (active/resolved/chronic)
 
-**Design decisions:**
-- JSONB storage for patient data keeps the schema simple and flexible -- the full Patient object is stored as one document per patient
-- The `user_id` column + RLS ensures complete data isolation between users
-- Auto-seeding mock data on first login gives an immediate working experience
-- Email confirmation is required (not auto-confirmed) per security best practices
+**Model choice:** `google/gemini-2.5-pro` -- best for complex document parsing with large context and structured extraction. This model is available through the built-in Lovable AI gateway at no extra setup cost.
 
