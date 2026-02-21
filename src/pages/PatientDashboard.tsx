@@ -1,14 +1,17 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, User, Clock, FileText } from "lucide-react";
+import { ArrowLeft, Clock } from "lucide-react";
 import { generatePatientSummary } from "@/lib/patientSummary";
-import { getPatientById } from "@/data/mockPatients";
-import { vaccinationsByPatient } from "@/data/mockVaccinations";
+import { getPatientById } from "@/data/mockPatientData";
+import { getPatientAge, Gender } from "@/types/patient";
 import AppHeader from "@/components/AppHeader";
-import IdentityLayer from "@/components/layers/IdentityLayer";
-import HistoryLayer from "@/components/layers/HistoryLayer";
-import EncountersLayer from "@/components/layers/EncountersLayer";
-import VaccinationLayer from "@/components/layers/VaccinationLayer";
-import NetworkLayer from "@/components/layers/NetworkLayer";
+import DemographicsLayer from "@/components/layers/DemographicsLayer";
+import AllergiesLayer from "@/components/layers/AllergiesLayer";
+import MedicationsLayer from "@/components/layers/MedicationsLayer";
+import DiagnosesLayer from "@/components/layers/DiagnosesLayer";
+import ClinicalNotesLayer from "@/components/layers/ClinicalNotesLayer";
+import LabResultsLayer from "@/components/layers/LabResultsLayer";
+import ImagingLayer from "@/components/layers/ImagingLayer";
+import DiagnosticTestsLayer from "@/components/layers/DiagnosticTestsLayer";
 
 const PatientDashboard = () => {
   const { id } = useParams<{ id: string }>();
@@ -28,7 +31,9 @@ const PatientDashboard = () => {
     );
   }
 
-  const age = Math.floor((Date.now() - new Date(patient.identity.immutable.dateOfBirth).getTime()) / 31557600000);
+  const age = getPatientAge(patient);
+  const genderLabel = patient.gender === Gender.MALE ? "Homme" : patient.gender === Gender.FEMALE ? "Femme" : "Autre";
+  const activeDx = patient.diagnoses.filter(d => d.status === "active");
 
   return (
     <div className="min-h-screen bg-background">
@@ -40,31 +45,26 @@ const PatientDashboard = () => {
             <ArrowLeft className="h-4 w-4 text-muted-foreground" />
           </button>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-3 mb-1.5">
-              <h1 className="text-2xl font-semibold text-foreground tracking-tight">
-                {patient.identity.mutable.firstName} {patient.identity.mutable.lastName}
-              </h1>
-              {patient.identity.mutable.preferredName && (
-                <span className="text-sm text-muted-foreground font-normal">"{patient.identity.mutable.preferredName}"</span>
-              )}
-            </div>
+            <h1 className="text-2xl font-semibold text-foreground tracking-tight mb-1.5">
+              {patient.first_name} {patient.last_name}
+            </h1>
             <div className="flex items-center gap-3 text-[13px] text-muted-foreground">
-              <span className="font-mono text-xs">{patient.identity.mrn}</span>
+              <span className="font-mono text-xs">{patient.medical_record_number}</span>
               <span className="w-px h-3 bg-border" />
-              <span>{patient.identity.immutable.biologicalSex}, {age} ans</span>
+              <span>{genderLabel}, {age} ans</span>
               <span className="w-px h-3 bg-border" />
-              <span>{patient.identity.immutable.bloodType}</span>
-              {patient.identity.temporal.admissionDate && (
+              <span>Né(e) le {patient.date_of_birth}</span>
+              {patient.admission_date && (
                 <>
                   <span className="w-px h-3 bg-border" />
-                  <span className="flex items-center gap-1"><Clock className="h-3 w-3" />Admis le {patient.identity.temporal.admissionDate}</span>
+                  <span className="flex items-center gap-1"><Clock className="h-3 w-3" />Admis le {patient.admission_date}</span>
                 </>
               )}
             </div>
           </div>
           <div className="flex flex-wrap gap-2 shrink-0">
-            {patient.state.activeDiagnoses.filter(d => d.severity === 'critical').map((d, i) => (
-              <span key={i} className="clinical-badge-critical">{d.name.split(',')[0]}</span>
+            {activeDx.map((d, i) => (
+              <span key={i} className="clinical-badge-warning">{d.condition.split(',')[0]}</span>
             ))}
           </div>
         </div>
@@ -78,11 +78,19 @@ const PatientDashboard = () => {
 
         {/* Layers */}
         <div className="space-y-4">
-          <EncountersLayer patientId={patient.id} />
-          <IdentityLayer identity={patient.identity} />
-          <HistoryLayer history={patient.history} />
-          <VaccinationLayer vaccinations={vaccinationsByPatient[patient.id] || []} />
-          <NetworkLayer network={patient.network} />
+          <ClinicalNotesLayer notes={patient.clinical_notes} />
+          <DiagnosesLayer diagnoses={patient.diagnoses} />
+          <MedicationsLayer medications={patient.current_medications} />
+          <LabResultsLayer results={patient.lab_results} />
+          <AllergiesLayer allergies={patient.allergies} />
+          <ImagingLayer studies={patient.imaging_studies} />
+          <DiagnosticTestsLayer tests={patient.diagnostic_tests} />
+          <DemographicsLayer
+            contactInfo={patient.contact_info}
+            insurance={patient.insurance}
+            primaryCarePhysician={patient.primary_care_physician}
+            hospital={patient.hospital}
+          />
         </div>
 
         {/* Audit footer */}
