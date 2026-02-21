@@ -1,81 +1,46 @@
-import type { Patient } from "@/data/mockPatients";
+import type { Patient } from "@/types/patient";
+import { Gender } from "@/types/patient";
 
 export function generatePatientSummary(patient: Patient): string {
-  const { identity, state, interventions } = patient;
-  const age = Math.floor((Date.now() - new Date(identity.immutable.dateOfBirth).getTime()) / 31557600000);
-  const sex = identity.immutable.biologicalSex === "Male" ? "Homme" : "Femme";
-  
-  // Primary diagnoses
-  const criticalDx = state.activeDiagnoses.filter(d => d.severity === 'critical');
-  const chronicDx = state.activeDiagnoses.filter(d => d.status === 'chronic');
-  
-  // Critical vitals
-  const criticalVitals = state.vitals.filter(v => v.status === 'critical');
-  const warningVitals = state.vitals.filter(v => v.status === 'warning');
-  
-  // Critical labs
-  const criticalLabs = state.labs.filter(l => l.status === 'critical');
-  const warningLabs = state.labs.filter(l => l.status === 'warning');
+  const age = Math.floor((Date.now() - new Date(patient.date_of_birth).getTime()) / 31557600000);
+  const sex = patient.gender === Gender.MALE ? "Homme" : patient.gender === Gender.FEMALE ? "Femme" : "Patient";
 
-  // Severe symptoms
-  const severeSymptoms = state.symptoms.filter(s => s.severity === 'severe');
-  
-  // Active meds count
-  const activeMeds = interventions.medications.filter(m => m.status === 'active').length;
-
-  // Build summary
   const parts: string[] = [];
 
-  // Identity
-  parts.push(`${sex} de ${age} ans (${identity.immutable.bloodType})`);
-
-  // Admission context
-  if (identity.temporal.admissionDate) {
-    const lastEvent = identity.temporal.keyEvents[identity.temporal.keyEvents.length - 1];
-    if (lastEvent) {
-      parts[0] += `, admis le ${identity.temporal.admissionDate} pour ${lastEvent.event.replace('Current admission — ', '').replace('Admission — ', '').toLowerCase()}`;
-    }
+  // Identity line
+  let identity = `${sex} de ${age} ans`;
+  if (patient.admission_date) {
+    const mainDx = patient.diagnoses.find(d => d.status === "active");
+    identity += `, admis le ${patient.admission_date}`;
+    if (mainDx) identity += ` pour ${mainDx.condition.toLowerCase()}`;
   }
+  parts.push(identity + ".");
 
-  parts[0] += '.';
-
-  // Critical diagnoses
-  if (criticalDx.length > 0) {
-    const dxNames = criticalDx.map(d => d.name.split(',')[0]).join(', ');
-    parts.push(`Diagnostic principal : ${dxNames}.`);
+  // Active diagnoses
+  const active = patient.diagnoses.filter(d => d.status === "active");
+  if (active.length > 0) {
+    parts.push(`Diagnostic principal : ${active.map(d => d.condition.split(",")[0]).join(", ")}.`);
   }
 
   // Chronic conditions
-  if (chronicDx.length > 0) {
-    const chronicNames = chronicDx.map(d => d.name.split(',')[0]).join(', ');
-    parts.push(`Antécédents notables : ${chronicNames}.`);
+  const chronic = patient.diagnoses.filter(d => d.status === "chronic");
+  if (chronic.length > 0) {
+    parts.push(`Antécédents notables : ${chronic.map(d => d.condition.split(",")[0]).join(", ")}.`);
   }
 
-  // Current status
-  const statusParts: string[] = [];
-  if (criticalVitals.length > 0) {
-    statusParts.push(criticalVitals.map(v => `${v.name} à ${v.value} ${v.unit} (critique)`).join(', '));
-  }
-  if (criticalLabs.length > 0) {
-    statusParts.push(criticalLabs.map(l => `${l.name} à ${l.value} ${l.unit}`).join(', '));
-  }
-  if (statusParts.length > 0) {
-    parts.push(`Valeurs critiques : ${statusParts.join(' ; ')}.`);
+  // Flagged labs
+  const flagged = patient.lab_results.filter(l => l.flagged);
+  if (flagged.length > 0) {
+    parts.push(`Valeurs anormales : ${flagged.map(l => `${l.test_name} à ${l.result} ${l.unit}`).join(", ")}.`);
   }
 
-  // Symptoms
-  if (severeSymptoms.length > 0) {
-    parts.push(`Symptômes principaux : ${severeSymptoms.map(s => s.symptom.toLowerCase()).join(', ')}.`);
+  // Medications
+  parts.push(`${patient.current_medications.length} traitements actifs en cours.`);
+
+  // Allergies
+  if (patient.allergies.length > 0) {
+    parts.push(`${patient.allergies.length} allergie(s) documentée(s).`);
   }
 
-  // Functional
-  const nyha = state.functionalState.find(f => f.domain.includes('NYHA'));
-  if (nyha) {
-    parts.push(`Classe fonctionnelle NYHA ${nyha.score}.`);
-  }
-
-  // Treatment
-  parts.push(`${activeMeds} traitements actifs en cours.`);
-
-  return parts.join(' ');
+  return parts.join(" ");
 }
