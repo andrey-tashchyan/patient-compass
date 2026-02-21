@@ -6,6 +6,12 @@ import { useAuth } from "./useAuth";
 import { useEffect, useRef } from "react";
 
 async function seedPatients(userId: string) {
+  // Double-check count to prevent race condition duplicates
+  const { count } = await supabase
+    .from("patients")
+    .select("*", { count: "exact", head: true });
+  if ((count ?? 0) > 0) return;
+
   const rows = mockPatients.map((p) => ({
     user_id: userId,
     patient_data: JSON.parse(JSON.stringify(p)),
