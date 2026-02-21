@@ -1,29 +1,52 @@
 import { useState, useRef, useEffect } from "react";
-import { Search, User, Hash, Calendar } from "lucide-react";
+import { Search, User, Hash, Calendar, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { searchPatients, type Patient } from "@/data/mockPatients";
+import { searchPatients, mockPatients, type Patient } from "@/data/mockPatients";
 
 const PatientSearch = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Patient[]>([]);
-  const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const ref = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const r = searchPatients(query);
-    setResults(r);
-    setIsOpen(query.length > 0 && r.length > 0);
+    if (!query.trim()) {
+      setResults(mockPatients);
+    } else {
+      setResults(searchPatients(query));
+    }
     setSelectedIndex(-1);
   }, [query]);
 
   useEffect(() => {
+    if (isOpen && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setIsOpen(false);
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
     };
-    document.addEventListener("mousedown", handler);
+    if (isOpen) document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
+  }, [isOpen]);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setIsOpen(true);
+      }
+      if (e.key === 'Escape') setIsOpen(false);
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
   }, []);
 
   const handleSelect = (patient: Patient) => {
@@ -41,57 +64,94 @@ const PatientSearch = () => {
       setSelectedIndex(i => Math.max(i - 1, 0));
     } else if (e.key === "Enter" && selectedIndex >= 0) {
       handleSelect(results[selectedIndex]);
-    } else if (e.key === "Escape") {
-      setIsOpen(false);
     }
   };
 
   return (
-    <div ref={ref} className="relative w-full max-w-xl">
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <input
-          type="text"
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onFocus={() => query.length > 0 && results.length > 0 && setIsOpen(true)}
-          placeholder="Search by name, MRN, or date of birth..."
-          className="w-full h-10 pl-10 pr-4 text-sm bg-search-bg border border-search-border rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-        />
-      </div>
+    <>
+      {/* Trigger button */}
+      <button
+        onClick={() => setIsOpen(true)}
+        className="flex items-center gap-2 h-9 px-3 text-sm text-muted-foreground bg-muted/50 border border-border rounded-lg hover:bg-muted transition-colors"
+      >
+        <Search className="h-3.5 w-3.5" />
+        <span className="hidden sm:inline">Rechercher un patient…</span>
+        <kbd className="hidden sm:inline-flex items-center gap-0.5 ml-2 px-1.5 py-0.5 text-[10px] font-mono bg-background border border-border rounded text-muted-foreground">
+          ⌘K
+        </kbd>
+      </button>
+
+      {/* Overlay */}
       {isOpen && (
-        <div className="absolute z-50 mt-1 w-full bg-popover border border-border rounded-md shadow-lg overflow-hidden">
-          {results.map((p, i) => {
-            const age = Math.floor((Date.now() - new Date(p.identity.immutable.dateOfBirth).getTime()) / 31557600000);
-            return (
-              <button
-                key={p.id}
-                onClick={() => handleSelect(p)}
-                className={`w-full text-left px-4 py-3 flex items-center gap-4 text-sm transition-colors ${
-                  i === selectedIndex ? 'bg-accent' : 'hover:bg-accent/50'
-                } ${i > 0 ? 'border-t border-border/50' : ''}`}
-              >
-                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                  <User className="h-4 w-4 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-foreground">{p.identity.mutable.firstName} {p.identity.mutable.lastName}</div>
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1"><Hash className="h-3 w-3" />{p.identity.mrn}</span>
-                    <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{p.identity.immutable.dateOfBirth} (Age {age})</span>
-                    <span>{p.identity.immutable.biologicalSex}</span>
-                  </div>
-                </div>
-                <span className={`shrink-0 text-xs ${p.state.activeDiagnoses.some(d => d.severity === 'critical') ? 'clinical-badge-critical' : 'clinical-badge-normal'}`}>
-                  {p.state.activeDiagnoses.filter(d => d.status === 'active' || d.status === 'chronic').length} Dx
-                </span>
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] bg-foreground/20 backdrop-blur-sm">
+          <div ref={panelRef} className="w-full max-w-lg bg-card border border-border rounded-xl shadow-2xl overflow-hidden">
+            {/* Search input */}
+            <div className="flex items-center gap-3 px-4 border-b border-border">
+              <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+              <input
+                ref={inputRef}
+                type="text"
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Nom, MRN ou date de naissance…"
+                className="flex-1 h-12 text-sm bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
+              />
+              <button onClick={() => setIsOpen(false)} className="p-1 rounded hover:bg-muted transition-colors">
+                <X className="h-4 w-4 text-muted-foreground" />
               </button>
-            );
-          })}
+            </div>
+
+            {/* Results */}
+            <div className="max-h-[50vh] overflow-y-auto">
+              {results.length === 0 ? (
+                <div className="p-8 text-center text-sm text-muted-foreground">Aucun patient trouvé</div>
+              ) : (
+                <div className="py-1">
+                  {!query.trim() && (
+                    <div className="px-4 pt-2 pb-1">
+                      <span className="clinical-label">Tous les patients</span>
+                    </div>
+                  )}
+                  {results.map((p, i) => {
+                    const age = Math.floor((Date.now() - new Date(p.identity.immutable.dateOfBirth).getTime()) / 31557600000);
+                    const hasCritical = p.state.activeDiagnoses.some(d => d.severity === 'critical') || p.state.vitals.some(v => v.status === 'critical');
+                    return (
+                      <button
+                        key={p.id}
+                        onClick={() => handleSelect(p)}
+                        className={`w-full text-left px-4 py-3 flex items-center gap-3 text-sm transition-colors ${
+                          i === selectedIndex ? 'bg-primary/5' : 'hover:bg-muted/60'
+                        }`}
+                      >
+                        <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center shrink-0">
+                          <User className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-foreground">
+                            {p.identity.mutable.firstName} {p.identity.mutable.lastName}
+                            {p.identity.mutable.preferredName && (
+                              <span className="text-muted-foreground font-normal ml-1">"{p.identity.mutable.preferredName}"</span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2.5 text-xs text-muted-foreground mt-0.5">
+                            <span className="font-mono">{p.identity.mrn}</span>
+                            <span>{p.identity.immutable.biologicalSex}, {age} ans</span>
+                          </div>
+                        </div>
+                        {hasCritical && (
+                          <span className="w-2 h-2 rounded-full bg-clinical-critical animate-pulse shrink-0" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
