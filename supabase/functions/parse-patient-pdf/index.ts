@@ -233,6 +233,7 @@ serve(async (req) => {
             },
           ],
           tools: [patientTool],
+          temperature: 0,
           tool_choice: { type: "function", function: { name: "create_patient" } },
         }),
       }

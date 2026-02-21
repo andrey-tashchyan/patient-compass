@@ -134,7 +134,7 @@ Rules for detecting proposed changes:
             },
           },
         ],
-        temperature: 0.2,
+        temperature: 0,
         tool_choice: { type: "function", function: { name: "create_clinical_note_with_changes" } },
       }),
     });
