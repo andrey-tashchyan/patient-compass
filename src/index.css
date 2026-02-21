@@ -1,96 +1,133 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 210 20% 98%;
+    --foreground: 215 25% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 215 25% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 215 25% 12%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 173 58% 39%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 210 18% 93%;
+    --secondary-foreground: 215 25% 12%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 210 14% 95%;
+    --muted-foreground: 215 12% 50%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 210 18% 93%;
+    --accent-foreground: 215 25% 12%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 214 20% 88%;
+    --input: 214 20% 88%;
+    --ring: 173 58% 39%;
 
-    --radius: 0.5rem;
+    --radius: 0.375rem;
+
+    /* Clinical tokens */
+    --clinical-critical: 0 72% 51%;
+    --clinical-critical-foreground: 0 0% 100%;
+    --clinical-warning: 38 92% 50%;
+    --clinical-warning-foreground: 0 0% 10%;
+    --clinical-normal: 152 60% 40%;
+    --clinical-normal-foreground: 0 0% 100%;
+    --clinical-info: 205 85% 55%;
+    --clinical-info-foreground: 0 0% 100%;
+    --clinical-muted: 215 12% 65%;
+
+    --layer-header: 210 14% 95%;
+    --layer-header-foreground: 215 25% 20%;
+    --layer-border: 214 20% 88%;
+
+    --data-label: 215 12% 50%;
+    --data-value: 215 25% 12%;
+    --data-mono: 215 20% 18%;
+
+    --search-bg: 0 0% 100%;
+    --search-border: 214 20% 85%;
+    --search-highlight: 173 58% 39%;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 220 20% 7%;
+    --foreground: 210 20% 92%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 220 18% 10%;
+    --card-foreground: 210 20% 92%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 220 18% 10%;
+    --popover-foreground: 210 20% 92%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 173 58% 45%;
+    --primary-foreground: 220 20% 7%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 220 15% 16%;
+    --secondary-foreground: 210 20% 92%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 220 15% 14%;
+    --muted-foreground: 215 12% 55%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 220 15% 16%;
+    --accent-foreground: 210 20% 92%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 65% 45%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --border: 220 15% 18%;
+    --input: 220 15% 18%;
+    --ring: 173 58% 45%;
+
+    --clinical-critical: 0 72% 55%;
+    --clinical-critical-foreground: 0 0% 100%;
+    --clinical-warning: 38 88% 55%;
+    --clinical-warning-foreground: 0 0% 10%;
+    --clinical-normal: 152 55% 48%;
+    --clinical-normal-foreground: 0 0% 10%;
+    --clinical-info: 205 80% 60%;
+    --clinical-info-foreground: 0 0% 10%;
+    --clinical-muted: 215 12% 45%;
+
+    --layer-header: 220 15% 12%;
+    --layer-header-foreground: 210 20% 85%;
+    --layer-border: 220 15% 18%;
+
+    --data-label: 215 12% 50%;
+    --data-value: 210 20% 92%;
+    --data-mono: 210 15% 88%;
+
+    --search-bg: 220 18% 10%;
+    --search-border: 220 15% 22%;
+    --search-highlight: 173 58% 45%;
+
+    --sidebar-background: 220 20% 7%;
+    --sidebar-foreground: 210 20% 92%;
+    --sidebar-primary: 173 58% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 220 15% 14%;
+    --sidebar-accent-foreground: 210 20% 92%;
+    --sidebar-border: 220 15% 18%;
+    --sidebar-ring: 173 58% 45%;
   }
 }
 
@@ -100,6 +137,96 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}
+
+@layer utilities {
+  .font-mono-clinical {
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .clinical-value {
+    @apply font-mono-clinical text-sm font-medium;
+    color: hsl(var(--data-value));
+  }
+
+  .clinical-label {
+    @apply text-xs font-medium uppercase tracking-wider;
+    color: hsl(var(--data-label));
+  }
+
+  .clinical-critical {
+    color: hsl(var(--clinical-critical));
+  }
+
+  .clinical-warning {
+    color: hsl(var(--clinical-warning));
+  }
+
+  .clinical-normal {
+    color: hsl(var(--clinical-normal));
+  }
+
+  .clinical-badge-critical {
+    background: hsl(var(--clinical-critical) / 0.12);
+    color: hsl(var(--clinical-critical));
+    @apply text-xs font-semibold px-2 py-0.5 rounded-sm;
+  }
+
+  .clinical-badge-warning {
+    background: hsl(var(--clinical-warning) / 0.12);
+    color: hsl(var(--clinical-warning));
+    @apply text-xs font-semibold px-2 py-0.5 rounded-sm;
+  }
+
+  .clinical-badge-normal {
+    background: hsl(var(--clinical-normal) / 0.12);
+    color: hsl(var(--clinical-normal));
+    @apply text-xs font-semibold px-2 py-0.5 rounded-sm;
+  }
+
+  .clinical-badge-info {
+    background: hsl(var(--clinical-info) / 0.12);
+    color: hsl(var(--clinical-info));
+    @apply text-xs font-semibold px-2 py-0.5 rounded-sm;
+  }
+
+  .clinical-badge-muted {
+    background: hsl(var(--clinical-muted) / 0.12);
+    color: hsl(var(--clinical-muted));
+    @apply text-xs font-semibold px-2 py-0.5 rounded-sm;
+  }
+
+  .layer-section {
+    @apply border rounded-md overflow-hidden;
+    border-color: hsl(var(--layer-border));
+  }
+
+  .layer-header {
+    background: hsl(var(--layer-header));
+    color: hsl(var(--layer-header-foreground));
+    @apply px-4 py-3 flex items-center justify-between cursor-pointer select-none;
+  }
+
+  .layer-content {
+    @apply p-4;
+  }
+
+  .data-grid {
+    @apply grid gap-3;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+
+  .data-card {
+    @apply rounded-sm p-3 border;
+    background: hsl(var(--card));
+    border-color: hsl(var(--border));
+  }
+
+  .vital-card {
+    @apply rounded-sm p-3 border text-center;
+    background: hsl(var(--card));
+    border-color: hsl(var(--border));
   }
 }
