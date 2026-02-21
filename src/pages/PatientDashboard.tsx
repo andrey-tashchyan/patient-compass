@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Clock, Loader2, Pencil, Save, X, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Clock, Download, Loader2, Pencil, Save, X, Plus, Trash2 } from "lucide-react";
+import { exportPatientPdf } from "@/lib/exportPatientPdf";
 import { generatePatientSummary } from "@/lib/patientSummary";
 import { getPatientAge, Gender } from "@/types/patient";
 import type { Patient } from "@/types/patient";
@@ -114,9 +115,14 @@ const PatientDashboard = () => {
                   </Button>
                 </>
               ) : (
-                <Button size="sm" variant="outline" onClick={startEditing}>
-                  <Pencil className="h-4 w-4 mr-1" /> Edit
-                </Button>
+                <>
+                  <Button size="sm" variant="outline" onClick={() => exportPatientPdf(current)}>
+                    <Download className="h-4 w-4 mr-1" /> Export PDF
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={startEditing}>
+                    <Pencil className="h-4 w-4 mr-1" /> Edit
+                  </Button>
+                </>
               )}
             </div>
           </div>
