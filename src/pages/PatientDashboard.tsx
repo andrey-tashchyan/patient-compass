@@ -1,7 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Clock } from "lucide-react";
+import { ArrowLeft, Clock, Loader2 } from "lucide-react";
 import { generatePatientSummary } from "@/lib/patientSummary";
-import { getPatientById } from "@/data/mockPatientData";
 import { getPatientAge, Gender } from "@/types/patient";
 import AppHeader from "@/components/AppHeader";
 import DemographicsLayer from "@/components/layers/DemographicsLayer";
@@ -12,11 +11,23 @@ import ClinicalNotesLayer from "@/components/layers/ClinicalNotesLayer";
 import LabResultsLayer from "@/components/layers/LabResultsLayer";
 import ImagingLayer from "@/components/layers/ImagingLayer";
 import DiagnosticTestsLayer from "@/components/layers/DiagnosticTestsLayer";
+import { usePatient } from "@/hooks/usePatients";
 
 const PatientDashboard = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const patient = getPatientById(id || "");
+  const { patient, isLoading } = usePatient(id || "");
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <AppHeader />
+        <div className="flex items-center justify-center py-24">
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        </div>
+      </div>
+    );
+  }
 
   if (!patient) {
     return (
