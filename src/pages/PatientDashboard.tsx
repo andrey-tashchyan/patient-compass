@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import PatientChatPanel from "@/components/PatientChatPanel";
 import VoiceDictation from "@/components/VoiceDictation";
 import type { ClinicalNote } from "@/types/patient";
+import type { ProposedChange } from "@/components/VoiceDictation";
 
 const PatientDashboard = () => {
   const { id } = useParams<{ id: string }>();
@@ -208,9 +209,59 @@ const PatientDashboard = () => {
           medications: current.current_medications.map(m => m.name),
           allergies: current.allergies.map(a => a.allergen),
         }}
-        onSave={(newNote: ClinicalNote) => {
+        onSave={(newNote: ClinicalNote, approvedChanges: ProposedChange[]) => {
           const updated = JSON.parse(JSON.stringify(current)) as Patient;
           updated.clinical_notes = [newNote, ...updated.clinical_notes];
+
+          // Apply approved record changes
+          for (const change of approvedChanges) {
+            if (change.category === "medication") {
+              if (change.action === "add" && change.data.name) {
+                updated.current_medications.push({
+                  name: change.data.name,
+                  dosage: change.data.dosage || "",
+                  frequency: change.data.frequency || "",
+                  indication: change.data.indication,
+                  prescribed_at: new Date().toISOString().split("T")[0],
+                });
+              } else if (change.action === "remove" && change.data.name) {
+                updated.current_medications = updated.current_medications.filter(
+                  (m) => !m.name.toLowerCase().includes(change.data.name!.toLowerCase())
+                );
+              } else if (change.action === "update" && change.data.name) {
+                const med = updated.current_medications.find(
+                  (m) => m.name.toLowerCase().includes(change.data.name!.toLowerCase())
+                );
+                if (med) {
+                  if (change.data.dosage) med.dosage = change.data.dosage;
+                  if (change.data.frequency) med.frequency = change.data.frequency;
+                }
+              }
+            } else if (change.category === "diagnosis") {
+              if (change.action === "add" && change.data.name) {
+                updated.diagnoses.push({
+                  condition: change.data.name,
+                  icd_code: change.data.icd_code,
+                  status: (change.data.status as "active" | "resolved" | "chronic") || "active",
+                  date_diagnosed: new Date().toISOString().split("T")[0],
+                });
+              } else if (change.action === "remove" && change.data.name) {
+                const dx = updated.diagnoses.find(
+                  (d) => d.condition.toLowerCase().includes(change.data.name!.toLowerCase())
+                );
+                if (dx) dx.status = "resolved";
+              }
+            } else if (change.category === "allergy") {
+              if (change.action === "add" && change.data.name) {
+                updated.allergies.push({
+                  allergen: change.data.name,
+                  reaction: change.data.reaction,
+                  recorded_at: new Date().toISOString().split("T")[0],
+                });
+              }
+            }
+          }
+
           updatePatient.mutate(updated);
         }}
       />
