@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, User, Clock } from "lucide-react";
+import { ArrowLeft, User, Clock, FileText } from "lucide-react";
+import { generatePatientSummary } from "@/lib/patientSummary";
 import { getPatientById } from "@/data/mockPatients";
 import AppHeader from "@/components/AppHeader";
 import IdentityLayer from "@/components/layers/IdentityLayer";
@@ -63,6 +64,16 @@ const PatientDashboard = () => {
             {patient.state.activeDiagnoses.filter(d => d.severity === 'critical').map((d, i) => (
               <span key={i} className="clinical-badge-critical animate-pulse-critical">{d.name.split(',')[0]}</span>
             ))}
+          </div>
+        </div>
+
+        {/* Clinical Summary */}
+        <div className="mb-5 p-4 rounded-lg border border-border bg-card">
+          <div className="flex items-start gap-3">
+            <FileText className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+            <p className="text-sm text-foreground leading-relaxed">
+              {generatePatientSummary(patient)}
+            </p>
           </div>
         </div>
 
