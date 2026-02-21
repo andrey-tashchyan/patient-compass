@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Clock, Loader2 } from "lucide-react";
+import { ArrowLeft, Clock, Loader2, Pencil, Save, X, Plus, Trash2 } from "lucide-react";
 import { generatePatientSummary } from "@/lib/patientSummary";
 import { getPatientAge, Gender } from "@/types/patient";
+import type { Patient } from "@/types/patient";
 import AppHeader from "@/components/AppHeader";
 import DemographicsLayer from "@/components/layers/DemographicsLayer";
 import AllergiesLayer from "@/components/layers/AllergiesLayer";
@@ -12,11 +14,48 @@ import LabResultsLayer from "@/components/layers/LabResultsLayer";
 import ImagingLayer from "@/components/layers/ImagingLayer";
 import DiagnosticTestsLayer from "@/components/layers/DiagnosticTestsLayer";
 import { usePatient } from "@/hooks/usePatients";
+import { useUpdatePatient } from "@/hooks/useUpdatePatient";
+import { Button } from "@/components/ui/button";
 
 const PatientDashboard = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { patient, isLoading } = usePatient(id || "");
+  const updatePatient = useUpdatePatient();
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState<Patient | null>(null);
+
+  const startEditing = () => {
+    if (patient) {
+      setDraft(JSON.parse(JSON.stringify(patient)));
+      setEditing(true);
+    }
+  };
+
+  const cancelEditing = () => {
+    setEditing(false);
+    setDraft(null);
+  };
+
+  const saveEditing = () => {
+    if (draft) {
+      updatePatient.mutate(draft, {
+        onSuccess: () => {
+          setEditing(false);
+          setDraft(null);
+        },
+      });
+    }
+  };
+
+  const updateDraft = (updater: (d: Patient) => void) => {
+    setDraft((prev) => {
+      if (!prev) return prev;
+      const next = JSON.parse(JSON.stringify(prev));
+      updater(next);
+      return next;
+    });
+  };
 
   if (isLoading) {
     return (
@@ -42,9 +81,10 @@ const PatientDashboard = () => {
     );
   }
 
-  const age = getPatientAge(patient);
-  const genderLabel = patient.gender === Gender.MALE ? "Male" : patient.gender === Gender.FEMALE ? "Female" : "Other";
-  const activeDx = patient.diagnoses.filter(d => d.status === "active");
+  const current = editing && draft ? draft : patient;
+  const age = getPatientAge(current);
+  const genderLabel = current.gender === Gender.MALE ? "Male" : current.gender === Gender.FEMALE ? "Female" : "Other";
+  const activeDx = current.diagnoses.filter(d => d.status === "active");
 
   return (
     <div className="min-h-screen bg-background">
@@ -56,24 +96,41 @@ const PatientDashboard = () => {
             <button onClick={() => navigate("/")} className="p-2 -ml-2 rounded-lg hover:bg-accent transition-colors">
               <ArrowLeft className="h-4 w-4 text-muted-foreground" />
             </button>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <h1 className="text-2xl font-semibold text-foreground tracking-tight">
-                {patient.first_name} {patient.last_name}
+                {current.first_name} {current.last_name}
               </h1>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              {editing ? (
+                <>
+                  <Button size="sm" variant="ghost" onClick={cancelEditing} disabled={updatePatient.isPending}>
+                    <X className="h-4 w-4 mr-1" /> Cancel
+                  </Button>
+                  <Button size="sm" onClick={saveEditing} disabled={updatePatient.isPending}>
+                    {updatePatient.isPending ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Save className="h-4 w-4 mr-1" />}
+                    Save
+                  </Button>
+                </>
+              ) : (
+                <Button size="sm" variant="outline" onClick={startEditing}>
+                  <Pencil className="h-4 w-4 mr-1" /> Edit
+                </Button>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-3 text-[13px] text-muted-foreground ml-11 mb-3">
-              <span className="font-mono text-xs">{patient.medical_record_number}</span>
-              <span className="w-px h-3 bg-border" />
-              <span>{genderLabel}, {age} yrs</span>
-              <span className="w-px h-3 bg-border" />
-              <span>DOB {patient.date_of_birth}</span>
-              {patient.admission_date && (
-                <>
-                  <span className="w-px h-3 bg-border" />
-                  <span className="flex items-center gap-1"><Clock className="h-3 w-3" />Admitted {patient.admission_date}</span>
-                </>
-              )}
+            <span className="font-mono text-xs">{current.medical_record_number}</span>
+            <span className="w-px h-3 bg-border" />
+            <span>{genderLabel}, {age} yrs</span>
+            <span className="w-px h-3 bg-border" />
+            <span>DOB {current.date_of_birth}</span>
+            {current.admission_date && (
+              <>
+                <span className="w-px h-3 bg-border" />
+                <span className="flex items-center gap-1"><Clock className="h-3 w-3" />Admitted {current.admission_date}</span>
+              </>
+            )}
           </div>
           {activeDx.length > 0 && (
             <div className="flex flex-wrap gap-2 ml-11">
@@ -85,26 +142,35 @@ const PatientDashboard = () => {
         </div>
 
         {/* Clinical Summary */}
-        <div className="mb-8 px-5 py-4 rounded-xl bg-muted/40 border border-border">
-          <p className="text-[13px] text-foreground/80 leading-relaxed">
-            {generatePatientSummary(patient)}
-          </p>
-        </div>
+        {!editing && (
+          <div className="mb-8 px-5 py-4 rounded-xl bg-muted/40 border border-border">
+            <p className="text-[13px] text-foreground/80 leading-relaxed">
+              {generatePatientSummary(current)}
+            </p>
+          </div>
+        )}
 
         {/* Layers */}
         <div className="space-y-4">
-          <ClinicalNotesLayer notes={patient.clinical_notes} />
-          <DiagnosesLayer diagnoses={patient.diagnoses} />
-          <MedicationsLayer medications={patient.current_medications} />
-          <LabResultsLayer results={patient.lab_results} />
-          <AllergiesLayer allergies={patient.allergies} />
-          <ImagingLayer studies={patient.imaging_studies} />
-          <DiagnosticTestsLayer tests={patient.diagnostic_tests} />
+          <ClinicalNotesLayer notes={current.clinical_notes} editing={editing} onUpdate={(notes) => updateDraft(d => { d.clinical_notes = notes; })} />
+          <DiagnosesLayer diagnoses={current.diagnoses} editing={editing} onUpdate={(diagnoses) => updateDraft(d => { d.diagnoses = diagnoses; })} />
+          <MedicationsLayer medications={current.current_medications} editing={editing} onUpdate={(meds) => updateDraft(d => { d.current_medications = meds; })} />
+          <LabResultsLayer results={current.lab_results} editing={editing} onUpdate={(results) => updateDraft(d => { d.lab_results = results; })} />
+          <AllergiesLayer allergies={current.allergies} editing={editing} onUpdate={(allergies) => updateDraft(d => { d.allergies = allergies; })} />
+          <ImagingLayer studies={current.imaging_studies} editing={editing} onUpdate={(studies) => updateDraft(d => { d.imaging_studies = studies; })} />
+          <DiagnosticTestsLayer tests={current.diagnostic_tests} editing={editing} onUpdate={(tests) => updateDraft(d => { d.diagnostic_tests = tests; })} />
           <DemographicsLayer
-            contactInfo={patient.contact_info}
-            insurance={patient.insurance}
-            primaryCarePhysician={patient.primary_care_physician}
-            hospital={patient.hospital}
+            contactInfo={current.contact_info}
+            insurance={current.insurance}
+            primaryCarePhysician={current.primary_care_physician}
+            hospital={current.hospital}
+            editing={editing}
+            onUpdate={(updates) => updateDraft(d => {
+              if (updates.contactInfo) d.contact_info = updates.contactInfo;
+              if (updates.insurance) d.insurance = updates.insurance;
+              if (updates.primaryCarePhysician !== undefined) d.primary_care_physician = updates.primaryCarePhysician;
+              if (updates.hospital !== undefined) d.hospital = updates.hospital;
+            })}
           />
         </div>
 
