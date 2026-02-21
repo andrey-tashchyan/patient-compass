@@ -16,6 +16,7 @@ import DiagnosticTestsLayer from "@/components/layers/DiagnosticTestsLayer";
 import { usePatient } from "@/hooks/usePatients";
 import { useUpdatePatient } from "@/hooks/useUpdatePatient";
 import { Button } from "@/components/ui/button";
+import PatientChatPanel from "@/components/PatientChatPanel";
 
 const PatientDashboard = () => {
   const { id } = useParams<{ id: string }>();
@@ -181,6 +182,7 @@ const PatientDashboard = () => {
           </p>
         </div>
       </main>
+      <PatientChatPanel patient={current} updatePatient={updatePatient} />
     </div>
   );
 };
