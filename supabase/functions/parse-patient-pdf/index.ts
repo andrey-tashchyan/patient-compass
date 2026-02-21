@@ -11,8 +11,7 @@ const patientTool = {
   type: "function" as const,
   function: {
     name: "create_patient",
-    description:
-      "Create a structured patient record from extracted medical document text.",
+    description: "Create a structured patient record from extracted medical document text.",
     parameters: {
       type: "object",
       properties: {
@@ -35,10 +34,7 @@ const patientTool = {
         },
         insurance: {
           type: "object",
-          properties: {
-            provider: { type: "string" },
-            plan_type: { type: "string" },
-          },
+          properties: { provider: { type: "string" }, plan_type: { type: "string" } },
           required: ["provider", "plan_type"],
         },
         allergies: {
@@ -165,12 +161,10 @@ serve(async (req) => {
   }
 
   try {
-    // Auth check
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -185,33 +179,18 @@ serve(async (req) => {
     );
     if (claimsError || !claimsData?.claims) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const { pdfBase64 } = await req.json();
     if (!pdfBase64) {
       return new Response(JSON.stringify({ error: "Missing pdfBase64" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Decode PDF and extract text using pdf-parse
-    const pdfBytes = Uint8Array.from(atob(pdfBase64), (c) => c.charCodeAt(0));
-    const { default: pdfParse } = await import("npm:pdf-parse@1.1.1");
-    const pdfData = await pdfParse(pdfBytes);
-    const pdfText = pdfData.text;
-
-    if (!pdfText || pdfText.trim().length < 10) {
-      return new Response(
-        JSON.stringify({ error: "Could not extract meaningful text from the PDF." }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Call AI gateway with tool calling
+    // Send PDF directly to Gemini via multimodal content (no pdf-parse needed)
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
@@ -228,7 +207,7 @@ serve(async (req) => {
           messages: [
             {
               role: "system",
-              content: `You are a medical document parser. Extract ALL patient data from the provided text into the create_patient tool. Rules:
+              content: `You are a medical document parser. Extract ALL patient data from the provided PDF into the create_patient tool. Rules:
 - Generate a UUID for patient_id if not found (format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx)
 - Generate MRN like MRN-XXXXXXX if not found
 - Use empty arrays for sections with no data
@@ -239,7 +218,18 @@ serve(async (req) => {
             },
             {
               role: "user",
-              content: `Parse this medical document:\n\n${pdfText}`,
+              content: [
+                {
+                  type: "image_url",
+                  image_url: {
+                    url: `data:application/pdf;base64,${pdfBase64}`,
+                  },
+                },
+                {
+                  type: "text",
+                  text: "Parse this medical document PDF and extract all patient data using the create_patient tool.",
+                },
+              ],
             },
           ],
           tools: [patientTool],
