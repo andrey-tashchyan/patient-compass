@@ -3,6 +3,7 @@ import { ArrowRight, Users, Loader2 } from "lucide-react";
 import { getPatientAge } from "@/types/patient";
 import AppHeader from "@/components/AppHeader";
 import { usePatients } from "@/hooks/usePatients";
+import AddPatientDialog from "@/components/AddPatientDialog";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -18,7 +19,10 @@ const Index = () => {
         </div>
 
         <div>
-          <div className="clinical-label mb-4 flex items-center gap-2"><Users className="h-3.5 w-3.5" /> Patients</div>
+          <div className="clinical-label mb-4 flex items-center justify-between">
+            <span className="flex items-center gap-2"><Users className="h-3.5 w-3.5" /> Patients</span>
+            <AddPatientDialog />
+          </div>
 
           {isLoading ? (
             <div className="flex items-center justify-center py-16">
