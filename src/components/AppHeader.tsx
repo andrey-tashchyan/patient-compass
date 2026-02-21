@@ -1,4 +1,3 @@
-import PatientSearch from "./PatientSearch";
 import cliniviewLogo from "@/assets/cliniview-logo.png";
 import { useAuth } from "@/hooks/useAuth";
 import { LogOut } from "lucide-react";
@@ -13,7 +12,6 @@ const AppHeader = () => {
           <img src={cliniviewLogo} alt="CliniVIEW" className="h-16" />
         </a>
         <div className="flex items-center gap-3">
-          <PatientSearch />
           {user && (
             <button
               onClick={signOut}
