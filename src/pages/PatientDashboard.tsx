@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Clock, Download, Loader2, Mic, Pencil, Save, X, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Clock, Download, Loader2, Mic, Pencil, Pill, Save, X, Plus, Trash2 } from "lucide-react";
 import { exportPatientPdf } from "@/lib/exportPatientPdf";
 import { generatePatientSummary } from "@/lib/patientSummary";
 import { getPatientAge, Gender } from "@/types/patient";
@@ -119,6 +119,9 @@ const PatientDashboard = () => {
                 </>
               ) : (
                 <>
+                  <Button size="sm" variant="outline" onClick={() => navigate(`/patient/${id}/prescribe`)}>
+                    <Pill className="h-4 w-4 mr-1" /> Prescribe
+                  </Button>
                   <Button size="sm" variant="outline" onClick={() => setDictationOpen(true)}>
                     <Mic className="h-4 w-4 mr-1" /> Dictate Note
                   </Button>
