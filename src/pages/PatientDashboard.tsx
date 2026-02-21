@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Clock, Download, Loader2, Pencil, Save, X, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Clock, Download, Loader2, Mic, Pencil, Save, X, Plus, Trash2 } from "lucide-react";
 import { exportPatientPdf } from "@/lib/exportPatientPdf";
 import { generatePatientSummary } from "@/lib/patientSummary";
 import { getPatientAge, Gender } from "@/types/patient";
@@ -18,6 +18,8 @@ import { usePatient } from "@/hooks/usePatients";
 import { useUpdatePatient } from "@/hooks/useUpdatePatient";
 import { Button } from "@/components/ui/button";
 import PatientChatPanel from "@/components/PatientChatPanel";
+import VoiceDictation from "@/components/VoiceDictation";
+import type { ClinicalNote } from "@/types/patient";
 
 const PatientDashboard = () => {
   const { id } = useParams<{ id: string }>();
@@ -26,6 +28,7 @@ const PatientDashboard = () => {
   const updatePatient = useUpdatePatient();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<Patient | null>(null);
+  const [dictationOpen, setDictationOpen] = useState(false);
 
   const startEditing = () => {
     if (patient) {
@@ -116,6 +119,9 @@ const PatientDashboard = () => {
                 </>
               ) : (
                 <>
+                  <Button size="sm" variant="outline" onClick={() => setDictationOpen(true)}>
+                    <Mic className="h-4 w-4 mr-1" /> Dictate Note
+                  </Button>
                   <Button size="sm" variant="outline" onClick={() => exportPatientPdf(current)}>
                     <Download className="h-4 w-4 mr-1" /> Export PDF
                   </Button>
@@ -189,6 +195,22 @@ const PatientDashboard = () => {
         </div>
       </main>
       <PatientChatPanel patient={current} updatePatient={updatePatient} />
+      <VoiceDictation
+        open={dictationOpen}
+        onOpenChange={setDictationOpen}
+        patientContext={{
+          name: `${current.first_name} ${current.last_name}`,
+          age: age,
+          activeDiagnoses: activeDx.map(d => d.condition),
+          medications: current.current_medications.map(m => m.name),
+          allergies: current.allergies.map(a => a.allergen),
+        }}
+        onSave={(newNote: ClinicalNote) => {
+          const updated = JSON.parse(JSON.stringify(current)) as Patient;
+          updated.clinical_notes = [newNote, ...updated.clinical_notes];
+          updatePatient.mutate(updated);
+        }}
+      />
     </div>
   );
 };
