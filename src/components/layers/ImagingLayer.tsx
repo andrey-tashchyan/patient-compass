@@ -4,12 +4,12 @@ import type { ImagingStudy } from "@/types/patient";
 
 const ImagingLayer = ({ studies }: { studies: ImagingStudy[] }) => (
   <CollapsibleLayer
-    title="Imagerie"
+    title="Imaging Studies"
     icon={<Scan className="h-4 w-4" />}
     badge={<span className="clinical-badge-info">{studies.length}</span>}
   >
     {studies.length === 0 ? (
-      <p className="text-[13px] text-muted-foreground">Aucune étude d'imagerie.</p>
+      <p className="text-[13px] text-muted-foreground">No imaging studies.</p>
     ) : (
       <div className="space-y-3">
         {studies.map((s, i) => (
@@ -20,7 +20,7 @@ const ImagingLayer = ({ studies }: { studies: ImagingStudy[] }) => (
             </div>
             <div className="text-[12px] text-muted-foreground">{s.body_part}{s.radiologist && <> · {s.radiologist}</>}</div>
             <div className="text-[13px] text-data-value leading-relaxed">{s.findings}</div>
-            <div className="text-[12px] text-primary font-medium mt-1">Impression : {s.impression}</div>
+            <div className="text-[12px] text-primary font-medium mt-1">Impression: {s.impression}</div>
           </div>
         ))}
       </div>

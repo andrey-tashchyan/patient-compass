@@ -7,25 +7,25 @@ const LabResultsLayer = ({ results }: { results: LabResult[] }) => {
 
   return (
     <CollapsibleLayer
-      title="Résultats de laboratoire"
+      title="Lab Results"
       icon={<FlaskConical className="h-4 w-4" />}
       badge={
         flaggedCount > 0
-          ? <span className="clinical-badge-warning">{flaggedCount} anormal{flaggedCount > 1 ? 's' : ''}</span>
+          ? <span className="clinical-badge-warning">{flaggedCount} abnormal</span>
           : <span className="clinical-badge-normal">Normal</span>
       }
     >
       {results.length === 0 ? (
-        <p className="text-[13px] text-muted-foreground">Aucun résultat de laboratoire.</p>
+        <p className="text-[13px] text-muted-foreground">No lab results.</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-[13px]">
             <thead>
               <tr className="text-left border-b border-border">
-                <th className="clinical-label pb-2 pr-4">Examen</th>
-                <th className="clinical-label pb-2 pr-4">Résultat</th>
-                <th className="clinical-label pb-2 pr-4">Unité</th>
-                <th className="clinical-label pb-2 pr-4">Référence</th>
+                <th className="clinical-label pb-2 pr-4">Test</th>
+                <th className="clinical-label pb-2 pr-4">Result</th>
+                <th className="clinical-label pb-2 pr-4">Unit</th>
+                <th className="clinical-label pb-2 pr-4">Reference</th>
                 <th className="clinical-label pb-2">Date</th>
               </tr>
             </thead>

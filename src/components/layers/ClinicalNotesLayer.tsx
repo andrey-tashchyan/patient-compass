@@ -7,11 +7,11 @@ const VitalsInline = ({ vs }: { vs: NonNullable<ClinicalNote["vital_signs"]> }) 
   <div className="flex flex-wrap gap-3 mt-3 p-3 rounded-lg bg-muted/50 text-[12px]">
     <Activity className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
     {vs.blood_pressure_systolic && vs.blood_pressure_diastolic && (
-      <span><strong>PA</strong> {vs.blood_pressure_systolic}/{vs.blood_pressure_diastolic}</span>
+      <span><strong>BP</strong> {vs.blood_pressure_systolic}/{vs.blood_pressure_diastolic}</span>
     )}
-    {vs.heart_rate && <span><strong>FC</strong> {vs.heart_rate} bpm</span>}
-    {vs.temperature_fahrenheit && <span><strong>T°</strong> {vs.temperature_fahrenheit} °F</span>}
-    {vs.bmi && <span><strong>IMC</strong> {vs.bmi}</span>}
+    {vs.heart_rate && <span><strong>HR</strong> {vs.heart_rate} bpm</span>}
+    {vs.temperature_fahrenheit && <span><strong>Temp</strong> {vs.temperature_fahrenheit} °F</span>}
+    {vs.bmi && <span><strong>BMI</strong> {vs.bmi}</span>}
   </div>
 );
 
@@ -38,15 +38,15 @@ const NoteCard = ({ note }: { note: ClinicalNote }) => {
       {expanded && (
         <div className="px-5 pb-5 space-y-4 text-[13px]">
           <div>
-            <div className="clinical-label mb-1">Subjectif (S)</div>
+            <div className="clinical-label mb-1">Subjective (S)</div>
             <p className="text-data-value leading-relaxed">{note.subjective}</p>
           </div>
           <div>
-            <div className="clinical-label mb-1">Objectif (O)</div>
+            <div className="clinical-label mb-1">Objective (O)</div>
             <p className="text-data-value leading-relaxed">{note.objective}</p>
           </div>
           <div>
-            <div className="clinical-label mb-1">Évaluation (A)</div>
+            <div className="clinical-label mb-1">Assessment (A)</div>
             <p className="text-data-value leading-relaxed">{note.assessment}</p>
           </div>
           <div>
@@ -56,7 +56,7 @@ const NoteCard = ({ note }: { note: ClinicalNote }) => {
           {note.vital_signs && <VitalsInline vs={note.vital_signs} />}
           {note.follow_up_instructions && (
             <div className="p-3 rounded-lg bg-primary/5 text-[12px] text-primary">
-              <strong>Suivi :</strong> {note.follow_up_instructions}
+              <strong>Follow-up:</strong> {note.follow_up_instructions}
             </div>
           )}
         </div>
@@ -67,12 +67,12 @@ const NoteCard = ({ note }: { note: ClinicalNote }) => {
 
 const ClinicalNotesLayer = ({ notes }: { notes: ClinicalNote[] }) => (
   <CollapsibleLayer
-    title="Notes cliniques"
+    title="Clinical Notes"
     icon={<FileText className="h-4 w-4" />}
     badge={<span className="clinical-badge-info">{notes.length}</span>}
   >
     {notes.length === 0 ? (
-      <p className="text-[13px] text-muted-foreground">Aucune note clinique.</p>
+      <p className="text-[13px] text-muted-foreground">No clinical notes.</p>
     ) : (
       <div className="space-y-3">
         {notes.map((n, i) => (
