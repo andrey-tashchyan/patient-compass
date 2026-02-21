@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.patient-chat]
 verify_jwt = false
+
+[functions.structure-dictation]
+verify_jwt = false
