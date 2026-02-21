@@ -51,15 +51,18 @@ const PatientDashboard = () => {
       <AppHeader />
       <main className="container max-w-5xl py-10">
         {/* Patient Header */}
-        <div className="flex items-start gap-5 mb-8">
-          <button onClick={() => navigate("/")} className="p-2 -ml-2 rounded-lg hover:bg-accent transition-colors mt-1">
-            <ArrowLeft className="h-4 w-4 text-muted-foreground" />
-          </button>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-2xl font-semibold text-foreground tracking-tight mb-1.5">
-              {patient.first_name} {patient.last_name}
-            </h1>
-            <div className="flex items-center gap-3 text-[13px] text-muted-foreground">
+        <div className="mb-8">
+          <div className="flex items-center gap-5 mb-3">
+            <button onClick={() => navigate("/")} className="p-2 -ml-2 rounded-lg hover:bg-accent transition-colors">
+              <ArrowLeft className="h-4 w-4 text-muted-foreground" />
+            </button>
+            <div className="min-w-0">
+              <h1 className="text-2xl font-semibold text-foreground tracking-tight">
+                {patient.first_name} {patient.last_name}
+              </h1>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 text-[13px] text-muted-foreground ml-11 mb-3">
               <span className="font-mono text-xs">{patient.medical_record_number}</span>
               <span className="w-px h-3 bg-border" />
               <span>{genderLabel}, {age} yrs</span>
@@ -71,13 +74,14 @@ const PatientDashboard = () => {
                   <span className="flex items-center gap-1"><Clock className="h-3 w-3" />Admitted {patient.admission_date}</span>
                 </>
               )}
+          </div>
+          {activeDx.length > 0 && (
+            <div className="flex flex-wrap gap-2 ml-11">
+              {activeDx.map((d, i) => (
+                <span key={i} className="clinical-badge-warning">{d.condition.split(',')[0]}</span>
+              ))}
             </div>
-          </div>
-          <div className="flex flex-wrap gap-2 shrink-0">
-            {activeDx.map((d, i) => (
-              <span key={i} className="clinical-badge-warning">{d.condition.split(',')[0]}</span>
-            ))}
-          </div>
+          )}
         </div>
 
         {/* Clinical Summary */}
