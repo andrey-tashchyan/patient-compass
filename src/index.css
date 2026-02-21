@@ -168,64 +168,61 @@
   }
 
   .clinical-badge-critical {
-    background: hsl(var(--clinical-critical) / 0.08);
+    background: hsl(var(--clinical-critical) / 0.07);
     color: hsl(var(--clinical-critical));
-    @apply text-[11px] font-semibold px-2 py-0.5 rounded-full;
+    @apply text-[11px] font-medium px-2.5 py-1 rounded-full;
   }
 
   .clinical-badge-warning {
-    background: hsl(var(--clinical-warning) / 0.08);
+    background: hsl(var(--clinical-warning) / 0.07);
     color: hsl(var(--clinical-warning));
-    @apply text-[11px] font-semibold px-2 py-0.5 rounded-full;
+    @apply text-[11px] font-medium px-2.5 py-1 rounded-full;
   }
 
   .clinical-badge-normal {
-    background: hsl(var(--clinical-normal) / 0.08);
+    background: hsl(var(--clinical-normal) / 0.07);
     color: hsl(var(--clinical-normal));
-    @apply text-[11px] font-semibold px-2 py-0.5 rounded-full;
+    @apply text-[11px] font-medium px-2.5 py-1 rounded-full;
   }
 
   .clinical-badge-info {
-    background: hsl(var(--clinical-info) / 0.08);
+    background: hsl(var(--clinical-info) / 0.07);
     color: hsl(var(--clinical-info));
-    @apply text-[11px] font-semibold px-2 py-0.5 rounded-full;
+    @apply text-[11px] font-medium px-2.5 py-1 rounded-full;
   }
 
   .clinical-badge-muted {
     background: hsl(var(--muted));
     color: hsl(var(--clinical-muted));
-    @apply text-[11px] font-semibold px-2 py-0.5 rounded-full;
+    @apply text-[11px] font-medium px-2.5 py-1 rounded-full;
   }
 
   .layer-section {
-    @apply border rounded-lg overflow-hidden;
-    border-color: hsl(var(--layer-border));
+    @apply rounded-xl overflow-hidden;
+    border: 1px solid hsl(var(--layer-border));
   }
 
   .layer-header {
-    background: hsl(var(--layer-header));
     color: hsl(var(--layer-header-foreground));
-    @apply px-5 py-3.5 flex items-center justify-between cursor-pointer select-none;
+    @apply px-6 py-4 flex items-center justify-between cursor-pointer select-none bg-transparent;
   }
 
   .layer-content {
-    @apply p-5;
+    @apply px-6 pb-6 pt-2;
   }
 
   .data-grid {
-    @apply grid gap-3;
+    @apply grid gap-4;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 
   .data-card {
-    @apply rounded-lg p-3.5;
-    background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
+    @apply rounded-lg p-4;
+    background: hsl(var(--muted) / 0.5);
   }
 
   .vital-card {
-    @apply rounded-lg p-3.5 text-center;
-    background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
+    @apply rounded-xl p-4 text-center;
+    background: hsl(var(--muted) / 0.5);
   }
 }
