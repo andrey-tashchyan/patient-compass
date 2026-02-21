@@ -1,62 +1,75 @@
 
 
-## Refactor Patient Data to New Schema
+## Add Authentication and Database-Backed Patient Data
 
-This plan replaces the current custom patient data model with the standardized medical record schema you provided, and rebuilds every frontend layer to match.
+This plan adds a login/signup page, stores patient data in the database, and loads patients from the backend instead of mock data.
 
-### What changes
+### What you'll get
 
-**Current state**: Patient data is split across deeply nested interfaces (Identity, State, History, Interventions, Assessments, Network) with custom structures for vitals, labs, timeline events, etc.
+1. A simple login/signup page at `/auth` with email and password
+2. A `patients` database table storing the full Patient data structure as JSONB
+3. Protected routes -- unauthenticated users are redirected to `/auth`
+4. Patient list and detail pages load data from the database
+5. Mock patients are seeded into the database on first login (so you have data to work with immediately)
 
-**Target state**: A flat Patient root model with typed arrays for Allergies, Medications, Diagnoses, ClinicalNotes (SOAP), LabResults (with CBC/Lipid/Chemistry subtypes), ImagingStudies, and DiagnosticTests.
+### How it works
 
-### Layers removed
-- Network Layer (care team, facilities, info exchange) -- not in new schema
-- Vaccination Layer -- not in new schema
-- History Layer (timeline, exposures, family history) -- replaced by ClinicalNotes and Diagnoses
-
-### New layers on the dashboard
-1. **Demographics** -- patient header with name, DOB, age, gender, contact info, insurance, PCP, hospital
-2. **Allergies** -- table with allergen, reaction, status (confirmed/suspected/denied)
-3. **Medications** -- active medications with dosage, frequency, indication
-4. **Diagnoses** -- conditions with ICD codes, status (active/resolved/chronic), date diagnosed
-5. **Clinical Notes** -- SOAP-format notes with expandable detail (subjective/objective/assessment/plan), vital signs inline
-6. **Lab Results** -- base results with flagged indicators + specialized panels (CBC, Lipid, Chemistry) shown as sub-sections
-7. **Imaging Studies** -- study type, body part, findings, impression, radiologist
-8. **Diagnostic Tests** -- test type, findings, interpretation
+- The `patients` table has columns: `id`, `user_id` (owner), `patient_data` (JSONB holding the full Patient object), and `created_at`
+- Each user sees only their own patients (enforced by Row Level Security)
+- On first login, if a user has zero patients, the app seeds the 3 mock patients into their account
+- The existing dashboard and detail pages are rewired to fetch from the database using React Query
 
 ### Technical details
 
+**Database migration (1 table + RLS):**
+```sql
+CREATE TABLE public.patients (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID NOT NULL,
+  patient_data JSONB NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE public.patients ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own patients"
+  ON public.patients FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own patients"
+  ON public.patients FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own patients"
+  ON public.patients FOR UPDATE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own patients"
+  ON public.patients FOR DELETE
+  USING (auth.uid() = user_id);
+```
+
 **Files to create:**
-- `src/types/patient.ts` -- All TypeScript interfaces and enums (Gender, AllergyStatus, ContactInfo, Insurance, Allergy, Medication, VitalSigns, ClinicalNote, Diagnosis, LabResult, CompleteBloodCount, LipidPanel, ChemistryPanel, ImagingStudy, DiagnosticTest, Patient) plus helper methods (age, getActiveDiagnoses, getRecentLabs)
-- `src/data/mockPatientData.ts` -- 3 mock patients using the new schema, mapped from existing clinical scenarios (P-001 CHF patient, P-002 thyroid patient, P-003 geriatric patient)
-- `src/components/layers/DemographicsLayer.tsx` -- Contact info and insurance display
-- `src/components/layers/AllergiesLayer.tsx` -- Allergy table
-- `src/components/layers/MedicationsLayer.tsx` -- Medication list
-- `src/components/layers/DiagnosesLayer.tsx` -- Diagnosis cards with ICD codes and status badges
-- `src/components/layers/ClinicalNotesLayer.tsx` -- Expandable SOAP notes with inline vitals
-- `src/components/layers/LabResultsLayer.tsx` -- Lab results table with flagged indicators and specialized panel sub-views
-- `src/components/layers/ImagingLayer.tsx` -- Imaging study cards
-- `src/components/layers/DiagnosticTestsLayer.tsx` -- Diagnostic test cards
+- `src/pages/Auth.tsx` -- Login/signup page with email + password, toggling between sign-in and sign-up modes. Clean, minimal design matching the existing clinical aesthetic.
+- `src/hooks/useAuth.ts` -- Auth context/hook providing `user`, `loading`, `signOut` via `onAuthStateChange` listener.
+- `src/hooks/usePatients.ts` -- React Query hooks (`usePatients`, `usePatient`) that fetch from the `patients` table and map `patient_data` back to the `Patient` type. Includes auto-seed logic.
 
 **Files to modify:**
-- `src/pages/PatientDashboard.tsx` -- Replace all layer imports and rewire to new Patient type; update header to use new flat fields (first_name, last_name, gender, date_of_birth); update summary generation
-- `src/lib/patientSummary.ts` -- Rewrite to work with new Patient model (use diagnoses, current_medications, clinical_notes)
-
-**Files to delete:**
-- `src/data/mockPatients.ts` -- replaced by mockPatientData.ts
-- `src/data/mockEncounters.ts` -- encounters folded into ClinicalNotes
-- `src/data/mockVaccinations.ts` -- removed from schema
-- `src/components/layers/IdentityLayer.tsx` -- replaced by DemographicsLayer
-- `src/components/layers/HistoryLayer.tsx` -- replaced by ClinicalNotesLayer + DiagnosesLayer
-- `src/components/layers/VaccinationLayer.tsx` -- removed
-- `src/components/layers/NetworkLayer.tsx` -- removed
-- `src/components/layers/EncountersLayer.tsx` -- folded into ClinicalNotesLayer
+- `src/App.tsx` -- Add `/auth` route. Wrap routes in an auth guard that redirects unauthenticated users to `/auth`.
+- `src/pages/Index.tsx` -- Replace `mockPatients` import with `usePatients()` hook. Show loading/empty states.
+- `src/pages/PatientDashboard.tsx` -- Replace `getPatientById` with `usePatient(id)` hook. Show loading state.
+- `src/components/PatientSearch.tsx` -- Accept patients as a prop or use the `usePatients` hook instead of importing mock data.
+- `src/components/AppHeader.tsx` -- Add a sign-out button using the auth hook.
 
 **Files kept as-is:**
-- `src/components/CollapsibleLayer.tsx` -- reused by all new layers
-- All UI primitives, CSS, AppHeader, PatientSearch (updated imports only)
-- `src/components/PatientSearch.tsx` -- updated to search on new fields (first_name, last_name, medical_record_number)
+- All layer components (DemographicsLayer, AllergiesLayer, etc.) -- they already accept typed props
+- `src/types/patient.ts` -- unchanged
+- `src/data/mockPatientData.ts` -- kept for seeding purposes only
+- All UI primitives, CSS
 
-All new layers will reuse the existing `CollapsibleLayer` component and the clinical badge/data-card CSS utilities already defined in `index.css`.
+**Design decisions:**
+- JSONB storage for patient data keeps the schema simple and flexible -- the full Patient object is stored as one document per patient
+- The `user_id` column + RLS ensures complete data isolation between users
+- Auto-seeding mock data on first login gives an immediate working experience
+- Email confirmation is required (not auto-confirmed) per security best practices
 
