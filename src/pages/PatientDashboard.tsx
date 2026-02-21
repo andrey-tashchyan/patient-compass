@@ -4,7 +4,6 @@ import { generatePatientSummary } from "@/lib/patientSummary";
 import { getPatientById } from "@/data/mockPatients";
 import AppHeader from "@/components/AppHeader";
 import IdentityLayer from "@/components/layers/IdentityLayer";
-import StateLayer from "@/components/layers/StateLayer";
 import HistoryLayer from "@/components/layers/HistoryLayer";
 import EncountersLayer from "@/components/layers/EncountersLayer";
 import InterventionLayer from "@/components/layers/InterventionLayer";
@@ -81,7 +80,6 @@ const PatientDashboard = () => {
         <div className="space-y-4">
           <EncountersLayer patientId={patient.id} />
           <IdentityLayer identity={patient.identity} />
-          <StateLayer state={patient.state} />
           <HistoryLayer history={patient.history} />
           <InterventionLayer interventions={patient.interventions} />
           <AssessmentLayer assessments={patient.assessments} />

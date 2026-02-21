@@ -1,4 +1,4 @@
-import { Activity } from "lucide-react";
+import { Eye } from "lucide-react";
 import PatientSearch from "./PatientSearch";
 
 const AppHeader = () => {
@@ -7,9 +7,11 @@ const AppHeader = () => {
       <div className="container flex items-center justify-between h-14 gap-4">
         <div className="flex items-center gap-2.5 shrink-0">
           <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
-            <Activity className="h-3.5 w-3.5 text-primary-foreground" />
+            <Eye className="h-3.5 w-3.5 text-primary-foreground" />
           </div>
-          <span className="font-semibold text-sm tracking-tight text-foreground">Clinical Data Layer</span>
+          <span className="font-semibold text-sm tracking-tight text-foreground">
+            Clini<span className="text-primary">VIEW</span>
+          </span>
         </div>
         <PatientSearch />
       </div>
