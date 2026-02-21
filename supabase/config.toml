@@ -2,3 +2,6 @@ project_id = "lidwuxrzjbgzybojugcu"
 
 [functions.parse-patient-pdf]
 verify_jwt = false
+
+[functions.patient-chat]
+verify_jwt = false
