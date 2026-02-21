@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { FileText, ChevronDown, ChevronRight, Activity } from "lucide-react";
+import { FileText, ChevronDown, ChevronRight, Activity, Plus, Trash2 } from "lucide-react";
 import CollapsibleLayer from "../CollapsibleLayer";
 import type { ClinicalNote } from "@/types/patient";
+import { EditableText } from "../EditableField";
+import { Button } from "@/components/ui/button";
 
 const VitalsInline = ({ vs }: { vs: NonNullable<ClinicalNote["vital_signs"]> }) => (
   <div className="flex flex-wrap gap-3 mt-3 p-3 rounded-lg bg-muted/50 text-[12px]">
@@ -15,8 +17,19 @@ const VitalsInline = ({ vs }: { vs: NonNullable<ClinicalNote["vital_signs"]> }) 
   </div>
 );
 
-const NoteCard = ({ note }: { note: ClinicalNote }) => {
+interface NoteCardProps {
+  note: ClinicalNote;
+  editing?: boolean;
+  onChange?: (note: ClinicalNote) => void;
+  onRemove?: () => void;
+}
+
+const NoteCard = ({ note, editing, onChange, onRemove }: NoteCardProps) => {
   const [expanded, setExpanded] = useState(false);
+
+  const update = (field: keyof ClinicalNote, value: string) => {
+    onChange?.({ ...note, [field]: value });
+  };
 
   return (
     <div className="layer-section">
@@ -33,30 +46,58 @@ const NoteCard = ({ note }: { note: ClinicalNote }) => {
             {note.chief_complaint && <> — {note.chief_complaint}</>}
           </div>
         </div>
+        {editing && (
+          <div onClick={(e) => e.stopPropagation()}>
+            <button onClick={onRemove} className="p-1 text-muted-foreground hover:text-destructive transition-colors">
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
       </button>
 
       {expanded && (
-        <div className="px-5 pb-5 space-y-4 text-[13px]">
+        <div className="px-5 pb-5 space-y-4 text-[13px]" onClick={(e) => e.stopPropagation()}>
+          {editing && (
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <div className="clinical-label mb-1">Note Type</div>
+                <EditableText value={note.note_type} editing onChange={(v) => update("note_type", v)} placeholder="Note type" />
+              </div>
+              <div>
+                <div className="clinical-label mb-1">Date</div>
+                <EditableText value={note.date_of_service} editing onChange={(v) => update("date_of_service", v)} placeholder="Date" />
+              </div>
+              <div>
+                <div className="clinical-label mb-1">Provider</div>
+                <EditableText value={note.provider_name} editing onChange={(v) => update("provider_name", v)} placeholder="Provider" />
+              </div>
+              <div>
+                <div className="clinical-label mb-1">Credentials</div>
+                <EditableText value={note.provider_credentials} editing onChange={(v) => update("provider_credentials", v)} placeholder="Credentials" />
+              </div>
+            </div>
+          )}
           <div>
             <div className="clinical-label mb-1">Subjective (S)</div>
-            <p className="text-data-value leading-relaxed">{note.subjective}</p>
+            <EditableText value={note.subjective} editing={!!editing} onChange={(v) => update("subjective", v)} className="text-data-value leading-relaxed" multiline={editing} />
           </div>
           <div>
             <div className="clinical-label mb-1">Objective (O)</div>
-            <p className="text-data-value leading-relaxed">{note.objective}</p>
+            <EditableText value={note.objective} editing={!!editing} onChange={(v) => update("objective", v)} className="text-data-value leading-relaxed" multiline={editing} />
           </div>
           <div>
             <div className="clinical-label mb-1">Assessment (A)</div>
-            <p className="text-data-value leading-relaxed">{note.assessment}</p>
+            <EditableText value={note.assessment} editing={!!editing} onChange={(v) => update("assessment", v)} className="text-data-value leading-relaxed" multiline={editing} />
           </div>
           <div>
             <div className="clinical-label mb-1">Plan (P)</div>
-            <p className="text-data-value leading-relaxed">{note.plan}</p>
+            <EditableText value={note.plan} editing={!!editing} onChange={(v) => update("plan", v)} className="text-data-value leading-relaxed" multiline={editing} />
           </div>
           {note.vital_signs && <VitalsInline vs={note.vital_signs} />}
-          {note.follow_up_instructions && (
-            <div className="p-3 rounded-lg bg-primary/5 text-[12px] text-primary">
-              <strong>Follow-up:</strong> {note.follow_up_instructions}
+          {(note.follow_up_instructions || editing) && (
+            <div>
+              <div className="clinical-label mb-1">Follow-up</div>
+              <EditableText value={note.follow_up_instructions || ""} editing={!!editing} onChange={(v) => update("follow_up_instructions", v)} className="text-[12px] text-primary" placeholder="Follow-up instructions" />
             </div>
           )}
         </div>
@@ -65,22 +106,58 @@ const NoteCard = ({ note }: { note: ClinicalNote }) => {
   );
 };
 
-const ClinicalNotesLayer = ({ notes }: { notes: ClinicalNote[] }) => (
-  <CollapsibleLayer
-    title="Clinical Notes"
-    icon={<FileText className="h-4 w-4" />}
-    badge={<span className="clinical-badge-info">{notes.length}</span>}
-  >
-    {notes.length === 0 ? (
-      <p className="text-[13px] text-muted-foreground">No clinical notes.</p>
-    ) : (
-      <div className="space-y-3">
-        {notes.map((n, i) => (
-          <NoteCard key={i} note={n} />
-        ))}
-      </div>
-    )}
-  </CollapsibleLayer>
-);
+interface Props {
+  notes: ClinicalNote[];
+  editing?: boolean;
+  onUpdate?: (notes: ClinicalNote[]) => void;
+}
+
+const ClinicalNotesLayer = ({ notes, editing, onUpdate }: Props) => {
+  const updateNote = (index: number, note: ClinicalNote) => {
+    const next = [...notes];
+    next[index] = note;
+    onUpdate?.(next);
+  };
+
+  const addItem = () => {
+    onUpdate?.([...notes, {
+      note_type: "Progress Note",
+      date_of_service: new Date().toISOString().split("T")[0],
+      provider_name: "",
+      provider_credentials: "",
+      subjective: "",
+      objective: "",
+      assessment: "",
+      plan: "",
+    }]);
+  };
+
+  const removeItem = (index: number) => {
+    onUpdate?.(notes.filter((_, i) => i !== index));
+  };
+
+  return (
+    <CollapsibleLayer
+      title="Clinical Notes"
+      icon={<FileText className="h-4 w-4" />}
+      badge={<span className="clinical-badge-info">{notes.length}</span>}
+    >
+      {notes.length === 0 && !editing ? (
+        <p className="text-[13px] text-muted-foreground">No clinical notes.</p>
+      ) : (
+        <div className="space-y-3">
+          {notes.map((n, i) => (
+            <NoteCard key={i} note={n} editing={editing} onChange={(note) => updateNote(i, note)} onRemove={() => removeItem(i)} />
+          ))}
+        </div>
+      )}
+      {editing && (
+        <Button variant="ghost" size="sm" className="mt-3 text-[12px]" onClick={addItem}>
+          <Plus className="h-3.5 w-3.5 mr-1" /> Add Note
+        </Button>
+      )}
+    </CollapsibleLayer>
+  );
+};
 
 export default ClinicalNotesLayer;
