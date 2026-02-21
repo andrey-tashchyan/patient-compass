@@ -16,10 +16,10 @@ const CollapsibleLayer = ({ title, icon, badge, defaultOpen = true, children }: 
   return (
     <div className="layer-section">
       <button className="layer-header w-full" onClick={() => setIsOpen(!isOpen)}>
-        <div className="flex items-center gap-2.5">
-          {isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
-          <span className="text-muted-foreground">{icon}</span>
-          <span className="text-sm font-semibold tracking-wide uppercase">{title}</span>
+        <div className="flex items-center gap-3">
+          {isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground/60" /> : <ChevronRight className="h-4 w-4 text-muted-foreground/60" />}
+          <span className="text-muted-foreground/70">{icon}</span>
+          <span className="text-[13px] font-semibold tracking-wide uppercase text-foreground/70">{title}</span>
         </div>
         {badge && <div>{badge}</div>}
       </button>
