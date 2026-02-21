@@ -1,17 +1,26 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import cliniviewLogo from "@/assets/cliniview-logo.png";
 
 const Auth = () => {
+  const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) navigate("/", { replace: true });
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +42,7 @@ const Auth = () => {
         password,
       });
       if (signInError) setError(signInError.message);
+      else navigate("/", { replace: true });
     }
 
     setLoading(false);
