@@ -1,90 +1,55 @@
 
 
-## Patient AI Chat Agent
+## Export Patient Record as Structured PDF
 
-Add a collapsible chat panel to the patient dashboard (`/patient/[id]`) that lets doctors ask natural language questions about the patient's data, and instruct the AI to edit or delete specific fields -- all without leaving the page.
+Add an "Export PDF" button to the patient dashboard header that generates a clean, structured PDF document containing the full patient record -- entirely on the client side using the `jspdf` library.
 
 ### What you'll get
 
-1. A floating "Ask AI" button in the bottom-right corner of the patient dashboard
-2. A slide-up chat panel with message history, streaming AI responses rendered in markdown
-3. The AI has full read access to the patient's structured data and can answer questions like:
-   - "What are the active diagnoses?"
-   - "When was the last CBC performed?"
-   - "List all medications and their dosages"
-4. The AI can modify data when instructed:
-   - "Add allergy to penicillin with anaphylaxis reaction"
-   - "Change metformin dosage to 1000mg twice daily"
-   - "Remove the resolved diagnosis of acute bronchitis"
-   - "Update the emergency contact phone to 555-1234"
-5. Changes are persisted to the database immediately and the UI refreshes
+1. An "Export PDF" button next to the Edit button in the patient header
+2. A well-structured, multi-page PDF containing all patient data organized by section:
+   - Header with patient name, MRN, DOB, gender, age
+   - Clinical summary
+   - Diagnoses (with ICD codes, status, date)
+   - Medications (name, dosage, frequency, indication)
+   - Allergies (allergen, reaction, status)
+   - Lab Results (test, result, unit, reference range, flagged)
+   - Imaging Studies (type, body part, findings, impression)
+   - Diagnostic Tests (type, findings, interpretation)
+   - Clinical Notes (SOAP format per note)
+   - Demographics and contact info
+   - Insurance details
+3. Automatic page breaks and consistent formatting
+4. File named `PatientRecord_LastName_FirstName_Date.pdf`
 
 ### How it works
 
-```text
-Doctor types question or instruction
-           |
-           v
-Frontend sends message + full patient_data JSON
-to "patient-chat" edge function
-           |
-           v
-Edge function builds prompt with patient context
-and sends to AI (google/gemini-3-flash-preview)
-with two tools: "answer_question" and "modify_patient"
-           |
-           v
-If AI calls "answer_question":
-  -> Return text answer, display in chat
-           |
-If AI calls "modify_patient":
-  -> Return updated patient JSON
-  -> Frontend saves to DB via existing useUpdatePatient hook
-  -> UI refreshes, confirmation shown in chat
-```
+- Uses `jspdf` (lightweight, no server needed) to build the PDF entirely in the browser
+- A utility function `generatePatientPdf(patient)` handles all the layout logic
+- Each section is rendered as a labeled block with tabular or list formatting
+- Automatic page-break detection: if content would overflow, a new page is added
 
 ### Technical details
 
-**New edge function: `supabase/functions/patient-chat/index.ts`**
+**New dependency:** `jspdf`
 
-- Accepts POST with `{ messages: [...], patientData: Patient }`
-- Streams the response back via SSE for real-time token rendering
-- System prompt includes the full patient JSON as context and instructions on the two tools
-- Two tools available to the AI:
-  - `answer_question` -- returns `{ answer: string }` for read-only queries
-  - `modify_patient` -- returns `{ updated_patient: Patient, summary: string }` for edits/deletes
-- The `modify_patient` tool receives the entire patient object so the AI can make precise changes and return the full updated object
-- Handles 429 (rate limit) and 402 (credits) errors
+**New file: `src/lib/exportPatientPdf.ts`**
 
-**New component: `src/components/PatientChatPanel.tsx`**
-
-- Floating button with chat icon, expands to a panel (400px wide, docked bottom-right)
-- Message list with markdown rendering (using a simple markdown-to-JSX approach with prose styles)
-- Input field with send button, disabled while streaming
-- When AI returns a `modify_patient` tool call:
-  - Calls `updatePatient.mutate()` with the new patient data
-  - Shows a confirmation message in chat: "Updated: [summary]"
-  - React Query invalidates and the dashboard data refreshes
-- Conversation history maintained in component state (resets on page leave)
+- Contains `exportPatientPdf(patient: Patient)` function
+- Builds the PDF using jsPDF's text API with manual Y-cursor tracking
+- Sections: Patient Header, Diagnoses, Medications, Allergies, Lab Results, Imaging, Diagnostic Tests, Clinical Notes, Demographics/Insurance
+- Auto page-break when Y position exceeds page height minus margin
+- Downloads the file automatically via `doc.save()`
 
 **Modified file: `src/pages/PatientDashboard.tsx`**
 
-- Import and render `PatientChatPanel`, passing current patient data and the update mutation
+- Add a "Export PDF" button (with `Download` icon from lucide) next to the Edit button
+- Calls `exportPatientPdf(current)` on click
 
-**Update `supabase/config.toml`**
-
-- Register the `patient-chat` function with `verify_jwt = false`
-
-### New files
-
-| File | Purpose |
-|------|---------|
-| `supabase/functions/patient-chat/index.ts` | Edge function: streams AI responses with tool calling |
-| `src/components/PatientChatPanel.tsx` | Chat UI component with streaming + edit capability |
-
-### Modified files
+### Files
 
 | File | Change |
 |------|--------|
-| `src/pages/PatientDashboard.tsx` | Add PatientChatPanel to the page |
-| `supabase/config.toml` | Register patient-chat function |
+| `src/lib/exportPatientPdf.ts` | New -- PDF generation utility |
+| `src/pages/PatientDashboard.tsx` | Add Export PDF button |
+| `package.json` | Add `jspdf` dependency |
