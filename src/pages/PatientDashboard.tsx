@@ -2,12 +2,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, User, Clock, FileText } from "lucide-react";
 import { generatePatientSummary } from "@/lib/patientSummary";
 import { getPatientById } from "@/data/mockPatients";
+import { vaccinationsByPatient } from "@/data/mockVaccinations";
 import AppHeader from "@/components/AppHeader";
 import IdentityLayer from "@/components/layers/IdentityLayer";
 import HistoryLayer from "@/components/layers/HistoryLayer";
 import EncountersLayer from "@/components/layers/EncountersLayer";
-import InterventionLayer from "@/components/layers/InterventionLayer";
-import AssessmentLayer from "@/components/layers/AssessmentLayer";
+import VaccinationLayer from "@/components/layers/VaccinationLayer";
 import NetworkLayer from "@/components/layers/NetworkLayer";
 
 const PatientDashboard = () => {
@@ -81,8 +81,7 @@ const PatientDashboard = () => {
           <EncountersLayer patientId={patient.id} />
           <IdentityLayer identity={patient.identity} />
           <HistoryLayer history={patient.history} />
-          <InterventionLayer interventions={patient.interventions} />
-          <AssessmentLayer assessments={patient.assessments} />
+          <VaccinationLayer vaccinations={vaccinationsByPatient[patient.id] || []} />
           <NetworkLayer network={patient.network} />
         </div>
 
