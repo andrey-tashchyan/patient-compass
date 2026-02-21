@@ -21,7 +21,9 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const systemPrompt = `You are a clinical documentation specialist. You will receive a raw voice dictation from a doctor describing a patient encounter. Your job is to structure it into a complete SOAP clinical note using the create_clinical_note tool.
+    const systemPrompt = `You are a clinical documentation specialist. You will receive a raw voice dictation from a doctor describing a patient encounter. Your job is to:
+1. Structure the dictation into a complete SOAP clinical note
+2. Detect any actionable changes to the patient's record mentioned in the dictation
 
 Patient context:
 - Name: ${patientContext?.name || "Unknown"}
@@ -30,15 +32,22 @@ Patient context:
 - Current medications: ${patientContext?.medications?.join(", ") || "None listed"}
 - Known allergies: ${patientContext?.allergies?.join(", ") || "NKDA"}
 
-Rules:
-- Separate subjective complaints (what the patient reports) from objective findings (exam findings, vitals, test results)
-- If vitals are mentioned (e.g. "BP 120/80", "heart rate 72", "temp 98.6"), extract them into the vital_signs object
-- Formulate a clear assessment with differential diagnoses if applicable
-- Create an actionable plan with specific next steps
-- Infer the chief_complaint from the dictation
-- Set note_type to the most appropriate type (e.g. "Progress Note", "Follow-Up", "New Patient", "Urgent Care")
-- Set date_of_service to today's date: ${new Date().toISOString().split("T")[0]}
-- Use professional clinical language`;
+Rules for the SOAP note:
+- Separate subjective complaints from objective findings
+- If vitals are mentioned, extract them into vital_signs
+- Formulate a clear assessment and actionable plan
+- Infer chief_complaint from the dictation
+- Set note_type appropriately (e.g. "Progress Note", "Follow-Up")
+- Set date_of_service to today: ${new Date().toISOString().split("T")[0]}
+- Use professional clinical language
+
+Rules for detecting proposed changes:
+- Look for medication changes: starting new meds, stopping/discontinuing meds, dosage changes
+- Look for new diagnoses or resolved diagnoses
+- Look for new allergies discovered
+- Each change must have a category, action, and description
+- Only include changes that are explicitly stated or strongly implied
+- Do NOT fabricate changes not supported by the dictation`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -56,21 +65,21 @@ Rules:
           {
             type: "function",
             function: {
-              name: "create_clinical_note",
-              description: "Create a structured SOAP clinical note from dictation",
+              name: "create_clinical_note_with_changes",
+              description: "Create a structured SOAP clinical note and detect proposed patient record changes",
               parameters: {
                 type: "object",
                 properties: {
-                  note_type: { type: "string", description: "Type of clinical note (e.g. Progress Note, Follow-Up)" },
-                  date_of_service: { type: "string", description: "Date in YYYY-MM-DD format" },
-                  provider_name: { type: "string", description: "Provider name if mentioned, otherwise 'Dictating Provider'" },
-                  provider_credentials: { type: "string", description: "Provider credentials if mentioned, otherwise 'MD'" },
-                  chief_complaint: { type: "string", description: "Primary reason for the visit" },
-                  subjective: { type: "string", description: "Patient's reported symptoms, history, and complaints" },
-                  objective: { type: "string", description: "Physical exam findings, observations, test results" },
-                  assessment: { type: "string", description: "Clinical assessment and diagnoses" },
-                  plan: { type: "string", description: "Treatment plan and next steps" },
-                  follow_up_instructions: { type: "string", description: "Follow-up timing and instructions" },
+                  note_type: { type: "string" },
+                  date_of_service: { type: "string" },
+                  provider_name: { type: "string" },
+                  provider_credentials: { type: "string" },
+                  chief_complaint: { type: "string" },
+                  subjective: { type: "string" },
+                  objective: { type: "string" },
+                  assessment: { type: "string" },
+                  plan: { type: "string" },
+                  follow_up_instructions: { type: "string" },
                   vital_signs: {
                     type: "object",
                     properties: {
@@ -81,14 +90,51 @@ Rules:
                       bmi: { type: "number" },
                     },
                   },
+                  proposed_changes: {
+                    type: "array",
+                    description: "Actionable changes to the patient record detected from the dictation",
+                    items: {
+                      type: "object",
+                      properties: {
+                        category: {
+                          type: "string",
+                          enum: ["medication", "diagnosis", "allergy"],
+                          description: "What type of record to change",
+                        },
+                        action: {
+                          type: "string",
+                          enum: ["add", "remove", "update"],
+                          description: "What action to take",
+                        },
+                        description: {
+                          type: "string",
+                          description: "Human-readable summary, e.g. 'Stop Metformin 500mg' or 'Add diagnosis: Urinary tract infection'",
+                        },
+                        data: {
+                          type: "object",
+                          description: "Structured data for the change",
+                          properties: {
+                            name: { type: "string", description: "Medication name, diagnosis condition, or allergen name" },
+                            dosage: { type: "string", description: "For medications: dosage" },
+                            frequency: { type: "string", description: "For medications: frequency" },
+                            indication: { type: "string", description: "For medications: indication" },
+                            icd_code: { type: "string", description: "For diagnoses: ICD code if known" },
+                            status: { type: "string", description: "For diagnoses: active/resolved/chronic" },
+                            reaction: { type: "string", description: "For allergies: reaction description" },
+                          },
+                        },
+                      },
+                      required: ["category", "action", "description", "data"],
+                    },
+                  },
                 },
-                required: ["note_type", "date_of_service", "provider_name", "provider_credentials", "subjective", "objective", "assessment", "plan"],
+                required: ["note_type", "date_of_service", "provider_name", "provider_credentials", "subjective", "objective", "assessment", "plan", "proposed_changes"],
                 additionalProperties: false,
               },
             },
           },
         ],
-        tool_choice: { type: "function", function: { name: "create_clinical_note" } },
+        tool_choice: { type: "function", function: { name: "create_clinical_note_with_changes" } },
       }),
     });
 
@@ -122,8 +168,10 @@ Rules:
       });
     }
 
-    const note = JSON.parse(toolCall.function.arguments);
-    return new Response(JSON.stringify({ note }), {
+    const parsed = JSON.parse(toolCall.function.arguments);
+    const { proposed_changes, ...note } = parsed;
+
+    return new Response(JSON.stringify({ note, proposed_changes: proposed_changes || [] }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
