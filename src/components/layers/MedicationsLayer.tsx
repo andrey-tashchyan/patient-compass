@@ -4,12 +4,12 @@ import type { Medication } from "@/types/patient";
 
 const MedicationsLayer = ({ medications }: { medications: Medication[] }) => (
   <CollapsibleLayer
-    title="Médicaments"
+    title="Medications"
     icon={<Pill className="h-4 w-4" />}
     badge={<span className="clinical-badge-info">{medications.length}</span>}
   >
     {medications.length === 0 ? (
-      <p className="text-[13px] text-muted-foreground">Aucun médicament actif.</p>
+      <p className="text-[13px] text-muted-foreground">No active medications.</p>
     ) : (
       <div className="space-y-2">
         {medications.map((m, i) => (

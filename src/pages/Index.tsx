@@ -5,16 +5,16 @@ import { getPatientAge } from "@/types/patient";
 import AppHeader from "@/components/AppHeader";
 
 const upcomingAppointments = [
-  { id: "A1", patientId: "P-001", patientName: "James Morrison", type: "Cardiologie — Suivi insuffisance cardiaque", provider: "Dr. Sarah Chen", date: "2025-02-24", time: "09:30", location: "Portland Heart Center", urgent: true },
-  { id: "A2", patientId: "P-003", patientName: "Eleanor Whitfield", type: "Gériatrie — Réévaluation cognitive", provider: "Dr. Helen Wu", date: "2025-02-25", time: "11:00", location: "Portland Geriatric Center", urgent: false },
-  { id: "A3", patientId: "P-002", patientName: "Aisha Rahman", type: "Endocrinologie — Contrôle thyroïdien", provider: "Dr. Anna Volkov", date: "2025-02-26", time: "14:15", location: "Portland Endocrine Center", urgent: false },
-  { id: "A4", patientId: "P-001", patientName: "James Morrison", type: "Diabétologie — HbA1c & ajustement traitement", provider: "Dr. Lisa Patel", date: "2025-02-28", time: "10:00", location: "Portland Primary Care", urgent: false },
-  { id: "A5", patientId: "P-003", patientName: "Eleanor Whitfield", type: "Kinésithérapie — Bilan prévention chutes", provider: "Tom Bradley, PT", date: "2025-03-03", time: "08:45", location: "St. Vincent Medical Center", urgent: false },
+  { id: "A1", patientId: "P-001", patientName: "James Morrison", type: "Cardiology — Heart failure follow-up", provider: "Dr. Sarah Chen", date: "2025-02-24", time: "09:30", location: "Portland Heart Center", urgent: true },
+  { id: "A2", patientId: "P-003", patientName: "Eleanor Whitfield", type: "Geriatrics — Cognitive reassessment", provider: "Dr. Helen Wu", date: "2025-02-25", time: "11:00", location: "Portland Geriatric Center", urgent: false },
+  { id: "A3", patientId: "P-002", patientName: "Aisha Rahman", type: "Endocrinology — Thyroid check", provider: "Dr. Anna Volkov", date: "2025-02-26", time: "14:15", location: "Portland Endocrine Center", urgent: false },
+  { id: "A4", patientId: "P-001", patientName: "James Morrison", type: "Diabetology — HbA1c & treatment adjustment", provider: "Dr. Lisa Patel", date: "2025-02-28", time: "10:00", location: "Portland Primary Care", urgent: false },
+  { id: "A5", patientId: "P-003", patientName: "Eleanor Whitfield", type: "Physical therapy — Fall prevention assessment", provider: "Tom Bradley, PT", date: "2025-03-03", time: "08:45", location: "St. Vincent Medical Center", urgent: false },
 ];
 
 const formatDate = (date: string) => {
   const d = new Date(date + "T00:00:00");
-  return d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" });
+  return d.toLocaleDateString("en-US", { weekday: "short", day: "numeric", month: "short" });
 };
 
 const Index = () => {
@@ -25,13 +25,13 @@ const Index = () => {
       <AppHeader />
       <main className="container max-w-4xl py-12">
         <div className="mb-10">
-          <h1 className="text-2xl font-semibold text-foreground tracking-tight mb-1">Tableau de bord</h1>
-          <p className="text-[13px] text-muted-foreground">Vue d'ensemble — rendez-vous à venir et dossiers patients.</p>
+          <h1 className="text-2xl font-semibold text-foreground tracking-tight mb-1">Dashboard</h1>
+          <p className="text-[13px] text-muted-foreground">Overview — upcoming appointments and patient records.</p>
         </div>
 
         {/* Upcoming Appointments */}
         <div className="mb-10">
-          <div className="clinical-label mb-4 flex items-center gap-2"><Calendar className="h-3.5 w-3.5" /> Prochains rendez-vous</div>
+          <div className="clinical-label mb-4 flex items-center gap-2"><Calendar className="h-3.5 w-3.5" /> Upcoming appointments</div>
           <div className="border border-border rounded-xl overflow-hidden divide-y divide-border">
             {upcomingAppointments.map(apt => (
               <button key={apt.id} onClick={() => navigate(`/patient/${apt.patientId}`)} className="w-full text-left px-5 py-4 flex items-center gap-5 hover:bg-muted/30 transition-colors group">
@@ -74,8 +74,8 @@ const Index = () => {
                     </div>
                     <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
                       <span className="font-mono">{p.medical_record_number}</span>
-                      <span>{age} ans</span>
-                      {p.admission_date && <span>Admis le {p.admission_date}</span>}
+                      <span>{age} yrs</span>
+                      {p.admission_date && <span>Admitted {p.admission_date}</span>}
                     </div>
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       {activeDx.slice(0, 3).map((d, i) => (

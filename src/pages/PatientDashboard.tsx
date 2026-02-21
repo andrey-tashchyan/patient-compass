@@ -23,16 +23,16 @@ const PatientDashboard = () => {
       <div className="min-h-screen bg-background">
         <AppHeader />
         <div className="container py-16 text-center">
-          <h2 className="text-xl font-semibold text-foreground mb-2">Patient introuvable</h2>
-          <p className="text-muted-foreground mb-4">Aucun dossier ne correspond à cet identifiant.</p>
-          <button onClick={() => navigate("/")} className="text-sm text-primary hover:underline">Retour au tableau de bord</button>
+          <h2 className="text-xl font-semibold text-foreground mb-2">Patient not found</h2>
+          <p className="text-muted-foreground mb-4">No record matches this identifier.</p>
+          <button onClick={() => navigate("/")} className="text-sm text-primary hover:underline">Back to dashboard</button>
         </div>
       </div>
     );
   }
 
   const age = getPatientAge(patient);
-  const genderLabel = patient.gender === Gender.MALE ? "Homme" : patient.gender === Gender.FEMALE ? "Femme" : "Autre";
+  const genderLabel = patient.gender === Gender.MALE ? "Male" : patient.gender === Gender.FEMALE ? "Female" : "Other";
   const activeDx = patient.diagnoses.filter(d => d.status === "active");
 
   return (
@@ -51,13 +51,13 @@ const PatientDashboard = () => {
             <div className="flex items-center gap-3 text-[13px] text-muted-foreground">
               <span className="font-mono text-xs">{patient.medical_record_number}</span>
               <span className="w-px h-3 bg-border" />
-              <span>{genderLabel}, {age} ans</span>
+              <span>{genderLabel}, {age} yrs</span>
               <span className="w-px h-3 bg-border" />
-              <span>Né(e) le {patient.date_of_birth}</span>
+              <span>DOB {patient.date_of_birth}</span>
               {patient.admission_date && (
                 <>
                   <span className="w-px h-3 bg-border" />
-                  <span className="flex items-center gap-1"><Clock className="h-3 w-3" />Admis le {patient.admission_date}</span>
+                  <span className="flex items-center gap-1"><Clock className="h-3 w-3" />Admitted {patient.admission_date}</span>
                 </>
               )}
             </div>
@@ -96,7 +96,7 @@ const PatientDashboard = () => {
         {/* Audit footer */}
         <div className="mt-12 py-5 border-t border-border text-center">
           <p className="text-[11px] text-muted-foreground font-mono tracking-wide">
-            Accès enregistré · Session {Math.random().toString(36).substring(2, 10).toUpperCase()} · {new Date().toISOString().split('T')[0]} · Rôle : Clinicien
+            Access logged · Session {Math.random().toString(36).substring(2, 10).toUpperCase()} · {new Date().toISOString().split('T')[0]} · Role: Clinician
           </p>
         </div>
       </main>

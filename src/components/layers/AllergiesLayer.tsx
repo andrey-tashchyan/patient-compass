@@ -4,9 +4,9 @@ import type { Allergy } from "@/types/patient";
 import { AllergyStatus } from "@/types/patient";
 
 const statusLabel: Record<string, string> = {
-  [AllergyStatus.CONFIRMED]: "Confirmé",
-  [AllergyStatus.SUSPECTED]: "Suspecté",
-  [AllergyStatus.DENIED]: "Nié",
+  [AllergyStatus.CONFIRMED]: "Confirmed",
+  [AllergyStatus.SUSPECTED]: "Suspected",
+  [AllergyStatus.DENIED]: "Denied",
 };
 
 const statusBadge: Record<string, string> = {
@@ -22,15 +22,15 @@ const AllergiesLayer = ({ allergies }: { allergies: Allergy[] }) => (
     badge={allergies.length > 0 ? <span className="clinical-badge-critical">{allergies.length}</span> : undefined}
   >
     {allergies.length === 0 ? (
-      <p className="text-[13px] text-muted-foreground">Aucune allergie connue.</p>
+      <p className="text-[13px] text-muted-foreground">No known allergies.</p>
     ) : (
       <div className="overflow-x-auto">
         <table className="w-full text-[13px]">
           <thead>
             <tr className="text-left border-b border-border">
-              <th className="clinical-label pb-2 pr-4">Allergène</th>
-              <th className="clinical-label pb-2 pr-4">Réaction</th>
-              <th className="clinical-label pb-2">Statut</th>
+              <th className="clinical-label pb-2 pr-4">Allergen</th>
+              <th className="clinical-label pb-2 pr-4">Reaction</th>
+              <th className="clinical-label pb-2">Status</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border/50">

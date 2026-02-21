@@ -3,9 +3,9 @@ import CollapsibleLayer from "../CollapsibleLayer";
 import type { Diagnosis } from "@/types/patient";
 
 const statusLabel: Record<string, string> = {
-  active: "Actif",
-  chronic: "Chronique",
-  resolved: "Résolu",
+  active: "Active",
+  chronic: "Chronic",
+  resolved: "Resolved",
 };
 
 const statusBadge: Record<string, string> = {
@@ -16,12 +16,12 @@ const statusBadge: Record<string, string> = {
 
 const DiagnosesLayer = ({ diagnoses }: { diagnoses: Diagnosis[] }) => (
   <CollapsibleLayer
-    title="Diagnostics"
+    title="Diagnoses"
     icon={<Stethoscope className="h-4 w-4" />}
-    badge={<span className="clinical-badge-info">{diagnoses.filter(d => d.status !== "resolved").length} actifs</span>}
+    badge={<span className="clinical-badge-info">{diagnoses.filter(d => d.status !== "resolved").length} active</span>}
   >
     {diagnoses.length === 0 ? (
-      <p className="text-[13px] text-muted-foreground">Aucun diagnostic enregistré.</p>
+      <p className="text-[13px] text-muted-foreground">No diagnoses recorded.</p>
     ) : (
       <div className="space-y-2">
         {diagnoses.map((d, i) => (
