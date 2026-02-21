@@ -1,24 +1,30 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Search, User, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { searchPatients, mockPatients } from "@/data/mockPatientData";
 import { getPatientAge, type Patient } from "@/types/patient";
+import { usePatients } from "@/hooks/usePatients";
 
 const PatientSearch = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<Patient[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const { data: patients } = usePatients();
 
-  useEffect(() => {
-    if (!query.trim()) setResults(mockPatients);
-    else setResults(searchPatients(query));
-    setSelectedIndex(-1);
-  }, [query]);
+  const results = useMemo(() => {
+    const all = patients ?? [];
+    if (!query.trim()) return all;
+    const q = query.toLowerCase();
+    return all.filter(
+      (p) =>
+        `${p.first_name} ${p.last_name}`.toLowerCase().includes(q) ||
+        p.medical_record_number.toLowerCase().includes(q)
+    );
+  }, [patients, query]);
 
+  useEffect(() => { setSelectedIndex(-1); }, [query]);
   useEffect(() => { if (isOpen && inputRef.current) inputRef.current.focus(); }, [isOpen]);
 
   useEffect(() => {
