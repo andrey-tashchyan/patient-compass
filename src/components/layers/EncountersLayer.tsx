@@ -74,16 +74,14 @@ const EncountersLayer = ({ patientId }: { patientId: string }) => {
                   {enc.provider} · {enc.specialty}
                 </div>
 
-                {/* Summary */}
-                <p className="text-[12px] text-foreground/75 leading-relaxed mb-3">{enc.summary}</p>
-
-                {/* Outcome */}
-                {enc.outcome && (
-                  <div className="text-[12px] mb-3">
-                    <span className="text-muted-foreground">Conclusion : </span>
-                    <span className="text-foreground/85 font-medium">{enc.outcome}</span>
-                  </div>
-                )}
+                {/* Doctor's summary */}
+                <div className="text-[12px] leading-relaxed mb-3 px-3.5 py-3 rounded-lg bg-muted/40 border-l-2 border-primary/30">
+                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">Résumé du praticien</div>
+                  <p className="text-foreground/80">{enc.summary}</p>
+                  {enc.outcome && (
+                    <p className="mt-2 text-foreground/90 font-medium">→ {enc.outcome}</p>
+                  )}
+                </div>
 
                 {/* Documents */}
                 {enc.documents.length > 0 && (
