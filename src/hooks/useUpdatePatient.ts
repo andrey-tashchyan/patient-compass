@@ -1,20 +1,19 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Patient } from "@/types/patient";
-import { useAuth } from "./useAuth";
 import { toast } from "sonner";
 
+const DEMO_USER_ID = "demo-user";
+
 export function useUpdatePatient() {
-  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (patient: Patient) => {
-      // Find the DB row by matching patient_id inside patient_data
       const { data: rows, error: fetchError } = await supabase
         .from("patients")
         .select("id, patient_data")
-        .eq("user_id", user!.id);
+        .eq("user_id", DEMO_USER_ID);
 
       if (fetchError) throw fetchError;
 

@@ -2,8 +2,9 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { mockPatients } from "@/data/mockPatientData";
 import type { Patient } from "@/types/patient";
-import { useAuth } from "./useAuth";
 import { useEffect, useRef } from "react";
+
+const DEMO_USER_ID = "demo-user";
 
 type PatientRow = { patient: Patient; createdAt: string | null };
 
@@ -270,11 +271,11 @@ function dedupePatients(rows: PatientRow[]): Patient[] {
     .map((x) => x.patient);
 }
 
-async function seedPatients(userId: string) {
+async function seedPatients() {
   const { data: existingRows, error: existingError } = await supabase
     .from("patients")
     .select("patient_data")
-    .eq("user_id", userId);
+    .eq("user_id", DEMO_USER_ID);
   if (existingError) throw existingError;
 
   const existingKeys = new Set(
@@ -284,7 +285,7 @@ async function seedPatients(userId: string) {
   );
 
   const rows = mockPatients.map((p) => ({
-    user_id: userId,
+    user_id: DEMO_USER_ID,
     patient_data: JSON.parse(JSON.stringify(p)),
   })).filter((row) => !existingKeys.has(getPatientKey(row.patient_data as Patient)));
 
@@ -292,11 +293,11 @@ async function seedPatients(userId: string) {
   await supabase.from("patients").insert(rows);
 }
 
-async function fetchPatients(userId: string): Promise<Patient[]> {
+async function fetchPatients(): Promise<Patient[]> {
   const { data, error } = await supabase
     .from("patients")
     .select("*")
-    .eq("user_id", userId)
+    .eq("user_id", DEMO_USER_ID)
     .order("created_at", { ascending: true });
 
   if (error) throw error;
@@ -308,34 +309,22 @@ async function fetchPatients(userId: string): Promise<Patient[]> {
 }
 
 export function usePatients() {
-  const { user } = useAuth();
   const queryClient = useQueryClient();
   const seededRef = useRef(false);
 
-  useEffect(() => {
-    seededRef.current = false;
-  }, [user?.id]);
-
   const query = useQuery({
-    queryKey: ["patients", user?.id],
-    queryFn: () => fetchPatients(user!.id),
-    enabled: !!user,
+    queryKey: ["patients"],
+    queryFn: fetchPatients,
   });
 
-  // Auto-seed missing mock patients (runs once per session per user)
   useEffect(() => {
-    if (
-      user &&
-      query.data &&
-      !query.isLoading &&
-      !seededRef.current
-    ) {
+    if (query.data && !query.isLoading && !seededRef.current) {
       seededRef.current = true;
-      seedPatients(user.id).then(() => {
-        queryClient.invalidateQueries({ queryKey: ["patients", user.id] });
+      seedPatients().then(() => {
+        queryClient.invalidateQueries({ queryKey: ["patients"] });
       });
     }
-  }, [user, query.data, query.isLoading, queryClient]);
+  }, [query.data, query.isLoading, queryClient]);
 
   return query;
 }
