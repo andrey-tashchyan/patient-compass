@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useState, lazy, Suspense } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { AlertCircle, Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/card";
 import { generatePatientEvolution } from "@/lib/patientEvolution";
 import type { GeneratePatientEvolutionResponse } from "@/types/patientEvolution";
+
+const EvolutionDashboard = lazy(() => import("@/components/evolution/EvolutionDashboard"));
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
@@ -195,6 +197,16 @@ export default function PatientEvolutionGenerator() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Evolution Intelligence Dashboard */}
+          <Suspense fallback={
+            <div className="flex h-48 items-center justify-center rounded-xl border border-border bg-card">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              <span className="ml-2 text-sm text-muted-foreground">Loading charts...</span>
+            </div>
+          }>
+            <EvolutionDashboard payload={payload} />
+          </Suspense>
         </>
       ) : null}
     </div>
