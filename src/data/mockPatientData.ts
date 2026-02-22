@@ -10,6 +10,7 @@ const corePatients: Patient[] = [
   {
     patient_id: "P-001",
     medical_record_number: "MRN-2024-4521",
+    evolution_uuid: "f0a1b2c3-d4e5-6789-abcd-ef0123456001",
     first_name: "James",
     last_name: "Morrison",
     date_of_birth: "1958-03-15",
@@ -118,6 +119,7 @@ const corePatients: Patient[] = [
   {
     patient_id: "P-002",
     medical_record_number: "MRN-2024-7834",
+    evolution_uuid: "f0a1b2c3-d4e5-6789-abcd-ef0123456002",
     first_name: "Aisha",
     last_name: "Rahman",
     date_of_birth: "1985-11-22",
@@ -189,6 +191,7 @@ const corePatients: Patient[] = [
   {
     patient_id: "P-003",
     medical_record_number: "MRN-2024-1156",
+    evolution_uuid: "f0a1b2c3-d4e5-6789-abcd-ef0123456003",
     first_name: "Eleanor",
     last_name: "Whitfield",
     date_of_birth: "1940-07-08",
