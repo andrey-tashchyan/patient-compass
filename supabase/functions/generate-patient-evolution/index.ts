@@ -73,69 +73,6 @@ function createStorageFileIO(
   };
 }
 
-// Background processing function
-async function processEvolution(
-  identifier: string,
-  supabaseUrl: string,
-  serviceRoleKey: string,
-): Promise<void> {
-  try {
-    console.log(`[evolution-bg] Starting background processing for: ${identifier}`);
-
-    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
-
-    const dataBucket = Deno.env.get("PATIENT_EVOLUTION_DATA_BUCKET") ?? DATA_BUCKET;
-    const storageIO = createStorageFileIO(supabaseAdmin, dataBucket);
-
-    const orchestrator = new PatientEvolutionOrchestrator(
-      storageIO,
-      {
-        dataRoot: "final_10_patients",
-        lovableApiKey: Deno.env.get("LOVABLE_API_KEY") ?? null,
-        aiGatewayUrl:
-          Deno.env.get("PATIENT_EVOLUTION_AI_GATEWAY_URL") ??
-          "https://ai.gateway.lovable.dev/v1/chat/completions",
-        aiModel:
-          Deno.env.get("PATIENT_EVOLUTION_AI_MODEL") ?? "google/gemini-3-flash-preview",
-        now: () => new Date(),
-        fetchFn: fetch,
-      },
-    );
-
-    const payload = await orchestrator.run(identifier);
-    const resolvedPatientId =
-      String(payload.identity?.csv_patient_uuid ?? payload.patient?.patient_id ?? "").trim();
-
-    if (!resolvedPatientId) {
-      console.error("[evolution-bg] Unable to resolve patient id");
-      return;
-    }
-
-    const outputBucket = Deno.env.get("PATIENT_EVOLUTION_STORAGE_BUCKET") ?? DEFAULT_STORAGE_BUCKET;
-    await ensureBucketExists(supabaseAdmin, outputBucket);
-
-    const storagePath = await persistPatientEvolutionOutput({
-      patientId: resolvedPatientId,
-      payload,
-      uploader: {
-        upload: async (path, bodyText, options) => {
-          const { error } = await supabaseAdmin.storage.from(outputBucket).upload(path, bodyText, {
-            contentType: options.contentType,
-            upsert: options.upsert,
-          });
-          return { error };
-        },
-      },
-    });
-
-    console.log(`[evolution-bg] Completed for ${resolvedPatientId}, stored at ${storagePath}`);
-  } catch (error) {
-    console.error("[evolution-bg] Background processing failed:", error);
-  }
-}
-
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -171,19 +108,41 @@ serve(async (req) => {
       throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be configured");
     }
 
-    // Use EdgeRuntime.waitUntil to process in background, return immediately
-    // @ts-ignore EdgeRuntime is available in Supabase Edge Functions
-    EdgeRuntime.waitUntil(
-      processEvolution(identifier, supabaseUrl, serviceRoleKey)
+    console.log(`[evolution] Starting synchronous processing for: ${identifier}`);
+
+    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+
+    const dataBucket = Deno.env.get("PATIENT_EVOLUTION_DATA_BUCKET") ?? DATA_BUCKET;
+    const storageIO = createStorageFileIO(supabaseAdmin, dataBucket);
+
+    const orchestrator = new PatientEvolutionOrchestrator(
+      storageIO,
+      {
+        dataRoot: "final_10_patients",
+        lovableApiKey: Deno.env.get("LOVABLE_API_KEY") ?? null,
+        aiGatewayUrl:
+          Deno.env.get("PATIENT_EVOLUTION_AI_GATEWAY_URL") ??
+          "https://ai.gateway.lovable.dev/v1/chat/completions",
+        aiModel:
+          Deno.env.get("PATIENT_EVOLUTION_AI_MODEL") ?? "google/gemini-3-flash-preview",
+        now: () => new Date(),
+        fetchFn: fetch,
+      },
     );
+
+    const payload = await orchestrator.run(identifier);
+
+    console.log(`[evolution] Completed for ${identifier}`);
 
     return new Response(
       JSON.stringify({
-        status: "processing",
-        message: `Evolution analysis started for "${identifier}". Results will be stored in storage when complete.`,
+        status: "completed",
+        payload,
       }),
       {
-        status: 202,
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       },
     );
