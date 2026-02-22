@@ -4,7 +4,7 @@ import { mockPatients } from "@/data/mockPatientData";
 import type { Patient } from "@/types/patient";
 import { useEffect, useRef } from "react";
 
-const DEMO_USER_ID = "demo-user";
+const DEMO_USER_ID = "00000000-0000-0000-0000-000000000000";
 
 type PatientRow = { patient: Patient; createdAt: string | null };
 
