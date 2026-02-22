@@ -1,9 +1,9 @@
 import { useCredits } from "@/context/CreditContext";
-import PaidLogo from "./PaidLogo";
+import paidLogo from "@/assets/paid-logo.png";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { RefreshCw, Zap } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 
 const CreditCounter = () => {
   const { total, used, remaining, planName, refillCredits, hasCredits } = useCredits();
@@ -13,7 +13,7 @@ const CreditCounter = () => {
     <Popover>
       <PopoverTrigger asChild>
         <button className="flex items-center gap-2 h-9 px-3 text-sm border border-border rounded-lg hover:bg-muted transition-colors">
-          <Zap className={`h-3.5 w-3.5 ${hasCredits ? "text-primary" : "text-destructive"}`} />
+          <img src={paidLogo} alt="Paid" className="h-4" />
           <span className="font-medium tabular-nums">
             {remaining}
             <span className="text-muted-foreground font-normal"> / {total}</span>
@@ -23,7 +23,7 @@ const CreditCounter = () => {
       <PopoverContent align="end" className="w-72 p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <PaidLogo className="h-5 w-5" />
+            <img src={paidLogo} alt="Paid" className="h-5" />
             <span className="font-semibold text-sm">API Credits</span>
           </div>
           <span className="text-xs bg-muted px-2 py-0.5 rounded-full text-muted-foreground">
