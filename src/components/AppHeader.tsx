@@ -35,16 +35,6 @@ const AppHeader = () => {
             >
               Evolution
             </NavLink>
-            <NavLink
-              to="/analytics"
-              className={({ isActive }) =>
-                `px-3 py-1.5 rounded-md text-sm transition-colors ${
-                  isActive ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
-                }`
-              }
-            >
-              Analytics
-            </NavLink>
           </nav>
         </div>
         <div className="flex items-center gap-3">
