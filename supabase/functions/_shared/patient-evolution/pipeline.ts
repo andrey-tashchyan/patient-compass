@@ -1,3 +1,6 @@
+// @ts-ignore deno-dom is available at runtime in Deno edge functions
+import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.48/deno-dom-wasm.ts";
+
 export type JsonObject = Record<string, unknown>;
 
 export interface IdentityPayload extends JsonObject {
@@ -1079,7 +1082,7 @@ class TemporalEvolutionStage implements PipelineStage<TemporalStageInput, Tempor
 
   private extractCcdaEvents(patientId: string, xmlText: string): TimelineEvent[] {
     const parser = new DOMParser();
-    const doc = parser.parseFromString(xmlText, "application/xml");
+    const doc = parser.parseFromString(xmlText, "text/html");
     if (!doc) {
       return [];
     }
@@ -1095,7 +1098,8 @@ class TemporalEvolutionStage implements PipelineStage<TemporalStageInput, Tempor
       "organizer",
     ]);
 
-    const all = Array.from(doc.getElementsByTagName("*"));
+    // deno-dom returns its own Element type; cast to any for compatibility
+    const all = Array.from(doc.getElementsByTagName("*")) as any[];
     for (const node of all) {
       const tag = localTagName(node);
       if (!targetTags.has(tag)) {
@@ -1108,8 +1112,8 @@ class TemporalEvolutionStage implements PipelineStage<TemporalStageInput, Tempor
         continue;
       }
 
-      let current: Element | null = node;
-      let contextNode: Element | null = null;
+      let current: any = node;
+      let contextNode: any = null;
       let sectionTitle: string | null = null;
 
       while (current) {
