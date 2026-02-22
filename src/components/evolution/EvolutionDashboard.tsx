@@ -244,30 +244,6 @@ export default function EvolutionDashboard({ payload }: Props) {
         <div className="space-y-6">
           <div>
             <h3 className="mb-2 text-sm font-semibold text-foreground">
-              Blood Pressure & Vital Trends
-            </h3>
-            {coverage.hasBP || coverage.hasHR ? (
-              <MetricTrendChart
-                vitals={metrics.vitals}
-                rollingAverages={metrics.rollingAverages}
-                annotations={insights?.annotations ?? []}
-                riskWindows={insights?.risk_windows ?? []}
-                treatmentMarkers={metrics.treatmentMarkers}
-                admissionMarkers={metrics.admissionMarkers}
-                visibleMetrics={activeMetrics}
-                dateRange={dateRange}
-                onAnnotationClick={setSelectedAnnotation}
-                focusMetric={focusMetric}
-              />
-            ) : (
-              <div className="flex h-48 items-center justify-center rounded-xl border border-border bg-card text-sm text-muted-foreground">
-                No blood pressure or heart rate data available
-              </div>
-            )}
-          </div>
-
-          <div>
-            <h3 className="mb-2 text-sm font-semibold text-foreground">
               Condition Activity Timeline
             </h3>
             <p className="mb-3 text-xs text-muted-foreground">
