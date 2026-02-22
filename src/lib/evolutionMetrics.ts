@@ -231,17 +231,61 @@ export function deriveMetrics(payload: PatientEvolutionOutput): DerivedMetrics {
   }));
 
   // Condition spans from timeline
+  // The pipeline emits separate "diagnosis_start" and "diagnosis_resolved" events
+  // for the same condition. We pair them into spans with start + end dates.
   const conditionEvents = timeline.filter(
-    (e) => e.category === "condition" || e.category === "diagnosis"
+    (e) => e.category === "condition" || e.category === "diagnosis" || e.category === "diagnosis_onset"
   );
-  const conditionSpans: ConditionSpan[] = conditionEvents.map((e) => ({
-    condition: String(e.description ?? "Unknown"),
-    code: e.code ?? undefined,
-    start: e.time_start ?? "",
-    end: e.time_end ?? null,
-    isActive: !e.time_end,
-    source_event_id: e.event_id,
-  }));
+
+  const conditionSpans: ConditionSpan[] = [];
+
+  // First, handle events that already have time_end (self-contained spans)
+  const startEvents: typeof conditionEvents = [];
+  const resolvedEvents: typeof conditionEvents = [];
+
+  for (const e of conditionEvents) {
+    const subtype = String(e.subtype ?? "").toLowerCase();
+    if (subtype.includes("resolved") || subtype.includes("stop") || subtype.includes("end")) {
+      resolvedEvents.push(e);
+    } else {
+      // If the event already has time_end, it's a complete span
+      if (e.time_end) {
+        conditionSpans.push({
+          condition: String(e.description ?? "Unknown"),
+          code: e.code ?? undefined,
+          start: e.time_start ?? "",
+          end: e.time_end,
+          isActive: false,
+          source_event_id: e.event_id,
+        });
+      } else {
+        startEvents.push(e);
+      }
+    }
+  }
+
+  // Pair start events with resolved events by matching description
+  for (const startEv of startEvents) {
+    const desc = String(startEv.description ?? "").toLowerCase();
+    const matchingResolved = resolvedEvents.find(
+      (r) => String(r.description ?? "").toLowerCase() === desc
+    );
+
+    conditionSpans.push({
+      condition: String(startEv.description ?? "Unknown"),
+      code: startEv.code ?? undefined,
+      start: startEv.time_start ?? "",
+      end: matchingResolved?.time_start ?? null, // resolved event's time_start is the end date
+      isActive: !matchingResolved,
+      source_event_id: startEv.event_id,
+    });
+
+    // Remove the matched resolved event so it's not reused
+    if (matchingResolved) {
+      const idx = resolvedEvents.indexOf(matchingResolved);
+      if (idx >= 0) resolvedEvents.splice(idx, 1);
+    }
+  }
 
   // Active condition count over time
   const allDates = new Set<string>();
