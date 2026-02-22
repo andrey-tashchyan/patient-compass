@@ -46,9 +46,10 @@ export default function EvolutionLayer({ evolutionUuid, patientName }: Props) {
           </Button>
         </div>
       ) : mutation.isPending ? (
-        <div className="flex items-center justify-center py-12 gap-2">
+        <div className="flex flex-col items-center justify-center py-12 gap-2">
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
           <span className="text-sm text-muted-foreground">Running evolution pipeline...</span>
+          <span className="text-xs text-muted-foreground/60">This may take up to 30 seconds</span>
         </div>
       ) : mutation.error ? (
         <div className="py-6 text-center">
