@@ -1,5 +1,6 @@
 import cliniviewLogo from "@/assets/cliniview-logo.png";
 import { NavLink } from "react-router-dom";
+import CreditCounter from "./CreditCounter";
 
 const AppHeader = () => {
   return (
@@ -32,6 +33,9 @@ const AppHeader = () => {
               Evolution
             </NavLink>
           </nav>
+        </div>
+        <div className="flex items-center gap-3">
+          <CreditCounter />
         </div>
       </div>
     </header>
