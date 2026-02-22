@@ -58,7 +58,7 @@ export default function AddPatientDialog() {
 
         setStage("saving");
         const { error: insertError } = await supabase.from("patients").insert({
-          user_id: "demo-user",
+          user_id: "00000000-0000-0000-0000-000000000000",
           patient_data: patient,
         });
         if (insertError) throw insertError;

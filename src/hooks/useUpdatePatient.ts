@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Patient } from "@/types/patient";
 import { toast } from "sonner";
 
-const DEMO_USER_ID = "demo-user";
+const DEMO_USER_ID = "00000000-0000-0000-0000-000000000000";
 
 export function useUpdatePatient() {
   const queryClient = useQueryClient();
