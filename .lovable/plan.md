@@ -1,104 +1,93 @@
 
 
-## Voice-to-SOAP: Real-Time Voice Dictation with AI-Powered Clinical Note Generation
+# Fix: Paid.ai Not Receiving Signals
 
-Add a "Dictate Note" button to the patient dashboard that lets doctors speak naturally, see their words transcribed in real-time, then have AI automatically structure the dictation into a complete SOAP clinical note -- inserted directly into the patient's record.
+## Root Cause
 
-This combines the browser's native Web Speech API (zero dependencies), real-time streaming transcription, and AI structuring via a backend function -- a genuinely useful clinical workflow that eliminates manual note entry.
+The `trackUsage()` function in `structure-dictation` has **no success-path logging**. It only logs on error (`console.error`) and on missing key (`console.warn`). Since edge function logs show none of these, one of two things is happening:
 
-### What you'll get
+1. `PAID_API_KEY` is not set in Supabase secrets (the `console.warn` may not appear in filtered logs), causing the function to silently return at line 14-16.
+2. The Paid API call succeeds (HTTP 200) but the payload format or API key value is incorrect, so Paid ignores the signal.
 
-1. A "Dictate Note" button on the patient dashboard (next to Export PDF / Edit)
-2. A modal with a live waveform visualizer (using Web Audio API + canvas) that responds to the doctor's voice in real-time
-3. Real-time transcription displayed as the doctor speaks -- words appear letter-by-letter
-4. When dictation ends, AI structures the raw transcript into a complete SOAP note:
-   - Subjective, Objective, Assessment, Plan
-   - Auto-fills provider name, note type, chief complaint, follow-up instructions
-   - Extracts vital signs if mentioned ("BP 120/80, heart rate 72")
-5. A review step where the doctor can see the structured note before confirming
-6. One-click save that inserts the note into the patient's clinical notes and persists to the database
+Additionally, there is **no way to distinguish these cases** without adding debug logging.
 
-### How it works
+## Plan
 
-```text
-Doctor clicks "Dictate Note"
-        |
-        v
-Modal opens with audio visualizer
-Web Speech API starts listening
-        |
-        v
-Real-time interim transcription displayed
-(words appear as spoken, waveform pulses)
-        |
-        v
-Doctor clicks "Stop" or pauses for 5s
-Final transcript captured
-        |
-        v
-Transcript + patient context sent to
-"structure-dictation" edge function
-        |
-        v
-AI returns structured SOAP note JSON
-(using tool calling for reliable extraction)
-        |
-        v
-Doctor reviews the structured note in the modal
-Can edit fields before confirming
-        |
-        v
-Note inserted into patient's clinical_notes array
-Saved to database via existing useUpdatePatient hook
+### Step 1: Add debug logging to trackUsage (edge function)
+
+**File:** `supabase/functions/structure-dictation/index.ts`
+
+Add `console.log` statements to confirm:
+- Whether PAID_API_KEY is present (log its length, not value)
+- The request URL and payload shape
+- The Paid API response status and body
+
+```typescript
+async function trackUsage(input: { ... }) {
+  if (!PAID_API_KEY) {
+    console.error("[trackUsage] PAID_API_KEY is NOT set. Skipping.");
+    return;
+  }
+  console.log("[trackUsage] PAID_API_KEY present, length:", PAID_API_KEY.length);
+
+  const body = { signals: [{ ... }] };
+  console.log("[trackUsage] Sending to Paid:", JSON.stringify(body));
+
+  const response = await fetch(PAID_USAGE_URL, { ... });
+  const responseText = await response.text();
+  console.log("[trackUsage] Paid response:", response.status, responseText);
+
+  if (!response.ok) {
+    throw new Error(`Paid usage tracking failed (${response.status}): ${responseText}`);
+  }
+}
 ```
 
-### Technical details
+Also add a log at the call site (line 786-796) to confirm execution reaches trackUsage:
 
-**New edge function: `supabase/functions/structure-dictation/index.ts`**
+```typescript
+console.log("[structure-dictation] About to call trackUsage...");
+try {
+  await trackUsage({ ... });
+  console.log("[structure-dictation] trackUsage completed successfully.");
+} catch (trackError) {
+  console.error("Paid usage tracking failed:", trackError);
+}
+```
 
-- Accepts POST with `{ transcript: string, patientContext: { name, age, activeDiagnoses, medications, allergies } }`
-- Non-streaming (structured output via tool calling, not chat)
-- Uses `google/gemini-3-flash-preview` with a `create_clinical_note` tool that returns:
-  - `note_type`, `chief_complaint`, `subjective`, `objective`, `assessment`, `plan`, `follow_up_instructions`
-  - `vital_signs` object (if any vitals mentioned in dictation)
-- System prompt is clinically-aware: knows to separate subjective complaints from objective findings, formulate differential diagnoses, create actionable plans
-- Handles 429/402 errors
+### Step 2: Redeploy and test
 
-**New component: `src/components/VoiceDictation.tsx`**
+- Deploy the updated edge function
+- Call it via curl tool to trigger execution
+- Read logs to see exact debug output
+- Determine whether the issue is missing API key, wrong endpoint, or wrong payload
 
-- Uses `window.SpeechRecognition` (WebkitSpeechRecognition fallback) for browser-native speech-to-text
-- Audio visualizer built with Web Audio API:
-  - `navigator.mediaDevices.getUserMedia({ audio: true })` to get mic stream
-  - `AnalyserNode` with `getByteFrequencyData()` for frequency spectrum
-  - Canvas renders animated bars/waveform synced to voice amplitude
-- Three states: `idle` -> `recording` (live transcript + waveform) -> `processing` (AI structuring) -> `review` (editable SOAP fields) -> `done`
-- Review step shows the SOAP fields in editable text areas so the doctor can correct before saving
-- On confirm: calls `onSave(structuredNote)` which the parent uses to update the patient via the existing mutation hook
-- Graceful fallback: if browser doesn't support Speech API, shows a textarea for manual transcript input (still gets AI structuring)
+### Step 3: Fix based on findings
 
-**Modified file: `src/pages/PatientDashboard.tsx`**
+If `PAID_API_KEY` is missing or empty: verify secret is set correctly.
+If Paid API returns error: fix URL or payload format.
+If Paid API returns 200 but no signals: check with Paid.ai documentation for correct payload structure.
 
-- Import and render `VoiceDictation` component
-- Add a "Dictate Note" button with a `Mic` icon in the header actions area
-- On save: appends the new note to `patient.clinical_notes`, calls `updatePatient.mutate()`
+### Step 4: No frontend changes needed
 
-### Audio visualizer details
+The frontend invocation chain is correct:
+- Uses `VITE_SUPABASE_URL` (production URL)
+- Sends proper `apikey` and `Authorization` headers
+- Calls the right endpoint path
 
-The waveform visualizer uses a canvas element with an `AnalyserNode` connected to the microphone. On each animation frame:
-- Read 128-bin frequency data from the analyser
-- Draw vertical bars with height proportional to amplitude
-- Apply a gradient from the primary theme color (active) to muted (silent)
-- Smooth transitions between frames using exponential decay
-- When not recording, bars flatten to a flat line with a gentle idle animation
-
-This creates a visually engaging, responsive indicator that the mic is actively listening.
-
-### Files
+## Files to Change
 
 | File | Change |
-|------|---------|
-| `supabase/functions/structure-dictation/index.ts` | New -- AI structuring of dictation into SOAP note |
-| `src/components/VoiceDictation.tsx` | New -- Voice dictation modal with waveform visualizer |
-| `src/pages/PatientDashboard.tsx` | Add Dictate Note button + integration |
-| `supabase/config.toml` | Register structure-dictation function |
+|------|--------|
+| `supabase/functions/structure-dictation/index.ts` | Add debug logging to `trackUsage()` and its call site |
+
+## Verification Checklist
+
+1. Deploy updated function
+2. Call function via test tool
+3. Check logs for `[trackUsage]` messages
+4. Confirm PAID_API_KEY presence and length
+5. Confirm Paid API response status
+6. Check Paid dashboard for received signal
+7. Remove debug logs once root cause is confirmed and fixed
 
