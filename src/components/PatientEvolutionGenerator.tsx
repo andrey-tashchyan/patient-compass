@@ -80,7 +80,7 @@ export default function PatientEvolutionGenerator() {
             <Input
               value={identifier}
               onChange={(event) => setIdentifier(event.target.value)}
-              placeholder="e.g. 20c3ca32-ec09-4e7c-abab-9f7711cbe235 or Scotty190 Spencer878"
+              placeholder="e.g. 20c3ca32-ec09-4e7c-abab-9f7711cbe235 or Andreas188 Hoeger474"
               disabled={mutation.isPending}
             />
             <Button type="submit" disabled={mutation.isPending || !identifier.trim()} className="sm:w-auto">

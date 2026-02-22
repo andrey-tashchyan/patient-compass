@@ -63,7 +63,7 @@ export class PatientEvolutionPlugin {
           title:
             (item.description as string | undefined) ??
             (item.test_name as string | undefined) ??
-            groupName.replaceAll("_", " "),
+            groupName.replace(/_/g, " "),
           description: (item.description as string | undefined) ?? null,
           status: (item.status as string | undefined) ?? null,
           related_event_ids: ((item.event_ids as string[] | undefined) ?? []).filter(Boolean),
