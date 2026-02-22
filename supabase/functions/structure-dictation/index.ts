@@ -256,6 +256,17 @@ function extractMessageText(result: any): string {
   return "";
 }
 
+function normalizeConsultationReport(text: string): string {
+  return text
+    .replace(/\r\n/g, "\n")
+    .replace(/^\s*(Motif|S|O|A|P|Subjective|Objective|Assessment|Plan)\s*:\s*/gim, "")
+    .replace(/^\s*[-*]\s+/gm, "")
+    .replace(/^\s*\d+\.\s+/gm, "")
+    .replace(/\n+/g, " ")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
 function cleanTranscript(rawTranscript: string): string {
   let cleaned = rawTranscript
     .replace(/\r\n/g, "\n")
@@ -374,7 +385,9 @@ Strict requirements:
 - Output plain text only
 - Do not output JSON
 - Do not output markdown code fences
-- Single consultation report paragraph structure, readable for direct insertion in chart`,
+- Return exactly one block of text in a single paragraph
+- Do not use section headers (no Motif/S/O/A/P)
+- Do not use bullets or numbering`,
       },
       {
         role: "user",
@@ -387,6 +400,8 @@ Strict requirements:
 
   const report = extractMessageText(result);
   if (!report) throw new Error("Consultation report generation returned no text");
+  const normalizedReport = normalizeConsultationReport(report);
+  if (!normalizedReport) throw new Error("Consultation report generation returned empty text");
 
   return {
     note_type: "Progress Note",
@@ -394,9 +409,9 @@ Strict requirements:
     provider_name: "Dictating Provider",
     provider_credentials: "MD",
     chief_complaint: "",
-    summary: report,
+    summary: normalizedReport,
     follow_up_instructions: "",
-    _formatted_text: report,
+    _formatted_text: normalizedReport,
   };
 }
 

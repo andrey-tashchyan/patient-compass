@@ -39,10 +39,25 @@ type Stage = "idle" | "recording" | "processing" | "review";
 
 const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
+const normalizeConsultationReport = (text: string): string => {
+  return text
+    .replace(/\r\n/g, "\n")
+    .replace(/^\s*(Motif|S|O|A|P|Subjective|Objective|Assessment|Plan)\s*:\s*/gim, "")
+    .replace(/^\s*[-*]\s+/gm, "")
+    .replace(/^\s*\d+\.\s+/gm, "")
+    .replace(/\n+/g, " ")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+};
+
 const getSummaryFromResponse = (data: any): string => {
   const note = data?.note || {};
-  if (typeof note.summary === "string" && note.summary.trim()) return note.summary.trim();
-  if (typeof data?.formatted_note === "string" && data.formatted_note.trim()) return data.formatted_note.trim();
+  if (typeof note.summary === "string" && note.summary.trim()) {
+    return normalizeConsultationReport(note.summary);
+  }
+  if (typeof data?.formatted_note === "string" && data.formatted_note.trim()) {
+    return normalizeConsultationReport(data.formatted_note);
+  }
 
   // Backward compatibility if server still returns SOAP sections
   const parts = [
@@ -53,7 +68,7 @@ const getSummaryFromResponse = (data: any): string => {
     note.plan ? `P: ${note.plan}` : "",
   ].filter(Boolean);
 
-  return parts.join("\n\n");
+  return normalizeConsultationReport(parts.join("\n\n"));
 };
 
 const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDictationProps) => {
