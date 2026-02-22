@@ -16,7 +16,7 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const systemPrompt = `You are a clinical AI assistant embedded in a patient dashboard. You help doctors query and modify patient records using natural language.
+    const systemPrompt = `You are a clinical AI assistant embedded in a patient dashboard. You help doctors query patient records and PROPOSE changes for their review.
 
 CURRENT PATIENT DATA:
 ${JSON.stringify(patientData, null, 2)}
@@ -25,15 +25,17 @@ You have two tools available:
 
 1. "answer_question" — Use this when the doctor asks a read-only question about the patient (e.g. "What are the active diagnoses?", "List medications", "When was the last lab?"). Return a clear, concise answer.
 
-2. "modify_patient" — Use this when the doctor instructs you to add, edit, or delete patient data (e.g. "Add allergy to penicillin", "Change metformin dosage to 1000mg", "Remove the resolved diagnosis of acute bronchitis"). Return the COMPLETE updated patient object with your changes applied, plus a short summary of what changed.
+2. "propose_modification" — Use this when the doctor instructs you to add, edit, or delete patient data (e.g. "Add allergy to penicillin", "Change metformin dosage to 1000mg", "Remove the resolved diagnosis"). Return a list of proposed changes for the doctor to review and approve.
 
-IMPORTANT RULES:
-- For modify_patient, you MUST return the ENTIRE patient object with the modification applied, not just the changed field.
-- Keep the patient_id, medical_record_number, and other identifiers unchanged.
-- Be precise with medical data. If unsure about a field format, follow the existing data patterns.
-- When removing items, filter them out of the relevant array.
-- When adding items, append to the relevant array with reasonable defaults for optional fields.
-- Always confirm what you changed in the summary field.`;
+CRITICAL RULES:
+- You can NEVER directly modify patient records. You can only PROPOSE changes.
+- Every proposed change must be reviewed and approved by the doctor before it takes effect.
+- Be precise with medical data. Follow the existing data patterns.
+- Each proposed change needs: category (medication/diagnosis/allergy/demographics/clinical_note/lab_result/imaging/diagnostic_test), action (add/remove/update), a human-readable description, and the structured data for the change.
+- For "remove" actions, include enough identifying data (e.g. the medication name) to locate the item.
+- For "update" actions, include the field being changed and both old and new values.
+- For "add" actions, include all required fields for the new item.
+- Always explain your reasoning in the summary.`;
 
     const tools = [
       {
@@ -58,24 +60,46 @@ IMPORTANT RULES:
       {
         type: "function",
         function: {
-          name: "modify_patient",
+          name: "propose_modification",
           description:
-            "Modify the patient record (add, edit, or delete data). Returns the complete updated patient object.",
+            "Propose changes to the patient record for the doctor to review and approve. NEVER applies changes directly.",
           parameters: {
             type: "object",
             properties: {
-              updated_patient: {
-                type: "object",
-                description:
-                  "The COMPLETE updated patient JSON object with modifications applied.",
+              proposed_changes: {
+                type: "array",
+                description: "List of proposed changes to the patient record.",
+                items: {
+                  type: "object",
+                  properties: {
+                    category: {
+                      type: "string",
+                      enum: ["medication", "diagnosis", "allergy", "demographics", "clinical_note", "lab_result", "imaging", "diagnostic_test"],
+                      description: "What type of record to change.",
+                    },
+                    action: {
+                      type: "string",
+                      enum: ["add", "remove", "update"],
+                      description: "What action to take.",
+                    },
+                    description: {
+                      type: "string",
+                      description: "Human-readable summary of the change, e.g. 'Add penicillin allergy (anaphylaxis)'",
+                    },
+                    data: {
+                      type: "object",
+                      description: "Structured data for the change. For medications: name, dosage, frequency, indication. For diagnoses: condition, icd_code, status. For allergies: allergen, reaction, status. For updates: include field, old_value, new_value.",
+                    },
+                  },
+                  required: ["category", "action", "description", "data"],
+                },
               },
               summary: {
                 type: "string",
-                description:
-                  "A brief human-readable summary of what was changed (e.g. 'Added penicillin allergy with anaphylaxis reaction').",
+                description: "Brief explanation of why these changes are being proposed, based on the doctor's request.",
               },
             },
-            required: ["updated_patient", "summary"],
+            required: ["proposed_changes", "summary"],
             additionalProperties: false,
           },
         },
@@ -91,7 +115,7 @@ IMPORTANT RULES:
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
+          model: "google/gemini-3-flash",
           messages: [{ role: "system", content: systemPrompt }, ...messages],
           tools,
           tool_choice: "auto",
