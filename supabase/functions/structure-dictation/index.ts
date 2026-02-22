@@ -207,12 +207,12 @@ const verificationTool = {
 async function callAI(
   messages: any[],
   apiKey: string,
-  options: { tools?: any[]; toolChoice?: any } = {}
+  options: { tools?: any[]; toolChoice?: any; temperature?: number } = {}
 ): Promise<any> {
   const body: any = {
     model: MODEL_FLASH,
     messages,
-    temperature: 0,
+    temperature: options.temperature ?? 0,
   };
   if (options.tools) {
     body.tools = options.tools;
@@ -243,10 +243,109 @@ function extractToolArgs(result: any): any | null {
   return JSON.parse(toolCall.function.arguments);
 }
 
+function extractMessageText(result: any): string {
+  const content = result?.choices?.[0]?.message?.content;
+  if (typeof content === "string") return content.trim();
+  if (Array.isArray(content)) {
+    const text = content
+      .map((item: any) => (typeof item === "string" ? item : item?.text || ""))
+      .join("\n")
+      .trim();
+    return text;
+  }
+  return "";
+}
+
+function cleanTranscript(rawTranscript: string): string {
+  let cleaned = rawTranscript
+    .replace(/\r\n/g, "\n")
+    .replace(/\b(um+|uh+|erm+|ah+|like)\b/gi, "")
+    .replace(/\b(you know|kind of|sort of|i mean)\b/gi, "")
+    .replace(/\b([a-zA-Z]+)\s+\1\b/gi, "$1")
+    .replace(/\s{2,}/g, " ")
+    .replace(/\s+([,.;:!?])/g, "$1")
+    .trim();
+
+  if (!cleaned.endsWith(".") && !cleaned.endsWith("!") && !cleaned.endsWith("?")) {
+    cleaned = `${cleaned}.`;
+  }
+
+  return cleaned;
+}
+
+function parseSoapText(soapText: string): {
+  motif: string;
+  subjective: string;
+  objective: string;
+  assessment: string;
+  plan: string;
+} {
+  const sections = {
+    motif: "",
+    subjective: "",
+    objective: "",
+    assessment: "",
+    plan: "",
+  };
+
+  const sectionMap: Record<string, keyof typeof sections> = {
+    motif: "motif",
+    s: "subjective",
+    o: "objective",
+    a: "assessment",
+    p: "plan",
+  };
+
+  let activeSection: keyof typeof sections | null = null;
+  for (const rawLine of soapText.replace(/\r\n/g, "\n").split("\n")) {
+    const line = rawLine.trimEnd();
+    const headingMatch = line.match(/^(Motif|S|O|A|P):\s*(.*)$/i);
+    if (headingMatch) {
+      const key = sectionMap[headingMatch[1].toLowerCase()];
+      activeSection = key;
+      sections[key] = headingMatch[2]?.trim() || "";
+      continue;
+    }
+
+    if (activeSection) {
+      sections[activeSection] = sections[activeSection]
+        ? `${sections[activeSection]}\n${line}`
+        : line;
+    }
+  }
+
+  return sections;
+}
+
+function toCondensedSoapText(sections: {
+  motif: string;
+  subjective: string;
+  objective: string;
+  assessment: string;
+  plan: string;
+}): string {
+  return [
+    "Motif:",
+    sections.motif || "",
+    "",
+    "S:",
+    sections.subjective || "",
+    "",
+    "O:",
+    sections.objective || "",
+    "",
+    "A:",
+    sections.assessment || "",
+    "",
+    "P:",
+    sections.plan || "",
+  ].join("\n");
+}
+
 // ── Agent 1: SOAP Note Structurer ──
 
 async function structureSOAPNote(
-  transcript: string,
+  cleanedTranscript: string,
   patientContext: any,
   apiKey: string
 ): Promise<any> {
@@ -254,9 +353,9 @@ async function structureSOAPNote(
     [
       {
         role: "system",
-        content: `You are an expert clinical documentation specialist structuring a FULL consultation dictation into a SOAP note.
+        content: `You are a medical documentation assistant for physicians.
 
-This dictation represents an ENTIRE patient encounter — from the moment the patient walks in to the end of the visit. Capture everything.
+Convert the provided cleaned dictation into a condensed SOAP consultation note.
 
 Patient context:
 - Name: ${patientContext?.name || "Unknown"}
@@ -265,67 +364,60 @@ Patient context:
 - Current medications: ${patientContext?.medications?.join(", ") || "None listed"}
 - Known allergies: ${patientContext?.allergies?.join(", ") || "NKDA"}
 
-SOAP Note Guidelines for a Complete Consultation:
+Strict requirements:
+- Professional physician tone
+- Concise medical language
+- No hallucinations
+- No invented information
+- No explanations
+- No conversational phrasing
+- Leave sections empty if missing
+- Output plain text only
+- Do not output JSON
+- Do not output markdown code fences
 
-SUBJECTIVE:
-- Start with Chief Complaint (CC) — why the patient is here today
-- History of Present Illness (HPI) using OLDCARTS: Onset, Location, Duration, Character, Aggravating factors, Relieving factors, Timing, Severity
-- Include relevant past medical/surgical/family/social history mentioned
-- Review of Systems (ROS) — document pertinent positives AND negatives across systems reviewed
-- Include the patient's own words when relevant (e.g. "Patient states...")
+Output format (exact labels/order):
+Motif:
+...
 
-OBJECTIVE:
-- General appearance and demeanor
-- Vital signs (extract exact numbers if mentioned)
-- Physical exam findings organized by system: HEENT, Neck, Cardiovascular, Respiratory, Abdomen, Musculoskeletal, Neurological, Skin, Psychiatric
-- Include pertinent normal findings (e.g. "lungs clear bilaterally") — not just abnormals
-- Point-of-care results if mentioned (glucose, strep test, urine dip, etc.)
+S:
+...
 
-ASSESSMENT:
-- Number each problem/diagnosis
-- For each: state the diagnosis or differential, reference supporting subjective and objective evidence
-- Clinical reasoning — why you think this diagnosis and not others
-- Severity and stability of each problem
+O:
+...
 
-PLAN:
-- Number to correspond with each assessment problem
-- For each problem include all that apply:
-  - Medications: new prescriptions, dose changes, discontinuations (include dose, route, frequency, duration)
-  - Diagnostics: labs, imaging, referrals ordered
-  - Non-pharmacologic: lifestyle counseling, PT, dietary changes
-  - Patient education given
-  - Follow-up timing
+A:
+...
 
-FOLLOW-UP INSTRUCTIONS:
-- When to return (specific timeframe)
-- Red flags / reasons to return sooner or go to ER
-- Pending items (labs to be drawn, referral calls, prior auth)
-- Lifestyle recommendations discussed
-
-Rules:
-- Use professional clinical language throughout
-- Do NOT invent findings — only document what the doctor actually dictated
-- If the dictation is brief, structure what's there; do not pad with fabricated details
-- Use "Not addressed" for SOAP sections the dictation doesn't cover (do NOT use "Not documented")
-- If the provider isn't named, use "Dictating Provider" / "MD"
-- Set date_of_service to today: ${new Date().toISOString().split("T")[0]}
-- Choose note_type based on what the encounter sounds like`,
+P:
+...`,
       },
       {
         role: "user",
-        content: `Here is the doctor's full consultation dictation:\n\n"${transcript}"`,
+        content: `Cleaned clinician dictation:\n\n${cleanedTranscript}`,
       },
     ],
     apiKey,
-    {
-      tools: [soapNoteTool],
-      toolChoice: { type: "function", function: { name: "create_soap_note" } },
-    }
+    { temperature: 0.15 }
   );
 
-  const args = extractToolArgs(result);
-  if (!args) throw new Error("SOAP agent returned no data");
-  return args;
+  const soapText = extractMessageText(result);
+  if (!soapText) throw new Error("SOAP generation returned no text");
+
+  const sections = parseSoapText(soapText);
+  return {
+    note_type: "Progress Note",
+    date_of_service: new Date().toISOString().split("T")[0],
+    provider_name: "Dictating Provider",
+    provider_credentials: "MD",
+    chief_complaint: sections.motif,
+    subjective: sections.subjective,
+    objective: sections.objective,
+    assessment: sections.assessment,
+    plan: sections.plan,
+    follow_up_instructions: "",
+    _formatted_text: toCondensedSoapText(sections),
+  };
 }
 
 // ── Agent 2: Change Detection ──
@@ -596,6 +688,16 @@ function buildNote(soapData: any): any {
   };
 }
 
+function formatNoteAsSoapText(note: any): string {
+  return toCondensedSoapText({
+    motif: note.chief_complaint || "",
+    subjective: note.subjective || "",
+    objective: note.objective || "",
+    assessment: note.assessment || "",
+    plan: note.plan || "",
+  });
+}
+
 // ── Main Handler ──
 
 serve(async (req) => {
@@ -613,18 +715,20 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
+    const cleanedTranscript = cleanTranscript(transcript);
+
     // ── Phase 1: Parallel SOAP Structuring + Change Detection ──
     const agentResults: { name: string; success: boolean }[] = [];
 
     const [soapResult, changesResult] = await Promise.all([
-      structureSOAPNote(transcript, patientContext, LOVABLE_API_KEY)
+      structureSOAPNote(cleanedTranscript, patientContext, LOVABLE_API_KEY)
         .then((data) => { agentResults.push({ name: "soap", success: true }); return data; })
         .catch((e) => {
           console.error("SOAP agent failed:", e);
           agentResults.push({ name: "soap", success: false });
           return null;
         }),
-      detectChanges(transcript, patientContext, LOVABLE_API_KEY)
+      detectChanges(cleanedTranscript, patientContext, LOVABLE_API_KEY)
         .then((data) => { agentResults.push({ name: "changes", success: true }); return data; })
         .catch((e) => {
           console.error("Change detection agent failed:", e);
@@ -652,7 +756,7 @@ serve(async (req) => {
           agentResults.push({ name: "interactions", success: false });
           return [];
         }),
-      verifyAgainstDictation(transcript, soapNote, proposedChanges, LOVABLE_API_KEY)
+      verifyAgainstDictation(cleanedTranscript, soapNote, proposedChanges, LOVABLE_API_KEY)
         .then((data) => { agentResults.push({ name: "verification", success: true }); return data; })
         .catch((e) => {
           console.error("Verification agent failed:", e);
@@ -692,8 +796,10 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         note,
+        formatted_note: formatNoteAsSoapText(note),
         proposed_changes: changesWithAlerts,
         _meta: {
+          cleaned_transcript: cleanedTranscript,
           interaction_alerts: interactionAlerts,
           verification_warnings: verification.warnings,
           hallucinations_cleaned: hallucinationsCleaned,

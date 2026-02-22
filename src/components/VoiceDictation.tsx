@@ -57,6 +57,70 @@ const ACTION_LABELS: Record<string, string> = {
   update: "Update",
 };
 
+const formatSoapText = (note: Partial<ClinicalNote>) => {
+  return [
+    "Motif:",
+    note.chief_complaint || "",
+    "",
+    "S:",
+    note.subjective || "",
+    "",
+    "O:",
+    note.objective || "",
+    "",
+    "A:",
+    note.assessment || "",
+    "",
+    "P:",
+    note.plan || "",
+  ].join("\n");
+};
+
+const parseSoapTextIntoNote = (soapText: string, base: Partial<ClinicalNote>) => {
+  const sections = {
+    motif: "",
+    subjective: "",
+    objective: "",
+    assessment: "",
+    plan: "",
+  };
+
+  const sectionMap: Record<string, keyof typeof sections> = {
+    motif: "motif",
+    s: "subjective",
+    o: "objective",
+    a: "assessment",
+    p: "plan",
+  };
+
+  let activeSection: keyof typeof sections | null = null;
+  for (const rawLine of soapText.replace(/\r\n/g, "\n").split("\n")) {
+    const line = rawLine.trimEnd();
+    const heading = line.match(/^(Motif|S|O|A|P):\s*(.*)$/i);
+    if (heading) {
+      const key = sectionMap[heading[1].toLowerCase()];
+      activeSection = key;
+      sections[key] = heading[2]?.trim() || "";
+      continue;
+    }
+
+    if (activeSection) {
+      sections[activeSection] = sections[activeSection]
+        ? `${sections[activeSection]}\n${line}`
+        : line;
+    }
+  }
+
+  return {
+    ...base,
+    chief_complaint: sections.motif,
+    subjective: sections.subjective,
+    objective: sections.objective,
+    assessment: sections.assessment,
+    plan: sections.plan,
+  };
+};
+
 const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDictationProps) => {
   const [stage, setStage] = useState<Stage>("idle");
   const [transcript, setTranscript] = useState("");
@@ -235,8 +299,8 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
     onOpenChange(false);
   };
 
-  const updateNoteField = (field: string, value: string) => {
-    setNote((prev) => (prev ? { ...prev, [field]: value } : prev));
+  const updateSoapText = (value: string) => {
+    setNote((prev) => (prev ? parseSoapTextIntoNote(value, prev) : prev));
   };
 
   return (
@@ -261,7 +325,7 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
             {hasSpeechApi ? (
               <div className="text-center py-8">
                 <p className="text-sm text-muted-foreground mb-6">
-                  Click the button to start dictating. Speak naturally — AI will structure your dictation into a SOAP note and detect record changes.
+                  Click the button to start dictating. AI will transcribe, clean, and format your dictation into a condensed SOAP note.
                 </p>
                 <Button size="lg" onClick={startRecording} className="gap-2">
                   <Mic className="h-5 w-5" /> Start Dictation
@@ -311,7 +375,7 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
         {stage === "processing" && (
           <div className="text-center py-12 space-y-4">
             <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-            <p className="text-sm text-muted-foreground">AI is structuring your dictation and detecting record changes...</p>
+            <p className="text-sm text-muted-foreground">AI is cleaning and structuring your dictation into a condensed SOAP note...</p>
             <div className="rounded-lg bg-muted/30 border border-border p-3 mx-auto max-w-md">
               <p className="text-xs text-muted-foreground line-clamp-3">{transcript}</p>
             </div>
@@ -325,41 +389,13 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
               Review the structured note and proposed record changes below.
             </p>
 
-            {/* SOAP fields */}
-            <div className="grid gap-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="clinical-label mb-1 block">Note Type</label>
-                  <input value={note.note_type || ""} onChange={(e) => updateNoteField("note_type", e.target.value)} className="w-full h-8 rounded-md border border-input bg-background px-2 text-sm" />
-                </div>
-                <div>
-                  <label className="clinical-label mb-1 block">Chief Complaint</label>
-                  <input value={note.chief_complaint || ""} onChange={(e) => updateNoteField("chief_complaint", e.target.value)} className="w-full h-8 rounded-md border border-input bg-background px-2 text-sm" />
-                </div>
-              </div>
-              {(["subjective", "objective", "assessment", "plan"] as const).map((field) => (
-                <div key={field}>
-                  <label className="clinical-label mb-1 block">{field.charAt(0).toUpperCase() + field.slice(1)}</label>
-                  <Textarea value={(note as any)[field] || ""} onChange={(e) => updateNoteField(field, e.target.value)} className="min-h-[60px] text-sm" />
-                </div>
-              ))}
-              <div>
-                <label className="clinical-label mb-1 block">Follow-up Instructions</label>
-                <input value={note.follow_up_instructions || ""} onChange={(e) => updateNoteField("follow_up_instructions", e.target.value)} className="w-full h-8 rounded-md border border-input bg-background px-2 text-sm" />
-              </div>
-              {note.vital_signs && (
-                <div className="rounded-lg bg-muted/30 border border-border p-3">
-                  <label className="clinical-label mb-2 block">Extracted Vital Signs</label>
-                  <div className="flex flex-wrap gap-3 text-xs font-mono">
-                    {note.vital_signs.blood_pressure_systolic && note.vital_signs.blood_pressure_diastolic && (
-                      <span>BP: {note.vital_signs.blood_pressure_systolic}/{note.vital_signs.blood_pressure_diastolic}</span>
-                    )}
-                    {note.vital_signs.heart_rate && <span>HR: {note.vital_signs.heart_rate}</span>}
-                    {note.vital_signs.temperature_fahrenheit && <span>Temp: {note.vital_signs.temperature_fahrenheit}°F</span>}
-                    {note.vital_signs.bmi && <span>BMI: {note.vital_signs.bmi}</span>}
-                  </div>
-                </div>
-              )}
+            <div>
+              <label className="clinical-label mb-1 block">Report fo the consultation</label>
+              <Textarea
+                value={formatSoapText(note)}
+                onChange={(e) => updateSoapText(e.target.value)}
+                className="min-h-[260px] text-sm font-mono"
+              />
             </div>
 
             {/* Proposed Record Changes */}
