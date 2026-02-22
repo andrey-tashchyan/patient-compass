@@ -322,12 +322,11 @@ export function usePatients() {
     enabled: !!user,
   });
 
-  // Auto-seed on first login if no patients exist
+  // Auto-seed missing mock patients (runs once per session per user)
   useEffect(() => {
     if (
       user &&
       query.data &&
-      query.data.length === 0 &&
       !query.isLoading &&
       !seededRef.current
     ) {
