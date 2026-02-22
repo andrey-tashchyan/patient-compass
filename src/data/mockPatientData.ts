@@ -3,8 +3,9 @@ import {
   Gender,
   AllergyStatus,
 } from "@/types/patient";
+import { evolutionPatients } from "@/data/evolutionPatients";
 
-export const mockPatients: Patient[] = [
+const corePatients: Patient[] = [
   // ── P-001: CHF patient ──
   {
     patient_id: "P-001",
@@ -282,6 +283,8 @@ export const mockPatients: Patient[] = [
     ],
   },
 ];
+
+export const mockPatients: Patient[] = [...corePatients, ...evolutionPatients];
 
 export function getPatientById(id: string): Patient | undefined {
   return mockPatients.find((p) => p.patient_id === id);
