@@ -1,6 +1,6 @@
 import { useRef, useEffect, useMemo } from "react";
 import * as echarts from "echarts";
-import type { VitalDataPoint, RollingAverage, BpStage, BP_STAGE_COLORS } from "@/lib/evolutionMetrics";
+import type { VitalDataPoint, RollingAverage } from "@/lib/evolutionMetrics";
 import type { ChartAnnotation, RiskWindow } from "@/types/evolutionInsights";
 import type { TreatmentMarker, AdmissionMarker } from "@/lib/evolutionMetrics";
 
@@ -14,6 +14,7 @@ interface Props {
   visibleMetrics: Set<string>;
   dateRange: [number, number] | null;
   onAnnotationClick?: (annotation: ChartAnnotation) => void;
+  focusMetric?: string | null;
 }
 
 const TEAL = "#0d9488";
@@ -22,6 +23,14 @@ const AMBER = "#d97706";
 const SLATE_BLUE = "#6366f1";
 const ROSE = "#e11d48";
 const EMERALD = "#10b981";
+
+function getSeriesStyle(metricKey: string, focusMetric: string | null | undefined) {
+  const isFocus = focusMetric === metricKey;
+  return {
+    lineWidth: isFocus ? 3 : 1.5,
+    showArea: isFocus,
+  };
+}
 
 export default function MetricTrendChart({
   vitals,
@@ -33,6 +42,7 @@ export default function MetricTrendChart({
   visibleMetrics,
   dateRange,
   onAnnotationClick,
+  focusMetric,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<echarts.ECharts | null>(null);
@@ -67,6 +77,7 @@ export default function MetricTrendChart({
     });
 
     if (visibleMetrics.has("sbp")) {
+      const style = getSeriesStyle("sbp", focusMetric);
       series.push({
         name: "SBP",
         type: "line",
@@ -74,19 +85,24 @@ export default function MetricTrendChart({
         data: filtered.map((v) => [v.date.slice(0, 10), v.sbp ?? null]),
         smooth: true,
         symbol: "circle",
-        symbolSize: 5,
-        lineStyle: { color: TEAL, width: 2 },
+        symbolSize: style.showArea ? 6 : 5,
+        lineStyle: { color: TEAL, width: style.lineWidth },
         itemStyle: { color: TEAL },
-        areaStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: "rgba(13,148,136,0.18)" },
-            { offset: 1, color: "rgba(13,148,136,0.02)" },
-          ]),
-        },
+        areaStyle: style.showArea
+          ? {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: "rgba(13,148,136,0.25)" },
+                { offset: 1, color: "rgba(13,148,136,0.02)" },
+              ]),
+            }
+          : undefined,
+        animationDuration: 800,
+        animationEasing: "cubicOut",
       });
     }
 
     if (visibleMetrics.has("dbp")) {
+      const style = getSeriesStyle("dbp", focusMetric);
       series.push({
         name: "DBP",
         type: "line",
@@ -95,12 +111,23 @@ export default function MetricTrendChart({
         smooth: true,
         symbol: "circle",
         symbolSize: 4,
-        lineStyle: { color: TEAL_LIGHT, width: 2 },
+        lineStyle: { color: TEAL_LIGHT, width: style.lineWidth },
         itemStyle: { color: TEAL_LIGHT },
+        areaStyle: style.showArea
+          ? {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: "rgba(94,234,212,0.2)" },
+                { offset: 1, color: "rgba(94,234,212,0.02)" },
+              ]),
+            }
+          : undefined,
+        animationDuration: 800,
+        animationEasing: "cubicOut",
       });
     }
 
     if (visibleMetrics.has("map")) {
+      const style = getSeriesStyle("map", focusMetric);
       series.push({
         name: "MAP",
         type: "line",
@@ -109,8 +136,18 @@ export default function MetricTrendChart({
         smooth: true,
         symbol: "diamond",
         symbolSize: 4,
-        lineStyle: { color: AMBER, width: 1.5, type: "dashed" },
+        lineStyle: { color: AMBER, width: style.lineWidth, type: style.showArea ? "solid" : "dashed" },
         itemStyle: { color: AMBER },
+        areaStyle: style.showArea
+          ? {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: "rgba(217,119,6,0.2)" },
+                { offset: 1, color: "rgba(217,119,6,0.02)" },
+              ]),
+            }
+          : undefined,
+        animationDuration: 800,
+        animationEasing: "cubicOut",
       });
     }
 
@@ -123,11 +160,14 @@ export default function MetricTrendChart({
         smooth: true,
         symbol: "none",
         lineStyle: { color: SLATE_BLUE, width: 1.5, type: "dotted" },
+        animationDuration: 800,
+        animationEasing: "cubicOut",
       });
     }
 
     // HR on secondary axis
     if (visibleMetrics.has("hr")) {
+      const style = getSeriesStyle("hr", focusMetric);
       yAxisConfigs.push({
         type: "value",
         name: "bpm",
@@ -144,8 +184,18 @@ export default function MetricTrendChart({
         smooth: true,
         symbol: "circle",
         symbolSize: 4,
-        lineStyle: { color: ROSE, width: 1.5 },
+        lineStyle: { color: ROSE, width: style.lineWidth },
         itemStyle: { color: ROSE },
+        areaStyle: style.showArea
+          ? {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: "rgba(225,29,72,0.18)" },
+                { offset: 1, color: "rgba(225,29,72,0.02)" },
+              ]),
+            }
+          : undefined,
+        animationDuration: 800,
+        animationEasing: "cubicOut",
       });
     }
 
@@ -241,7 +291,7 @@ export default function MetricTrendChart({
       window.removeEventListener("resize", onResize);
       chart.dispose();
     };
-  }, [filtered, filteredRA, annotations, treatmentMarkers, visibleMetrics, dateRange]);
+  }, [filtered, filteredRA, annotations, treatmentMarkers, visibleMetrics, dateRange, focusMetric]);
 
   return (
     <div

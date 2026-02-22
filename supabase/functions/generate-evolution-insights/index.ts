@@ -12,6 +12,17 @@ Return ONLY a JSON object with:
 - annotations: array of { time (ISO date), metric (bp|hr|shock_index|condition), title (short), explanation (1-2 sentences), confidence (0-1), related_event_ids (string[]) }
 - risk_windows: array of { start (ISO date), end (ISO date), label, confidence (0-1) }
 - condition_trajectory: array of { condition, phase (onset|active|resolving|resolved), start (ISO date), end (ISO date), confidence (0-1) }
+- plot_plan: an object describing which metrics to plot and in what order. You must analyze the data and decide which parameters are clinically most relevant for THIS specific patient. Consider:
+  * Data availability: only recommend metrics that have data points
+  * Clinical significance: prioritize metrics showing abnormal trends, crisis events, or correlations with conditions/treatments
+  * Temporal patterns: if BP is the dominant story, lead with it; if HR correlates with a condition, highlight that
+  
+  The plot_plan must contain:
+  - recommended_metrics: string[] — ordered list from ["sbp","dbp","map","hr","sbp_30d","annotations"] by clinical relevance
+  - focus_metric: string — the single most important metric to emphasize visually (thicker line, area fill)
+  - recommended_date_range: "30d"|"90d"|"365d"|"all" — the best time window to see the key clinical story
+  - animation_sequence: array of { metric (string), delay_ms (number, multiples of 400 starting from 0), rationale (1 sentence explaining why this metric matters for this patient) }
+  - narrative_headline: string — one sentence summarizing the dominant clinical narrative for this patient's evolution
 
 Focus on clinically significant patterns: BP trends, medication timing effects, condition correlations. Be concise and evidence-based.`;
 
@@ -23,7 +34,6 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
-      // Return empty deterministic response if no AI key
       return new Response(
         JSON.stringify({ annotations: [], risk_windows: [], condition_trajectory: [], source: "deterministic" }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
@@ -48,7 +58,7 @@ serve(async (req) => {
             type: "function",
             function: {
               name: "return_insights",
-              description: "Return clinical evolution insights",
+              description: "Return clinical evolution insights with plot plan",
               parameters: {
                 type: "object",
                 properties: {
@@ -94,8 +104,36 @@ serve(async (req) => {
                       required: ["condition", "phase", "start", "end", "confidence"],
                     },
                   },
+                  plot_plan: {
+                    type: "object",
+                    properties: {
+                      recommended_metrics: {
+                        type: "array",
+                        items: { type: "string" },
+                      },
+                      focus_metric: { type: "string" },
+                      recommended_date_range: {
+                        type: "string",
+                        enum: ["30d", "90d", "365d", "all"],
+                      },
+                      animation_sequence: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            metric: { type: "string" },
+                            delay_ms: { type: "number" },
+                            rationale: { type: "string" },
+                          },
+                          required: ["metric", "delay_ms", "rationale"],
+                        },
+                      },
+                      narrative_headline: { type: "string" },
+                    },
+                    required: ["recommended_metrics", "focus_metric", "recommended_date_range", "animation_sequence", "narrative_headline"],
+                  },
                 },
-                required: ["annotations", "risk_windows", "condition_trajectory"],
+                required: ["annotations", "risk_windows", "condition_trajectory", "plot_plan"],
               },
             },
           },
@@ -122,7 +160,6 @@ serve(async (req) => {
         });
       }
 
-      // Fallback to empty
       return new Response(
         JSON.stringify({ annotations: [], risk_windows: [], condition_trajectory: [], source: "deterministic" }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
@@ -139,7 +176,6 @@ serve(async (req) => {
       });
     }
 
-    // Fallback
     return new Response(
       JSON.stringify({ annotations: [], risk_windows: [], condition_trajectory: [], source: "deterministic" }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },

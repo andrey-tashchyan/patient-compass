@@ -1,16 +1,16 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Loader2, Activity, Heart, TrendingUp, Calendar, BarChart3 } from "lucide-react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Loader2, Activity, Heart, TrendingUp, Calendar, BarChart3, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import MetricTrendChart from "./MetricTrendChart";
 import DiseaseTimelineChart from "./DiseaseTimelineChart";
 import AnnotationPanel from "./AnnotationPanel";
-import { deriveMetrics, type DerivedMetrics, BP_STAGE_LABELS } from "@/lib/evolutionMetrics";
-import { fetchEvolutionInsights, generateDeterministicInsights } from "@/lib/evolutionInsights";
+import { deriveMetrics, BP_STAGE_LABELS } from "@/lib/evolutionMetrics";
+import { fetchEvolutionInsights, generateDeterministicInsights, generateDeterministicPlotPlan } from "@/lib/evolutionInsights";
 import type { PatientEvolutionOutput } from "@/types/patientEvolution";
-import type { EvolutionInsights, ChartAnnotation } from "@/types/evolutionInsights";
+import type { EvolutionInsights, ChartAnnotation, PlotPlan } from "@/types/evolutionInsights";
 
 interface Props {
   payload: PatientEvolutionOutput;
@@ -29,22 +29,52 @@ const METRIC_CHIPS: { key: string; label: string; icon: React.ReactNode }[] = [
 
 export default function EvolutionDashboard({ payload }: Props) {
   const [dateRangeOption, setDateRangeOption] = useState<DateRangeOption>("all");
-  const [activeMetrics, setActiveMetrics] = useState<Set<string>>(
-    new Set(["sbp", "dbp", "map", "hr", "annotations"])
-  );
+  const [activeMetrics, setActiveMetrics] = useState<Set<string>>(new Set());
   const [insights, setInsights] = useState<EvolutionInsights | null>(null);
   const [insightsLoading, setInsightsLoading] = useState(false);
   const [selectedAnnotation, setSelectedAnnotation] = useState<ChartAnnotation | null>(null);
+  const [narrativeHeadline, setNarrativeHeadline] = useState<string | null>(null);
+  const [focusMetric, setFocusMetric] = useState<string | null>(null);
+  const [animationComplete, setAnimationComplete] = useState(false);
+  const animationTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const metrics = useMemo(() => deriveMetrics(payload), [payload]);
 
-  // Compute date range
   const dateRange = useMemo((): [number, number] | null => {
     if (dateRangeOption === "all" || !metrics.coverage.dateRange) return null;
     const now = Date.now();
     const days = dateRangeOption === "30d" ? 30 : dateRangeOption === "90d" ? 90 : 365;
     return [now - days * 86400000, now];
   }, [dateRangeOption, metrics.coverage.dateRange]);
+
+  // Run animation sequence from plot plan
+  const runAnimationSequence = useCallback((plan: PlotPlan) => {
+    // Clear previous timers
+    animationTimers.current.forEach(clearTimeout);
+    animationTimers.current = [];
+
+    setActiveMetrics(new Set());
+    setFocusMetric(plan.focus_metric);
+    setNarrativeHeadline(plan.narrative_headline);
+    setDateRangeOption(plan.recommended_date_range);
+    setAnimationComplete(false);
+
+    for (const step of plan.animation_sequence) {
+      const timer = setTimeout(() => {
+        setActiveMetrics((prev) => {
+          const next = new Set(prev);
+          next.add(step.metric);
+          return next;
+        });
+      }, step.delay_ms);
+      animationTimers.current.push(timer);
+    }
+
+    // Mark animation complete after last step
+    const maxDelay = Math.max(...plan.animation_sequence.map((s) => s.delay_ms), 0);
+    const doneTimer = setTimeout(() => setAnimationComplete(true), maxDelay + 600);
+    animationTimers.current.push(doneTimer);
+  }, []);
 
   // Fetch AI insights
   useEffect(() => {
@@ -53,15 +83,27 @@ export default function EvolutionDashboard({ payload }: Props) {
       setInsightsLoading(true);
       try {
         const result = await fetchEvolutionInsights(metrics, payload);
-        if (!cancelled) setInsights(result);
+        if (!cancelled) {
+          setInsights(result);
+          const plan = result.plot_plan ?? generateDeterministicPlotPlan(metrics);
+          runAnimationSequence(plan);
+        }
       } catch {
-        if (!cancelled) setInsights(generateDeterministicInsights(metrics));
+        if (!cancelled) {
+          const fallback = generateDeterministicInsights(metrics);
+          setInsights(fallback);
+          const plan = fallback.plot_plan ?? generateDeterministicPlotPlan(metrics);
+          runAnimationSequence(plan);
+        }
       } finally {
         if (!cancelled) setInsightsLoading(false);
       }
     })();
-    return () => { cancelled = true; };
-  }, [metrics, payload]);
+    return () => {
+      cancelled = true;
+      animationTimers.current.forEach(clearTimeout);
+    };
+  }, [metrics, payload, runAnimationSequence]);
 
   const toggleMetric = useCallback((key: string) => {
     setActiveMetrics((prev) => {
@@ -96,7 +138,6 @@ export default function EvolutionDashboard({ payload }: Props) {
           </p>
         </div>
 
-        {/* Date range selector */}
         <div className="flex gap-1">
           {(["30d", "90d", "365d", "all"] as DateRangeOption[]).map((opt) => (
             <Button
@@ -112,6 +153,22 @@ export default function EvolutionDashboard({ payload }: Props) {
         </div>
       </div>
 
+      {/* Narrative headline from AI agent */}
+      <AnimatePresence>
+        {narrativeHeadline && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="flex items-start gap-2 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3"
+          >
+            <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+            <p className="text-sm font-medium text-foreground">{narrativeHeadline}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Metric toggle chips */}
       <div className="flex flex-wrap gap-2">
         {METRIC_CHIPS.map((chip) => (
@@ -120,12 +177,17 @@ export default function EvolutionDashboard({ payload }: Props) {
             onClick={() => toggleMetric(chip.key)}
             className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
               activeMetrics.has(chip.key)
-                ? "border-primary/40 bg-primary/10 text-primary"
+                ? chip.key === focusMetric
+                  ? "border-primary bg-primary/20 text-primary ring-1 ring-primary/30"
+                  : "border-primary/40 bg-primary/10 text-primary"
                 : "border-border bg-card text-muted-foreground hover:border-primary/20"
             }`}
           >
             {chip.icon}
             {chip.label}
+            {chip.key === focusMetric && activeMetrics.has(chip.key) && (
+              <span className="ml-0.5 text-[9px] uppercase tracking-wider opacity-70">focus</span>
+            )}
           </button>
         ))}
       </div>
@@ -141,10 +203,7 @@ export default function EvolutionDashboard({ payload }: Props) {
                 {metrics.vitals[metrics.vitals.length - 1].dbp}
               </p>
               {metrics.vitals[metrics.vitals.length - 1].bpStage && (
-                <Badge
-                  variant="outline"
-                  className="mt-1 text-[10px]"
-                >
+                <Badge variant="outline" className="mt-1 text-[10px]">
                   {BP_STAGE_LABELS[metrics.vitals[metrics.vitals.length - 1].bpStage!]}
                 </Badge>
               )}
@@ -183,7 +242,6 @@ export default function EvolutionDashboard({ payload }: Props) {
       {/* Charts + Annotations layout */}
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="space-y-6">
-          {/* BP / Vital Trend Chart */}
           <div>
             <h3 className="mb-2 text-sm font-semibold text-foreground">
               Blood Pressure & Vital Trends
@@ -199,6 +257,7 @@ export default function EvolutionDashboard({ payload }: Props) {
                 visibleMetrics={activeMetrics}
                 dateRange={dateRange}
                 onAnnotationClick={setSelectedAnnotation}
+                focusMetric={focusMetric}
               />
             ) : (
               <div className="flex h-48 items-center justify-center rounded-xl border border-border bg-card text-sm text-muted-foreground">
@@ -207,7 +266,6 @@ export default function EvolutionDashboard({ payload }: Props) {
             )}
           </div>
 
-          {/* Disease Timeline */}
           <div>
             <h3 className="mb-2 text-sm font-semibold text-foreground">
               Disease Timeline
@@ -221,7 +279,6 @@ export default function EvolutionDashboard({ payload }: Props) {
           </div>
         </div>
 
-        {/* Annotation Panel */}
         <div>
           {insightsLoading ? (
             <div className="flex h-48 items-center justify-center rounded-xl border border-border bg-card">

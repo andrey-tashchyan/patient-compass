@@ -3,7 +3,7 @@
  * Falls back to deterministic rule-based annotations on failure.
  */
 import type { DerivedMetrics, VitalDataPoint } from "./evolutionMetrics";
-import type { EvolutionInsights, ChartAnnotation } from "@/types/evolutionInsights";
+import type { EvolutionInsights, ChartAnnotation, PlotPlan } from "@/types/evolutionInsights";
 import type { PatientEvolutionOutput } from "@/types/patientEvolution";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
@@ -110,6 +110,54 @@ export function generateDeterministicInsights(metrics: DerivedMetrics): Evolutio
     annotations: annotations.slice(0, 20),
     risk_windows: [],
     condition_trajectory: [],
+    plot_plan: generateDeterministicPlotPlan(metrics),
     source: "deterministic",
+  };
+}
+
+/** Deterministic plot plan fallback based on data availability */
+export function generateDeterministicPlotPlan(metrics: DerivedMetrics): PlotPlan {
+  const { coverage } = metrics;
+  const recommended: string[] = [];
+  const sequence: { metric: string; delay_ms: number; rationale: string }[] = [];
+  let delay = 0;
+  const STEP = 400;
+
+  if (coverage.hasBP) {
+    recommended.push("sbp", "dbp");
+    sequence.push({ metric: "sbp", delay_ms: delay, rationale: "Primary blood pressure metric available." });
+    delay += STEP;
+    sequence.push({ metric: "dbp", delay_ms: delay, rationale: "Diastolic pressure provides complete BP picture." });
+    delay += STEP;
+    recommended.push("map");
+    sequence.push({ metric: "map", delay_ms: delay, rationale: "MAP indicates perfusion pressure." });
+    delay += STEP;
+  }
+
+  if (coverage.hasHR) {
+    recommended.push("hr");
+    sequence.push({ metric: "hr", delay_ms: delay, rationale: "Heart rate data available for cardiovascular assessment." });
+    delay += STEP;
+  }
+
+  if (coverage.hasBP) {
+    recommended.push("sbp_30d");
+    sequence.push({ metric: "sbp_30d", delay_ms: delay, rationale: "Rolling average shows long-term BP trend." });
+    delay += STEP;
+  }
+
+  recommended.push("annotations");
+  sequence.push({ metric: "annotations", delay_ms: delay, rationale: "Clinical annotations highlight key events." });
+
+  const focusMetric = coverage.hasBP ? "sbp" : coverage.hasHR ? "hr" : "annotations";
+
+  return {
+    recommended_metrics: recommended,
+    focus_metric: focusMetric,
+    recommended_date_range: "all",
+    animation_sequence: sequence,
+    narrative_headline: coverage.hasBP
+      ? "Blood pressure trends drive this patient's clinical narrative."
+      : "Vital sign monitoring overview.",
   };
 }
