@@ -6,7 +6,7 @@ import ReactMarkdown from "react-markdown";
 import type { Patient } from "@/types/patient";
 import type { UseMutationResult } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+
 import { motion, AnimatePresence } from "framer-motion";
 
 // ── Types ──
@@ -201,19 +201,10 @@ export default function PatientChatPanel({ patient, updatePatient }: Props) {
     setLoading(true);
 
     try {
-      // Get the authenticated user's session token
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.error("Not authenticated. Please sign in.");
-        setLoading(false);
-        return;
-      }
-
       const resp = await fetch(CHAT_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
           messages: history
