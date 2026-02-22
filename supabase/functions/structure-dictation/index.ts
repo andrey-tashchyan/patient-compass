@@ -1,19 +1,42 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-const PAID_API_KEY = Deno.env.get("PAID_API_KEY")!;
+const PAID_API_KEY = Deno.env.get("PAID_API_KEY");
+const PAID_USAGE_URL = "https://api.agentpaid.io/api/v1/usage/v2/signals/bulk";
+const PAID_EXTERNAL_CUSTOMER_ID = Deno.env.get("PAID_EXTERNAL_CUSTOMER_ID") || "demo_hospital";
+const PAID_EXTERNAL_PRODUCT_ID = Deno.env.get("PAID_EXTERNAL_PRODUCT_ID") || "cliniview-dictation";
 
-async function trackUsage(signalName: string) {
-  await fetch("https://api.paid.ai/v1/signals", {
+async function trackUsage(input: {
+  eventName: string;
+  externalCustomerId?: string;
+  externalProductId?: string;
+  data?: Record<string, unknown>;
+}) {
+  if (!PAID_API_KEY) {
+    console.warn("PAID_API_KEY is not configured; skipping Paid usage tracking.");
+    return;
+  }
+
+  const response = await fetch(PAID_USAGE_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${PAID_API_KEY}`,
     },
     body: JSON.stringify({
-      customer_id: "demo_hospital",
-      name: signalName,
-      value: 1,
+      signals: [
+        {
+          event_name: input.eventName,
+          external_customer_id: input.externalCustomerId || PAID_EXTERNAL_CUSTOMER_ID,
+          external_product_id: input.externalProductId || PAID_EXTERNAL_PRODUCT_ID,
+          ...(input.data ? { data: input.data } : {}),
+        },
+      ],
     }),
   });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Paid usage tracking failed (${response.status}): ${errText}`);
+  }
 }
 
 // ── Constants ──
@@ -758,6 +781,19 @@ serve(async (req) => {
 
     // ── Build Response ──
     const note = buildNote(reportResult);
+
+    try {
+      await trackUsage({
+        eventName: "consultation_report_generated",
+        data: {
+          endpoint: "structure-dictation",
+          transcript_length: cleanedTranscript.length,
+          has_patient_context: Boolean(patientContext),
+        },
+      });
+    } catch (trackError) {
+      console.error("Paid usage tracking failed:", trackError);
+    }
 
     const agentsSucceeded = agentResults.filter((a) => a.success).length;
     const agentsFailed = agentResults.filter((a) => !a.success).map((a) => a.name);

@@ -92,6 +92,9 @@ const blobToBase64 = (blob: Blob): Promise<string> =>
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const MEDASR_TRANSCRIBE_URL =
+  import.meta.env.VITE_MEDASR_TRANSCRIBE_URL ||
+  (SUPABASE_URL ? `${SUPABASE_URL}/functions/v1/medasr-transcribe` : "");
 
 const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDictationProps) => {
   const [stage, setStage] = useState<Stage>("idle");
@@ -108,6 +111,8 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
   const animFrameRef = useRef<number>(0);
   const streamRef = useRef<MediaStream | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const speechRecognitionRef = useRef<any>(null);
+  const speechTranscriptRef = useRef("");
 
   const hasRecordingApi =
     typeof window !== "undefined" &&
@@ -127,6 +132,17 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
       void audioCtxRef.current.close();
       audioCtxRef.current = null;
     }
+    if (speechRecognitionRef.current) {
+      speechRecognitionRef.current.onresult = null;
+      speechRecognitionRef.current.onerror = null;
+      speechRecognitionRef.current.onend = null;
+      try {
+        speechRecognitionRef.current.stop();
+      } catch {
+        // no-op
+      }
+      speechRecognitionRef.current = null;
+    }
     analyserRef.current = null;
   }, []);
 
@@ -143,6 +159,7 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
       setDemoInput("");
       setError("");
       setNote(null);
+      speechTranscriptRef.current = "";
     }
   }, [open, releaseAudioResources]);
 
@@ -190,6 +207,7 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
     setError("");
     setTranscript("");
     setNote(null);
+    speechTranscriptRef.current = "";
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -213,6 +231,34 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
       };
       recorder.start(200);
       mediaRecorderRef.current = recorder;
+
+      const SpeechRecognitionCtor =
+        (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition || null;
+      if (SpeechRecognitionCtor) {
+        try {
+          const recognition = new SpeechRecognitionCtor();
+          recognition.lang = navigator.language || "en-US";
+          recognition.continuous = true;
+          recognition.interimResults = true;
+          recognition.onresult = (event: any) => {
+            let text = "";
+            for (let i = 0; i < event.results.length; i += 1) {
+              const result = event.results[i];
+              if (result?.[0]?.transcript) {
+                text += `${result[0].transcript} `;
+              }
+            }
+            speechTranscriptRef.current = text.trim();
+          };
+          recognition.onerror = () => {
+            // Falls back to server-side transcription below.
+          };
+          recognition.start();
+          speechRecognitionRef.current = recognition;
+        } catch {
+          // Falls back to server-side transcription below.
+        }
+      }
 
       setStage("recording");
       drawWaveform();
@@ -252,8 +298,13 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
   }, [releaseAudioResources]);
 
   const transcribeWithMedAsr = async (audioBlob: Blob): Promise<string> => {
+    const endpoint = MEDASR_TRANSCRIBE_URL || (import.meta.env.DEV ? "/api/medasr-transcribe" : "");
+    if (!endpoint) {
+      throw new Error("No transcription endpoint configured. Set VITE_MEDASR_TRANSCRIBE_URL.");
+    }
+
     const audioBase64 = await blobToBase64(audioBlob);
-    const response = await fetch("/api/medasr-transcribe", {
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -325,7 +376,8 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
       if (!audioBlob) {
         throw new Error("No audio recorded. Please try again.");
       }
-      const finalTranscript = await transcribeWithMedAsr(audioBlob);
+      const browserTranscript = speechTranscriptRef.current.trim();
+      const finalTranscript = browserTranscript || (await transcribeWithMedAsr(audioBlob));
       await processTranscript(finalTranscript);
     } catch (err: any) {
       setError(err.message || "Failed to process recording");
