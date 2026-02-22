@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { trackUsage } from "../_shared/paid-tracking.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -170,6 +171,16 @@ CRITICAL RULES:
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    // Track prescription check events (chat can propose medication changes)
+    // Fire and forget — don't block the stream
+    trackUsage({
+      eventName: "prescription_checked",
+      data: {
+        message_count: messages.length,
+        has_patient_data: Boolean(patientData),
+      },
+    }).catch(() => {});
 
     return new Response(response.body, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },

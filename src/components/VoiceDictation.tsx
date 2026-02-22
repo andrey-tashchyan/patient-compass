@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Mic, Square, Loader2, Check, AlertCircle } from "lucide-react";
 import type { ClinicalNote, VitalSigns } from "@/types/patient";
+import { trackClinicalEvent } from "@/lib/clinicalEventTracker";
 
 export interface ProposedChange {
   category: "medication" | "diagnosis" | "allergy";
@@ -379,6 +380,27 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
         ...(data?.note || {}),
         summary,
       });
+
+      // Track events client-side for dashboard
+      trackClinicalEvent("consultation_generated", {
+        transcript_length: finalTranscript.length,
+        estimated_time_saved_minutes: 8,
+      });
+      trackClinicalEvent("voice_dictation_processed", {
+        transcript_length: finalTranscript.length,
+      });
+
+      // Track safety events from response
+      const alerts = data?._meta?.interaction_alerts || [];
+      for (const alert of alerts) {
+        if (alert.alert_type?.includes("contraindication") || alert.alert_type?.includes("drug_")) {
+          trackClinicalEvent("contraindication_detected", {
+            severity: alert.severity,
+            drug: alert.related_change || alert.title,
+          });
+        }
+      }
+
       setStage("review");
     } catch (err: any) {
       setError(err.message || "Failed to structure note");

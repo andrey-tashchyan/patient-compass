@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { trackUsage } from "../_shared/paid-tracking.ts";
 
 // ── Constants ──
 
@@ -1181,6 +1182,32 @@ serve(async (req) => {
 
     // ── Build Meta & Return ──
     const meta = buildMeta(validation, crossWarnings, verificationWarnings, hallucinationsCleaned, correctionRounds, agentResults);
+
+    // Track PDF parsing event
+    await trackUsage({
+      eventName: "pdf_structured",
+      data: {
+        extraction_quality: meta.extraction_quality,
+        agents_succeeded: meta.agents_succeeded,
+        hallucinations_found: meta.hallucinations_found,
+        estimated_time_saved_minutes: 15,
+        medication_count: (patient.current_medications || []).length,
+        diagnosis_count: (patient.diagnoses || []).length,
+      },
+    });
+
+    // Track contraindications if cross-validation found drug-allergy conflicts
+    const allergyConflicts = crossWarnings.filter((w: string) => w.includes("allergy"));
+    if (allergyConflicts.length > 0) {
+      await trackUsage({
+        eventName: "contraindication_detected",
+        data: {
+          count: allergyConflicts.length,
+          severity: "warning",
+          source: "pdf_cross_validation",
+        },
+      });
+    }
 
     return new Response(
       JSON.stringify({ patient, _meta: meta }),
