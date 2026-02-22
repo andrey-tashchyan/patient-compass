@@ -1,4 +1,20 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+const PAID_API_KEY = Deno.env.get("PAID_API_KEY")!;
+
+async function trackUsage(signalName: string) {
+  await fetch("https://api.paid.ai/v1/signals", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${PAID_API_KEY}`,
+    },
+    body: JSON.stringify({
+      customer_id: "demo_hospital",
+      name: signalName,
+      value: 1,
+    }),
+  });
+}
 
 // ── Constants ──
 
@@ -23,34 +39,41 @@ const soapNoteTool = {
       properties: {
         note_type: {
           type: "string",
-          description: "Type of encounter: 'Initial Consultation', 'Follow-Up Visit', 'Progress Note', 'Annual Physical', 'Urgent Visit', 'Discharge Summary', 'Pre-Operative', 'Post-Operative', 'Telehealth Visit'",
+          description:
+            "Type of encounter: 'Initial Consultation', 'Follow-Up Visit', 'Progress Note', 'Annual Physical', 'Urgent Visit', 'Discharge Summary', 'Pre-Operative', 'Post-Operative', 'Telehealth Visit'",
         },
         date_of_service: { type: "string", description: "YYYY-MM-DD format" },
         provider_name: { type: "string", description: "Name of the dictating clinician" },
         provider_credentials: { type: "string", description: "Credentials: MD, DO, NP, PA, etc." },
         chief_complaint: {
           type: "string",
-          description: "The primary reason for the visit in the patient's perspective, e.g. 'chest pain for 2 days', 'follow-up for diabetes management'",
+          description:
+            "The primary reason for the visit in the patient's perspective, e.g. 'chest pain for 2 days', 'follow-up for diabetes management'",
         },
         subjective: {
           type: "string",
-          description: "Patient's reported symptoms, history of present illness (HPI), and relevant review of systems (ROS). Include: onset, location, duration, character, aggravating/alleviating factors, timing, severity (OLDCARTS). Include pertinent positives AND negatives from ROS.",
+          description:
+            "Patient's reported symptoms, history of present illness (HPI), and relevant review of systems (ROS). Include: onset, location, duration, character, aggravating/alleviating factors, timing, severity (OLDCARTS). Include pertinent positives AND negatives from ROS.",
         },
         objective: {
           type: "string",
-          description: "Clinician's findings from physical examination, vital signs narrative, and any point-of-care test results. Structure by system examined. Include general appearance.",
+          description:
+            "Clinician's findings from physical examination, vital signs narrative, and any point-of-care test results. Structure by system examined. Include general appearance.",
         },
         assessment: {
           type: "string",
-          description: "Clinical impression and reasoning. For each problem: state the diagnosis or differential, link to supporting evidence from S and O sections. Number each problem if multiple.",
+          description:
+            "Clinical impression and reasoning. For each problem: state the diagnosis or differential, link to supporting evidence from S and O sections. Number each problem if multiple.",
         },
         plan: {
           type: "string",
-          description: "Management plan for each assessed problem. Include: medications (new/changed/continued), diagnostic orders (labs, imaging), referrals, patient education, and follow-up timeline. Number to match assessment problems.",
+          description:
+            "Management plan for each assessed problem. Include: medications (new/changed/continued), diagnostic orders (labs, imaging), referrals, patient education, and follow-up timeline. Number to match assessment problems.",
         },
         follow_up_instructions: {
           type: "string",
-          description: "Patient-facing follow-up: when to return, red flags to watch for, lifestyle recommendations, and any pending actions (labs, referrals, prior auth).",
+          description:
+            "Patient-facing follow-up: when to return, red flags to watch for, lifestyle recommendations, and any pending actions (labs, referrals, prior auth).",
         },
         vital_signs: {
           type: "object",
@@ -64,19 +87,32 @@ const soapNoteTool = {
         },
         history_of_present_illness: {
           type: "string",
-          description: "Detailed HPI narrative if the dictation contains enough detail to warrant a separate field. Use OLDCARTS framework.",
+          description:
+            "Detailed HPI narrative if the dictation contains enough detail to warrant a separate field. Use OLDCARTS framework.",
         },
         review_of_systems: {
           type: "string",
-          description: "Structured ROS with pertinent positives and negatives by system, if the dictation covers multiple systems.",
+          description:
+            "Structured ROS with pertinent positives and negatives by system, if the dictation covers multiple systems.",
         },
         physical_exam_detail: {
           type: "string",
-          description: "Detailed physical exam findings organized by system (HEENT, Cardiovascular, Respiratory, Abdomen, Musculoskeletal, Neuro, Skin, etc.)",
+          description:
+            "Detailed physical exam findings organized by system (HEENT, Cardiovascular, Respiratory, Abdomen, Musculoskeletal, Neuro, Skin, etc.)",
         },
       },
-      required: ["note_type", "date_of_service", "provider_name", "provider_credentials",
-        "chief_complaint", "subjective", "objective", "assessment", "plan", "follow_up_instructions"],
+      required: [
+        "note_type",
+        "date_of_service",
+        "provider_name",
+        "provider_credentials",
+        "chief_complaint",
+        "subjective",
+        "objective",
+        "assessment",
+        "plan",
+        "follow_up_instructions",
+      ],
     },
   },
 };
@@ -149,8 +185,14 @@ const interactionCheckTool = {
               severity: { type: "string", enum: ["critical", "warning", "info"] },
               alert_type: {
                 type: "string",
-                enum: ["drug_allergy", "drug_drug_interaction", "drug_condition_contraindication",
-                  "duplicate_therapy", "missing_indication", "dosage_concern"],
+                enum: [
+                  "drug_allergy",
+                  "drug_drug_interaction",
+                  "drug_condition_contraindication",
+                  "duplicate_therapy",
+                  "missing_indication",
+                  "dosage_concern",
+                ],
               },
               title: { type: "string", description: "Short alert title" },
               explanation: {
@@ -207,7 +249,7 @@ const verificationTool = {
 async function callAI(
   messages: any[],
   apiKey: string,
-  options: { tools?: any[]; toolChoice?: any; temperature?: number } = {}
+  options: { tools?: any[]; toolChoice?: any; temperature?: number } = {},
 ): Promise<any> {
   const body: any = {
     model: MODEL_FLASH,
@@ -319,9 +361,7 @@ function parseSoapText(soapText: string): {
     }
 
     if (activeSection) {
-      sections[activeSection] = sections[activeSection]
-        ? `${sections[activeSection]}\n${line}`
-        : line;
+      sections[activeSection] = sections[activeSection] ? `${sections[activeSection]}\n${line}` : line;
     }
   }
 
@@ -355,11 +395,7 @@ function toCondensedSoapText(sections: {
 
 // ── Agent 1: SOAP Note Structurer ──
 
-async function structureSOAPNote(
-  cleanedTranscript: string,
-  patientContext: any,
-  apiKey: string
-): Promise<any> {
+async function structureSOAPNote(cleanedTranscript: string, patientContext: any, apiKey: string): Promise<any> {
   const result = await callAI(
     [
       {
@@ -390,7 +426,7 @@ Example output style:
       },
     ],
     apiKey,
-    { temperature: 0.15 }
+    { temperature: 0.15 },
   );
 
   const report = extractMessageText(result);
@@ -412,11 +448,7 @@ Example output style:
 
 // ── Agent 2: Change Detection ──
 
-async function detectChanges(
-  transcript: string,
-  patientContext: any,
-  apiKey: string
-): Promise<any[]> {
+async function detectChanges(transcript: string, patientContext: any, apiKey: string): Promise<any[]> {
   const result = await callAI(
     [
       {
@@ -462,7 +494,7 @@ Rules:
     {
       tools: [changeDetectionTool],
       toolChoice: { type: "function", function: { name: "detect_record_changes" } },
-    }
+    },
   );
 
   const args = extractToolArgs(result);
@@ -472,15 +504,9 @@ Rules:
 
 // ── Agent 3: Drug Interaction & Safety Check ──
 
-async function checkInteractions(
-  proposedChanges: any[],
-  patientContext: any,
-  apiKey: string
-): Promise<any[]> {
+async function checkInteractions(proposedChanges: any[], patientContext: any, apiKey: string): Promise<any[]> {
   // Skip if no medication or allergy changes
-  const relevantChanges = proposedChanges.filter(
-    (c) => c.category === "medication" || c.category === "allergy"
-  );
+  const relevantChanges = proposedChanges.filter((c) => c.category === "medication" || c.category === "allergy");
   if (relevantChanges.length === 0) return [];
 
   const result = await callAI(
@@ -519,7 +545,7 @@ Only flag real, clinically meaningful concerns. Do NOT flag trivial or theoretic
     {
       tools: [interactionCheckTool],
       toolChoice: { type: "function", function: { name: "check_interactions" } },
-    }
+    },
   );
 
   const args = extractToolArgs(result);
@@ -533,7 +559,7 @@ async function verifyAgainstDictation(
   transcript: string,
   soapNote: any,
   proposedChanges: any[],
-  apiKey: string
+  apiKey: string,
 ): Promise<{ hallucinated: any[]; warnings: string[] }> {
   const result = await callAI(
     [
@@ -576,16 +602,14 @@ Check every clinical detail against the original dictation. Use the verify_again
     {
       tools: [verificationTool],
       toolChoice: { type: "function", function: { name: "verify_against_dictation" } },
-    }
+    },
   );
 
   const args = extractToolArgs(result);
   if (!args) return { hallucinated: [], warnings: ["Verification agent returned no data"] };
 
   const hallucinated = args.hallucinated_items || [];
-  const warnings = hallucinated.map(
-    (h: any) => `Hallucination: ${h.field} — "${h.value}" (${h.reason})`
-  );
+  const warnings = hallucinated.map((h: any) => `Hallucination: ${h.field} — "${h.value}" (${h.reason})`);
 
   return { hallucinated, warnings };
 }
@@ -595,7 +619,7 @@ Check every clinical detail against the original dictation. Use the verify_again
 function cleanHallucinations(
   soapNote: any,
   proposedChanges: any[],
-  hallucinated: any[]
+  hallucinated: any[],
 ): { note: any; changes: any[]; cleaned: string[] } {
   const cleaned: string[] = [];
 
@@ -620,9 +644,17 @@ function cleanHallucinations(
     }
 
     // Check if it refers to a SOAP note field
-    const soapFields = ["subjective", "objective", "assessment", "plan",
-      "chief_complaint", "follow_up_instructions", "history_of_present_illness",
-      "review_of_systems", "physical_exam_detail"];
+    const soapFields = [
+      "subjective",
+      "objective",
+      "assessment",
+      "plan",
+      "chief_complaint",
+      "follow_up_instructions",
+      "history_of_present_illness",
+      "review_of_systems",
+      "physical_exam_detail",
+    ];
     for (const sf of soapFields) {
       if (field.includes(sf) && soapNote[sf]) {
         // For SOAP fields, we can't just delete — flag it but don't remove the whole section
@@ -633,7 +665,13 @@ function cleanHallucinations(
     }
 
     // Check vital signs
-    if (field.includes("vital") || field.includes("bp") || field.includes("heart_rate") || field.includes("temperature") || field.includes("bmi")) {
+    if (
+      field.includes("vital") ||
+      field.includes("bp") ||
+      field.includes("heart_rate") ||
+      field.includes("temperature") ||
+      field.includes("bmi")
+    ) {
       if (soapNote.vital_signs) {
         if (field.includes("systolic") || field.includes("bp")) {
           delete soapNote.vital_signs.blood_pressure_systolic;
@@ -712,10 +750,10 @@ serve(async (req) => {
       });
 
     if (!reportResult) {
-      return new Response(
-        JSON.stringify({ error: "Failed to generate consultation report." }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Failed to generate consultation report." }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     // ── Build Response ──
@@ -738,27 +776,27 @@ serve(async (req) => {
           agents_failed: agentsFailed,
         },
       }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (e) {
     console.error("structure-dictation error:", e);
 
     if (e instanceof Error && e.message.includes("(429)")) {
-      return new Response(
-        JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
-        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
     if (e instanceof Error && e.message.includes("(402)")) {
-      return new Response(
-        JSON.stringify({ error: "AI credits exhausted. Please add credits to continue." }),
-        { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "AI credits exhausted. Please add credits to continue." }), {
+        status: 402,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
