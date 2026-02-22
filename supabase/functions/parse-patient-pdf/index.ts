@@ -11,7 +11,7 @@ const corsHeaders = {
 
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 const MODEL_PRO = "google/gemini-2.5-pro";
-const MODEL_FLASH = "google/gemini-3-flash";
+const MODEL_FLASH = "google/gemini-3-flash-preview";
 
 // ── Domain Tool Schemas ──
 
