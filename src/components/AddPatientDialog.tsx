@@ -11,7 +11,6 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 
 type Stage = "idle" | "reading" | "parsing" | "saving" | "done";
@@ -21,7 +20,6 @@ export default function AddPatientDialog() {
   const [stage, setStage] = useState<Stage>("idle");
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
-  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   const reset = () => {
@@ -31,7 +29,6 @@ export default function AddPatientDialog() {
 
   const handleFile = useCallback(
     async (file: File) => {
-      if (!user) return;
       if (file.type !== "application/pdf") {
         toast({ title: "Invalid file", description: "Please upload a PDF file.", variant: "destructive" });
         return;
@@ -61,13 +58,13 @@ export default function AddPatientDialog() {
 
         setStage("saving");
         const { error: insertError } = await supabase.from("patients").insert({
-          user_id: user.id,
+          user_id: "demo-user",
           patient_data: patient,
         });
         if (insertError) throw insertError;
 
         setStage("done");
-        queryClient.invalidateQueries({ queryKey: ["patients", user.id] });
+        queryClient.invalidateQueries({ queryKey: ["patients"] });
         toast({ title: "Patient added", description: `${patient.first_name} ${patient.last_name} has been added.` });
 
         setTimeout(() => {
@@ -84,7 +81,7 @@ export default function AddPatientDialog() {
         reset();
       }
     },
-    [user, queryClient]
+    [queryClient]
   );
 
   const onDrop = useCallback(
