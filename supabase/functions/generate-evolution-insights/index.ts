@@ -147,18 +147,11 @@ serve(async (req) => {
       const txt = await aiResponse.text();
       console.error("AI gateway error:", status, txt);
 
-      if (status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (status === 402) {
-        return new Response(JSON.stringify({ error: "Payment required" }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+      // On 429/402, return deterministic fallback instead of error
+      return new Response(
+        JSON.stringify({ annotations: [], risk_windows: [], condition_trajectory: [], source: "deterministic" }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
 
       return new Response(
         JSON.stringify({ annotations: [], risk_windows: [], condition_trajectory: [], source: "deterministic" }),
