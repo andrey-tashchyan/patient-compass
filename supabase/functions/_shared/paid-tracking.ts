@@ -4,7 +4,7 @@
  * and external_product_id matching the Paid product ("cliniview_usage").
  */
 
-const PAID_API_URL = "https://api.agentpaid.io/api/v1/usage/v2/signals/bulk";
+const PAID_API_URL = "https://api.paid.ai/v1/signals";
 
 /** Internal event names for CliniVIEW features (used in metadata only) */
 export type PaidEventName =
