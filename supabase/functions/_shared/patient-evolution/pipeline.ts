@@ -1969,7 +1969,7 @@ export class PatientEvolutionOrchestrator {
           title:
             asString(item.description) ||
             asString(item.test_name) ||
-            groupName.replaceAll("_", " "),
+            groupName.replace(/_/g, " "),
           description: asString(item.description) || null,
           status: asString(item.status) || null,
           related_event_ids: rawEventIds.map((value) => asString(value)).filter(Boolean),

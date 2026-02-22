@@ -37,7 +37,7 @@ describe("patient evolution pipeline", () => {
   });
 
   it("looks up by case-insensitive exact patient name", async () => {
-    const byName = await createPipeline().run("SCOTTY190 SPENCER878");
+    const byName = await createPipeline().run("Andreas188 Hoeger474");
     expect(byName.identity?.csv_patient_uuid).toBe(PATIENT_ID);
     expect(byName.identity?.matched_by).toContain(
       "patients_list.full_name.case_insensitive_exact",
@@ -66,7 +66,7 @@ describe("patient evolution pipeline", () => {
       upsert: true,
     });
 
-    const uploadedBody = upload.mock.calls[0][1] as string;
+    const uploadedBody = (upload.mock.calls[0] as unknown[])[1] as string;
     const parsed = JSON.parse(uploadedBody) as PatientEvolutionOutput;
     expect(parsed.identity?.csv_patient_uuid).toBe(PATIENT_ID);
     expect(parsed.narrative.evolution_timeline_summary).toBeTruthy();
