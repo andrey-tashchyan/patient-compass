@@ -91,10 +91,43 @@ const blobToBase64 = (blob: Blob): Promise<string> =>
   });
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const SUPABASE_ANON_KEY =
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  import.meta.env.VITE_SUPABASE_ANON_KEY;
 const MEDASR_TRANSCRIBE_URL =
   import.meta.env.VITE_MEDASR_TRANSCRIBE_URL ||
   (SUPABASE_URL ? `${SUPABASE_URL}/functions/v1/medasr-transcribe` : "");
+
+async function callStructureDictation(
+  transcript: string,
+  patientContext: VoiceDictationProps["patientContext"],
+): Promise<any> {
+  if (!SUPABASE_URL) {
+    throw new Error("VITE_SUPABASE_URL is not configured.");
+  }
+  if (!SUPABASE_ANON_KEY) {
+    throw new Error(
+      "Supabase anon key is not configured (VITE_SUPABASE_PUBLISHABLE_KEY or VITE_SUPABASE_ANON_KEY).",
+    );
+  }
+
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/structure-dictation`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+    },
+    body: JSON.stringify({ transcript, patientContext }),
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error((data as any)?.error || "Failed to call structure-dictation.");
+  }
+
+  return data;
+}
 
 const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDictationProps) => {
   const [stage, setStage] = useState<Stage>("idle");
@@ -338,21 +371,7 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
     setStage("processing");
 
     try {
-      if (!SUPABASE_URL) {
-        throw new Error("VITE_SUPABASE_URL is not configured.");
-      }
-
-      const response = await fetch(`${SUPABASE_URL}/functions/v1/structure-dictation`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(SUPABASE_PUBLISHABLE_KEY ? { apikey: SUPABASE_PUBLISHABLE_KEY } : {}),
-          ...(SUPABASE_PUBLISHABLE_KEY ? { Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}` } : {}),
-        },
-        body: JSON.stringify({ transcript: finalTranscript, patientContext }),
-      });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error((data as any)?.error || "Failed to call structure-dictation.");
+      const data = await callStructureDictation(finalTranscript, patientContext);
       if ((data as any)?.error) throw new Error((data as any).error);
 
       const summary = getSummaryFromResponse(data);
