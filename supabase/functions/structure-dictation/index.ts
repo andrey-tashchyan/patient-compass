@@ -13,11 +13,11 @@ const MODEL_FLASH = "google/gemini-3-flash";
 
 // ── Tool Schemas ──
 
-const soapNoteTool = {
+const consultationNoteTool = {
   type: "function" as const,
   function: {
-    name: "create_soap_note",
-    description: "Structure a doctor's consultation dictation into a complete SOAP clinical note.",
+    name: "create_consultation_note",
+    description: "Summarize a doctor's full consultation dictation into a structured clinical note.",
     parameters: {
       type: "object",
       properties: {
@@ -30,23 +30,11 @@ const soapNoteTool = {
         provider_credentials: { type: "string", description: "Credentials: MD, DO, NP, PA, etc." },
         chief_complaint: {
           type: "string",
-          description: "The primary reason for the visit in the patient's perspective, e.g. 'chest pain for 2 days', 'follow-up for diabetes management'",
+          description: "The primary reason for the visit, e.g. 'chest pain for 2 days', 'follow-up for diabetes management'",
         },
-        subjective: {
+        summary: {
           type: "string",
-          description: "Patient's reported symptoms, history of present illness (HPI), and relevant review of systems (ROS). Include: onset, location, duration, character, aggravating/alleviating factors, timing, severity (OLDCARTS). Include pertinent positives AND negatives from ROS.",
-        },
-        objective: {
-          type: "string",
-          description: "Clinician's findings from physical examination, vital signs narrative, and any point-of-care test results. Structure by system examined. Include general appearance.",
-        },
-        assessment: {
-          type: "string",
-          description: "Clinical impression and reasoning. For each problem: state the diagnosis or differential, link to supporting evidence from S and O sections. Number each problem if multiple.",
-        },
-        plan: {
-          type: "string",
-          description: "Management plan for each assessed problem. Include: medications (new/changed/continued), diagnostic orders (labs, imaging), referrals, patient education, and follow-up timeline. Number to match assessment problems.",
+          description: "A comprehensive, well-structured narrative summary of the entire consultation. Should cover: what the patient reported, the clinician's examination findings and vital signs, the clinical assessment/impression, and the management plan. Write in professional clinical language as flowing prose with paragraph breaks between sections. This is NOT a transcript — it is a polished clinical summary suitable for the medical record.",
         },
         follow_up_instructions: {
           type: "string",
@@ -62,21 +50,9 @@ const soapNoteTool = {
             bmi: { type: "number" },
           },
         },
-        history_of_present_illness: {
-          type: "string",
-          description: "Detailed HPI narrative if the dictation contains enough detail to warrant a separate field. Use OLDCARTS framework.",
-        },
-        review_of_systems: {
-          type: "string",
-          description: "Structured ROS with pertinent positives and negatives by system, if the dictation covers multiple systems.",
-        },
-        physical_exam_detail: {
-          type: "string",
-          description: "Detailed physical exam findings organized by system (HEENT, Cardiovascular, Respiratory, Abdomen, Musculoskeletal, Neuro, Skin, etc.)",
-        },
       },
       required: ["note_type", "date_of_service", "provider_name", "provider_credentials",
-        "chief_complaint", "subjective", "objective", "assessment", "plan", "follow_up_instructions"],
+        "chief_complaint", "summary", "follow_up_instructions"],
     },
   },
 };
@@ -243,9 +219,9 @@ function extractToolArgs(result: any): any | null {
   return JSON.parse(toolCall.function.arguments);
 }
 
-// ── Agent 1: SOAP Note Structurer ──
+// ── Agent 1: Consultation Summarizer ──
 
-async function structureSOAPNote(
+async function summarizeConsultation(
   transcript: string,
   patientContext: any,
   apiKey: string
@@ -254,9 +230,7 @@ async function structureSOAPNote(
     [
       {
         role: "system",
-        content: `You are an expert clinical documentation specialist structuring a FULL consultation dictation into a SOAP note.
-
-This dictation represents an ENTIRE patient encounter — from the moment the patient walks in to the end of the visit. Capture everything.
+        content: `You are an expert clinical documentation specialist. You will receive a FULL consultation dictation — the entire patient encounter from start to finish. Your job is to produce a polished clinical summary.
 
 Patient context:
 - Name: ${patientContext?.name || "Unknown"}
@@ -265,51 +239,25 @@ Patient context:
 - Current medications: ${patientContext?.medications?.join(", ") || "None listed"}
 - Known allergies: ${patientContext?.allergies?.join(", ") || "NKDA"}
 
-SOAP Note Guidelines for a Complete Consultation:
+Summary Guidelines:
 
-SUBJECTIVE:
-- Start with Chief Complaint (CC) — why the patient is here today
-- History of Present Illness (HPI) using OLDCARTS: Onset, Location, Duration, Character, Aggravating factors, Relieving factors, Timing, Severity
-- Include relevant past medical/surgical/family/social history mentioned
-- Review of Systems (ROS) — document pertinent positives AND negatives across systems reviewed
-- Include the patient's own words when relevant (e.g. "Patient states...")
+Write a comprehensive narrative summary of the entire consultation. The summary should be well-structured prose (not bullet points or a form), covering:
 
-OBJECTIVE:
-- General appearance and demeanor
-- Vital signs (extract exact numbers if mentioned)
-- Physical exam findings organized by system: HEENT, Neck, Cardiovascular, Respiratory, Abdomen, Musculoskeletal, Neurological, Skin, Psychiatric
-- Include pertinent normal findings (e.g. "lungs clear bilaterally") — not just abnormals
-- Point-of-care results if mentioned (glucose, strep test, urine dip, etc.)
+1. Why the patient presented and what they reported — symptoms, history, concerns, relevant context
+2. What the clinician found — exam findings, vital signs, any point-of-care results
+3. Clinical impression — what the clinician thinks is going on, differential if relevant, severity
+4. Management plan — medications prescribed/changed/stopped, tests ordered, referrals, lifestyle advice
 
-ASSESSMENT:
-- Number each problem/diagnosis
-- For each: state the diagnosis or differential, reference supporting subjective and objective evidence
-- Clinical reasoning — why you think this diagnosis and not others
-- Severity and stability of each problem
-
-PLAN:
-- Number to correspond with each assessment problem
-- For each problem include all that apply:
-  - Medications: new prescriptions, dose changes, discontinuations (include dose, route, frequency, duration)
-  - Diagnostics: labs, imaging, referrals ordered
-  - Non-pharmacologic: lifestyle counseling, PT, dietary changes
-  - Patient education given
-  - Follow-up timing
-
-FOLLOW-UP INSTRUCTIONS:
-- When to return (specific timeframe)
-- Red flags / reasons to return sooner or go to ER
-- Pending items (labs to be drawn, referral calls, prior auth)
-- Lifestyle recommendations discussed
+Use paragraph breaks between these sections for readability. Write in professional clinical language. Include specific numbers (vital signs, doses, lab values) when the doctor mentions them.
 
 Rules:
-- Use professional clinical language throughout
+- This is a SUMMARY, not a transcript — synthesize and organize the dictation into clear clinical prose
 - Do NOT invent findings — only document what the doctor actually dictated
-- If the dictation is brief, structure what's there; do not pad with fabricated details
-- Use "Not addressed" for SOAP sections the dictation doesn't cover (do NOT use "Not documented")
+- If the dictation is brief, summarize what's there; do not pad with fabricated details
 - If the provider isn't named, use "Dictating Provider" / "MD"
 - Set date_of_service to today: ${new Date().toISOString().split("T")[0]}
-- Choose note_type based on what the encounter sounds like`,
+- Choose note_type based on what the encounter sounds like
+- Extract vital signs into the vital_signs field if mentioned (in addition to including them in the summary)`,
       },
       {
         role: "user",
@@ -318,13 +266,13 @@ Rules:
     ],
     apiKey,
     {
-      tools: [soapNoteTool],
-      toolChoice: { type: "function", function: { name: "create_soap_note" } },
+      tools: [consultationNoteTool],
+      toolChoice: { type: "function", function: { name: "create_consultation_note" } },
     }
   );
 
   const args = extractToolArgs(result);
-  if (!args) throw new Error("SOAP agent returned no data");
+  if (!args) throw new Error("Consultation summarizer agent returned no data");
   return args;
 }
 
@@ -449,7 +397,7 @@ Only flag real, clinically meaningful concerns. Do NOT flag trivial or theoretic
 
 async function verifyAgainstDictation(
   transcript: string,
-  soapNote: any,
+  consultationNote: any,
   proposedChanges: any[],
   apiKey: string
 ): Promise<{ hallucinated: any[]; warnings: string[] }> {
@@ -457,7 +405,7 @@ async function verifyAgainstDictation(
     [
       {
         role: "system",
-        content: `You are a strict clinical documentation auditor. Compare the structured SOAP note and proposed record changes against the ORIGINAL dictation transcript.
+        content: `You are a strict clinical documentation auditor. Compare the structured consultation summary and proposed record changes against the ORIGINAL dictation transcript.
 
 Flag any data that was HALLUCINATED — meaning it does NOT appear in the dictation:
 - Diagnoses the doctor never mentioned
@@ -481,8 +429,8 @@ Be thorough but fair. The goal is catching fabricated clinical data, not penaliz
         content: `=== ORIGINAL DICTATION ===
 "${transcript}"
 
-=== STRUCTURED SOAP NOTE ===
-${JSON.stringify(soapNote, null, 2)}
+=== STRUCTURED CONSULTATION SUMMARY ===
+${JSON.stringify(consultationNote, null, 2)}
 
 === PROPOSED RECORD CHANGES ===
 ${JSON.stringify(proposedChanges, null, 2)}
@@ -511,7 +459,7 @@ Check every clinical detail against the original dictation. Use the verify_again
 // ── Cleanup: Remove Hallucinated Data ──
 
 function cleanHallucinations(
-  soapNote: any,
+  consultationNote: any,
   proposedChanges: any[],
   hallucinated: any[]
 ): { note: any; changes: any[]; cleaned: string[] } {
@@ -537,62 +485,56 @@ function cleanHallucinations(
       if (proposedChanges.length < before) continue;
     }
 
-    // Check if it refers to a SOAP note field
-    const soapFields = ["subjective", "objective", "assessment", "plan",
-      "chief_complaint", "follow_up_instructions", "history_of_present_illness",
-      "review_of_systems", "physical_exam_detail"];
-    for (const sf of soapFields) {
-      if (field.includes(sf) && soapNote[sf]) {
-        // For SOAP fields, we can't just delete — flag it but don't remove the whole section
-        // Instead, we'll report it as a warning and let the clinician review
-        cleaned.push(`Flagged hallucination in ${sf}: "${h.value}"`);
+    // Check if it refers to a note content field
+    const noteFields = ["summary", "chief_complaint", "follow_up_instructions"];
+    for (const nf of noteFields) {
+      if (field.includes(nf) && consultationNote[nf]) {
+        // Flag it but don't remove the whole summary — let the clinician review
+        cleaned.push(`Flagged hallucination in ${nf}: "${h.value}"`);
         break;
       }
     }
 
     // Check vital signs
     if (field.includes("vital") || field.includes("bp") || field.includes("heart_rate") || field.includes("temperature") || field.includes("bmi")) {
-      if (soapNote.vital_signs) {
+      if (consultationNote.vital_signs) {
         if (field.includes("systolic") || field.includes("bp")) {
-          delete soapNote.vital_signs.blood_pressure_systolic;
-          delete soapNote.vital_signs.blood_pressure_diastolic;
+          delete consultationNote.vital_signs.blood_pressure_systolic;
+          delete consultationNote.vital_signs.blood_pressure_diastolic;
           cleaned.push("Removed hallucinated blood pressure values");
         } else if (field.includes("heart_rate") || field.includes("hr")) {
-          delete soapNote.vital_signs.heart_rate;
+          delete consultationNote.vital_signs.heart_rate;
           cleaned.push("Removed hallucinated heart rate");
         } else if (field.includes("temp")) {
-          delete soapNote.vital_signs.temperature_fahrenheit;
+          delete consultationNote.vital_signs.temperature_fahrenheit;
           cleaned.push("Removed hallucinated temperature");
         } else if (field.includes("bmi")) {
-          delete soapNote.vital_signs.bmi;
+          delete consultationNote.vital_signs.bmi;
           cleaned.push("Removed hallucinated BMI");
         }
         // Clean up empty vital_signs object
-        if (soapNote.vital_signs && Object.values(soapNote.vital_signs).every((v: any) => v == null)) {
-          delete soapNote.vital_signs;
+        if (consultationNote.vital_signs && Object.values(consultationNote.vital_signs).every((v: any) => v == null)) {
+          delete consultationNote.vital_signs;
         }
       }
     }
   }
 
-  return { note: soapNote, changes: proposedChanges, cleaned };
+  return { note: consultationNote, changes: proposedChanges, cleaned };
 }
 
 // ── Build Response Note (backwards compatible) ──
 
-function buildNote(soapData: any): any {
+function buildNote(data: any): any {
   return {
-    note_type: soapData.note_type || "Progress Note",
-    date_of_service: soapData.date_of_service || new Date().toISOString().split("T")[0],
-    provider_name: soapData.provider_name || "Dictating Provider",
-    provider_credentials: soapData.provider_credentials || "MD",
-    chief_complaint: soapData.chief_complaint || "",
-    subjective: soapData.subjective || "",
-    objective: soapData.objective || "",
-    assessment: soapData.assessment || "",
-    plan: soapData.plan || "",
-    follow_up_instructions: soapData.follow_up_instructions || "",
-    vital_signs: soapData.vital_signs || undefined,
+    note_type: data.note_type || "Progress Note",
+    date_of_service: data.date_of_service || new Date().toISOString().split("T")[0],
+    provider_name: data.provider_name || "Dictating Provider",
+    provider_credentials: data.provider_credentials || "MD",
+    chief_complaint: data.chief_complaint || "",
+    summary: data.summary || "",
+    follow_up_instructions: data.follow_up_instructions || "",
+    vital_signs: data.vital_signs || undefined,
   };
 }
 
@@ -613,15 +555,15 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    // ── Phase 1: Parallel SOAP Structuring + Change Detection ──
+    // ── Phase 1: Parallel Consultation Summary + Change Detection ──
     const agentResults: { name: string; success: boolean }[] = [];
 
-    const [soapResult, changesResult] = await Promise.all([
-      structureSOAPNote(transcript, patientContext, LOVABLE_API_KEY)
-        .then((data) => { agentResults.push({ name: "soap", success: true }); return data; })
+    const [summaryResult, changesResult] = await Promise.all([
+      summarizeConsultation(transcript, patientContext, LOVABLE_API_KEY)
+        .then((data) => { agentResults.push({ name: "summary", success: true }); return data; })
         .catch((e) => {
-          console.error("SOAP agent failed:", e);
-          agentResults.push({ name: "soap", success: false });
+          console.error("Summary agent failed:", e);
+          agentResults.push({ name: "summary", success: false });
           return null;
         }),
       detectChanges(transcript, patientContext, LOVABLE_API_KEY)
@@ -633,14 +575,14 @@ serve(async (req) => {
         }),
     ]);
 
-    if (!soapResult) {
+    if (!summaryResult) {
       return new Response(
-        JSON.stringify({ error: "Failed to structure the dictation into a SOAP note." }),
+        JSON.stringify({ error: "Failed to summarize the consultation." }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    let soapNote = soapResult;
+    let consultationNote = summaryResult;
     let proposedChanges = changesResult || [];
 
     // ── Phase 2: Parallel Interaction Check + Verification ──
@@ -652,7 +594,7 @@ serve(async (req) => {
           agentResults.push({ name: "interactions", success: false });
           return [];
         }),
-      verifyAgainstDictation(transcript, soapNote, proposedChanges, LOVABLE_API_KEY)
+      verifyAgainstDictation(transcript, consultationNote, proposedChanges, LOVABLE_API_KEY)
         .then((data) => { agentResults.push({ name: "verification", success: true }); return data; })
         .catch((e) => {
           console.error("Verification agent failed:", e);
@@ -664,14 +606,14 @@ serve(async (req) => {
     // ── Phase 3: Clean Hallucinations ──
     let hallucinationsCleaned: string[] = [];
     if (verification.hallucinated.length > 0) {
-      const cleanResult = cleanHallucinations(soapNote, proposedChanges, verification.hallucinated);
-      soapNote = cleanResult.note;
+      const cleanResult = cleanHallucinations(consultationNote, proposedChanges, verification.hallucinated);
+      consultationNote = cleanResult.note;
       proposedChanges = cleanResult.changes;
       hallucinationsCleaned = cleanResult.cleaned;
     }
 
     // ── Build Response ──
-    const note = buildNote(soapNote);
+    const note = buildNote(consultationNote);
 
     // Attach interaction alerts to proposed changes for frontend display
     const changesWithAlerts = proposedChanges.map((change: any) => {

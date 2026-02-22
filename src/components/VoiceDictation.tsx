@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Mic, Square, Loader2, Check, AlertCircle, ChevronDown, ChevronUp, Pill, Stethoscope, ShieldAlert, CheckCircle2, X } from "lucide-react";
+import { Mic, Square, Loader2, Check, AlertCircle, Pill, Stethoscope, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { ClinicalNote, VitalSigns } from "@/types/patient";
 
@@ -223,10 +223,7 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
       provider_name: note.provider_name || "Dictating Provider",
       provider_credentials: note.provider_credentials || "MD",
       chief_complaint: note.chief_complaint || "",
-      subjective: note.subjective || "",
-      objective: note.objective || "",
-      assessment: note.assessment || "",
-      plan: note.plan || "",
+      summary: note.summary || "",
       follow_up_instructions: note.follow_up_instructions || "",
       vital_signs: note.vital_signs as VitalSigns | undefined,
     };
@@ -245,7 +242,7 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Mic className="h-5 w-5 text-primary" />
-            Voice-to-SOAP Dictation
+            Voice Dictation
           </DialogTitle>
         </DialogHeader>
 
@@ -261,7 +258,7 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
             {hasSpeechApi ? (
               <div className="text-center py-8">
                 <p className="text-sm text-muted-foreground mb-6">
-                  Click the button to start dictating. Speak naturally — AI will structure your dictation into a SOAP note and detect record changes.
+                  Click the button to start dictating. Speak naturally — AI will summarize your consultation and detect record changes.
                 </p>
                 <Button size="lg" onClick={startRecording} className="gap-2">
                   <Mic className="h-5 w-5" /> Start Dictation
@@ -311,7 +308,7 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
         {stage === "processing" && (
           <div className="text-center py-12 space-y-4">
             <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-            <p className="text-sm text-muted-foreground">AI is structuring your dictation and detecting record changes...</p>
+            <p className="text-sm text-muted-foreground">AI is summarizing your consultation and detecting record changes...</p>
             <div className="rounded-lg bg-muted/30 border border-border p-3 mx-auto max-w-md">
               <p className="text-xs text-muted-foreground line-clamp-3">{transcript}</p>
             </div>
@@ -325,7 +322,7 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
               Review the structured note and proposed record changes below.
             </p>
 
-            {/* SOAP fields */}
+            {/* Note fields */}
             <div className="grid gap-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -337,12 +334,10 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
                   <input value={note.chief_complaint || ""} onChange={(e) => updateNoteField("chief_complaint", e.target.value)} className="w-full h-8 rounded-md border border-input bg-background px-2 text-sm" />
                 </div>
               </div>
-              {(["subjective", "objective", "assessment", "plan"] as const).map((field) => (
-                <div key={field}>
-                  <label className="clinical-label mb-1 block">{field.charAt(0).toUpperCase() + field.slice(1)}</label>
-                  <Textarea value={(note as any)[field] || ""} onChange={(e) => updateNoteField(field, e.target.value)} className="min-h-[60px] text-sm" />
-                </div>
-              ))}
+              <div>
+                <label className="clinical-label mb-1 block">Summary</label>
+                <Textarea value={note.summary || ""} onChange={(e) => updateNoteField("summary", e.target.value)} className="min-h-[160px] text-sm" />
+              </div>
               <div>
                 <label className="clinical-label mb-1 block">Follow-up Instructions</label>
                 <input value={note.follow_up_instructions || ""} onChange={(e) => updateNoteField("follow_up_instructions", e.target.value)} className="w-full h-8 rounded-md border border-input bg-background px-2 text-sm" />

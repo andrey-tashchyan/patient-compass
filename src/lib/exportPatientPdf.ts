@@ -161,10 +161,7 @@ export function exportPatientPdf(patient: Patient) {
       doc.text(`${n.note_type} — ${n.date_of_service} — ${n.provider_name}, ${n.provider_credentials}`, margin + 4, y);
       y += 14;
       if (n.chief_complaint) { label("Chief Complaint", n.chief_complaint); }
-      label("Subjective", ""); wrappedText(n.subjective, 8);
-      label("Objective", ""); wrappedText(n.objective, 8);
-      label("Assessment", ""); wrappedText(n.assessment, 8);
-      label("Plan", ""); wrappedText(n.plan, 8);
+      wrappedText(n.summary, 8);
       if (n.follow_up_instructions) { label("Follow-up", n.follow_up_instructions); }
       y += 6;
     }

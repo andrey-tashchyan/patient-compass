@@ -126,7 +126,7 @@ const clinicalNotesTool = {
   type: "function" as const,
   function: {
     name: "extract_clinical_notes",
-    description: "Extract clinical notes in SOAP format with vitals and provider info.",
+    description: "Extract clinical notes with summaries, vitals, and provider info.",
     parameters: {
       type: "object",
       properties: {
@@ -139,10 +139,7 @@ const clinicalNotesTool = {
               date_of_service: { type: "string", description: "YYYY-MM-DD format" },
               provider_name: { type: "string" },
               provider_credentials: { type: "string" },
-              subjective: { type: "string" },
-              objective: { type: "string" },
-              assessment: { type: "string" },
-              plan: { type: "string" },
+              summary: { type: "string", description: "Comprehensive narrative summary of the clinical note covering patient presentation, exam findings, clinical impression, and management plan." },
               chief_complaint: { type: "string" },
               vital_signs: {
                 type: "object",
@@ -156,7 +153,7 @@ const clinicalNotesTool = {
               },
               follow_up_instructions: { type: "string" },
             },
-            required: ["note_type", "date_of_service", "provider_name", "provider_credentials", "subjective", "objective", "assessment", "plan"],
+            required: ["note_type", "date_of_service", "provider_name", "provider_credentials", "summary"],
           },
         },
       },
@@ -413,9 +410,9 @@ async function extractClinicalNotes(rawText: string, apiKey: string): Promise<an
       {
         role: "system",
         content: makeAgentPrompt(
-          "Clinical Notes & SOAP Documentation",
+          "Clinical Notes & Documentation",
           `Extract: all clinical notes, encounter notes, progress notes.
-- Structure each note in SOAP format (Subjective, Objective, Assessment, Plan)
+- Summarize each note into a comprehensive narrative covering: patient presentation, exam findings, clinical impression, and management plan
 - Extract provider name and credentials (MD, DO, NP, PA, etc.)
 - Extract vital signs embedded in notes (BP, HR, temp, BMI)
 - Identify chief complaint and follow-up instructions
@@ -697,7 +694,7 @@ function validatePatient(patient: any): ValidationResult {
 
   // Clinical note validation
   for (const note of patient.clinical_notes) {
-    const requiredNoteFields = ["note_type", "date_of_service", "provider_name", "provider_credentials", "subjective", "objective", "assessment", "plan"];
+    const requiredNoteFields = ["note_type", "date_of_service", "provider_name", "provider_credentials", "summary"];
     for (const field of requiredNoteFields) {
       if (!note[field]) {
         note[field] = "Not documented";
