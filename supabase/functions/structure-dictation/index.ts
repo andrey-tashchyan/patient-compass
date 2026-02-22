@@ -355,7 +355,7 @@ async function structureSOAPNote(
         role: "system",
         content: `You are a medical documentation assistant for physicians.
 
-Convert the provided cleaned dictation into a condensed SOAP consultation note.
+Convert the provided cleaned dictation into a concise consultation report.
 
 Patient context:
 - Name: ${patientContext?.name || "Unknown"}
@@ -371,26 +371,10 @@ Strict requirements:
 - No invented information
 - No explanations
 - No conversational phrasing
-- Leave sections empty if missing
 - Output plain text only
 - Do not output JSON
 - Do not output markdown code fences
-
-Output format (exact labels/order):
-Motif:
-...
-
-S:
-...
-
-O:
-...
-
-A:
-...
-
-P:
-...`,
+- Single consultation report paragraph structure, readable for direct insertion in chart`,
       },
       {
         role: "user",
@@ -401,22 +385,18 @@ P:
     { temperature: 0.15 }
   );
 
-  const soapText = extractMessageText(result);
-  if (!soapText) throw new Error("SOAP generation returned no text");
+  const report = extractMessageText(result);
+  if (!report) throw new Error("Consultation report generation returned no text");
 
-  const sections = parseSoapText(soapText);
   return {
     note_type: "Progress Note",
     date_of_service: new Date().toISOString().split("T")[0],
     provider_name: "Dictating Provider",
     provider_credentials: "MD",
-    chief_complaint: sections.motif,
-    subjective: sections.subjective,
-    objective: sections.objective,
-    assessment: sections.assessment,
-    plan: sections.plan,
+    chief_complaint: "",
+    summary: report,
     follow_up_instructions: "",
-    _formatted_text: toCondensedSoapText(sections),
+    _formatted_text: report,
   };
 }
 
@@ -679,23 +659,14 @@ function buildNote(soapData: any): any {
     provider_name: soapData.provider_name || "Dictating Provider",
     provider_credentials: soapData.provider_credentials || "MD",
     chief_complaint: soapData.chief_complaint || "",
-    subjective: soapData.subjective || "",
-    objective: soapData.objective || "",
-    assessment: soapData.assessment || "",
-    plan: soapData.plan || "",
+    summary: soapData.summary || "",
     follow_up_instructions: soapData.follow_up_instructions || "",
     vital_signs: soapData.vital_signs || undefined,
   };
 }
 
 function formatNoteAsSoapText(note: any): string {
-  return toCondensedSoapText({
-    motif: note.chief_complaint || "",
-    subjective: note.subjective || "",
-    objective: note.objective || "",
-    assessment: note.assessment || "",
-    plan: note.plan || "",
-  });
+  return note.summary || "";
 }
 
 // ── Main Handler ──
@@ -717,78 +688,28 @@ serve(async (req) => {
 
     const cleanedTranscript = cleanTranscript(transcript);
 
-    // ── Phase 1: Parallel SOAP Structuring + Change Detection ──
+    // ── Phase 1: Consultation Report Generation ──
     const agentResults: { name: string; success: boolean }[] = [];
+    const reportResult = await structureSOAPNote(cleanedTranscript, patientContext, LOVABLE_API_KEY)
+      .then((data) => {
+        agentResults.push({ name: "report", success: true });
+        return data;
+      })
+      .catch((e) => {
+        console.error("Report agent failed:", e);
+        agentResults.push({ name: "report", success: false });
+        return null;
+      });
 
-    const [soapResult, changesResult] = await Promise.all([
-      structureSOAPNote(cleanedTranscript, patientContext, LOVABLE_API_KEY)
-        .then((data) => { agentResults.push({ name: "soap", success: true }); return data; })
-        .catch((e) => {
-          console.error("SOAP agent failed:", e);
-          agentResults.push({ name: "soap", success: false });
-          return null;
-        }),
-      detectChanges(cleanedTranscript, patientContext, LOVABLE_API_KEY)
-        .then((data) => { agentResults.push({ name: "changes", success: true }); return data; })
-        .catch((e) => {
-          console.error("Change detection agent failed:", e);
-          agentResults.push({ name: "changes", success: false });
-          return [];
-        }),
-    ]);
-
-    if (!soapResult) {
+    if (!reportResult) {
       return new Response(
-        JSON.stringify({ error: "Failed to structure the dictation into a SOAP note." }),
+        JSON.stringify({ error: "Failed to generate consultation report." }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    let soapNote = soapResult;
-    let proposedChanges = changesResult || [];
-
-    // ── Phase 2: Parallel Interaction Check + Verification ──
-    const [interactionAlerts, verification] = await Promise.all([
-      checkInteractions(proposedChanges, patientContext, LOVABLE_API_KEY)
-        .then((data) => { agentResults.push({ name: "interactions", success: true }); return data; })
-        .catch((e) => {
-          console.error("Interaction check failed:", e);
-          agentResults.push({ name: "interactions", success: false });
-          return [];
-        }),
-      verifyAgainstDictation(cleanedTranscript, soapNote, proposedChanges, LOVABLE_API_KEY)
-        .then((data) => { agentResults.push({ name: "verification", success: true }); return data; })
-        .catch((e) => {
-          console.error("Verification agent failed:", e);
-          agentResults.push({ name: "verification", success: false });
-          return { hallucinated: [], warnings: ["Verification could not be completed"] };
-        }),
-    ]);
-
-    // ── Phase 3: Clean Hallucinations ──
-    let hallucinationsCleaned: string[] = [];
-    if (verification.hallucinated.length > 0) {
-      const cleanResult = cleanHallucinations(soapNote, proposedChanges, verification.hallucinated);
-      soapNote = cleanResult.note;
-      proposedChanges = cleanResult.changes;
-      hallucinationsCleaned = cleanResult.cleaned;
-    }
-
     // ── Build Response ──
-    const note = buildNote(soapNote);
-
-    // Attach interaction alerts to proposed changes for frontend display
-    const changesWithAlerts = proposedChanges.map((change: any) => {
-      const relatedAlerts = interactionAlerts.filter((a: any) => {
-        const relatedName = change.data?.name?.toLowerCase() || "";
-        return (a.related_change || "").toLowerCase().includes(relatedName) ||
-          (a.explanation || "").toLowerCase().includes(relatedName);
-      });
-      return {
-        ...change,
-        alerts: relatedAlerts.length > 0 ? relatedAlerts : undefined,
-      };
-    });
+    const note = buildNote(reportResult);
 
     const agentsSucceeded = agentResults.filter((a) => a.success).length;
     const agentsFailed = agentResults.filter((a) => !a.success).map((a) => a.name);
@@ -797,12 +718,12 @@ serve(async (req) => {
       JSON.stringify({
         note,
         formatted_note: formatNoteAsSoapText(note),
-        proposed_changes: changesWithAlerts,
+        proposed_changes: [],
         _meta: {
           cleaned_transcript: cleanedTranscript,
-          interaction_alerts: interactionAlerts,
-          verification_warnings: verification.warnings,
-          hallucinations_cleaned: hallucinationsCleaned,
+          interaction_alerts: [],
+          verification_warnings: [],
+          hallucinations_cleaned: [],
           agents_succeeded: agentsSucceeded,
           agents_failed: agentsFailed,
         },

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Mic, Square, Loader2, Check, AlertCircle, Pill, Stethoscope, ShieldAlert } from "lucide-react";
+import { Mic, Square, Loader2, Check, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { ClinicalNote, VitalSigns } from "@/types/patient";
 
@@ -39,95 +39,12 @@ type Stage = "idle" | "recording" | "processing" | "review";
 
 const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
-const CATEGORY_ICONS: Record<string, typeof Pill> = {
-  medication: Pill,
-  diagnosis: Stethoscope,
-  allergy: ShieldAlert,
-};
-
-const CATEGORY_LABELS: Record<string, string> = {
-  medication: "Medication",
-  diagnosis: "Diagnosis",
-  allergy: "Allergy",
-};
-
-const ACTION_LABELS: Record<string, string> = {
-  add: "Add",
-  remove: "Remove",
-  update: "Update",
-};
-
-const formatSoapText = (note: Partial<ClinicalNote>) => {
-  return [
-    "Motif:",
-    note.chief_complaint || "",
-    "",
-    "S:",
-    note.subjective || "",
-    "",
-    "O:",
-    note.objective || "",
-    "",
-    "A:",
-    note.assessment || "",
-    "",
-    "P:",
-    note.plan || "",
-  ].join("\n");
-};
-
-const parseSoapTextIntoNote = (soapText: string, base: Partial<ClinicalNote>) => {
-  const sections = {
-    motif: "",
-    subjective: "",
-    objective: "",
-    assessment: "",
-    plan: "",
-  };
-
-  const sectionMap: Record<string, keyof typeof sections> = {
-    motif: "motif",
-    s: "subjective",
-    o: "objective",
-    a: "assessment",
-    p: "plan",
-  };
-
-  let activeSection: keyof typeof sections | null = null;
-  for (const rawLine of soapText.replace(/\r\n/g, "\n").split("\n")) {
-    const line = rawLine.trimEnd();
-    const heading = line.match(/^(Motif|S|O|A|P):\s*(.*)$/i);
-    if (heading) {
-      const key = sectionMap[heading[1].toLowerCase()];
-      activeSection = key;
-      sections[key] = heading[2]?.trim() || "";
-      continue;
-    }
-
-    if (activeSection) {
-      sections[activeSection] = sections[activeSection]
-        ? `${sections[activeSection]}\n${line}`
-        : line;
-    }
-  }
-
-  return {
-    ...base,
-    chief_complaint: sections.motif,
-    subjective: sections.subjective,
-    objective: sections.objective,
-    assessment: sections.assessment,
-    plan: sections.plan,
-  };
-};
-
 const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDictationProps) => {
   const [stage, setStage] = useState<Stage>("idle");
   const [transcript, setTranscript] = useState("");
   const [interimText, setInterimText] = useState("");
   const [error, setError] = useState("");
   const [note, setNote] = useState<Partial<ClinicalNote> | null>(null);
-  const [proposedChanges, setProposedChanges] = useState<ProposedChange[]>([]);
 
   const recognitionRef = useRef<any>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -146,7 +63,6 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
       setInterimText("");
       setError("");
       setNote(null);
-      setProposedChanges([]);
     }
   }, [open]);
 
@@ -260,23 +176,11 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
       if (data?.error) throw new Error(data.error);
 
       setNote(data.note);
-      // Initialize proposed changes with all approved by default
-      const changes: ProposedChange[] = (data.proposed_changes || []).map((c: any) => ({
-        ...c,
-        approved: true,
-      }));
-      setProposedChanges(changes);
       setStage("review");
     } catch (err: any) {
       setError(err.message || "Failed to structure note");
       setStage("idle");
     }
-  };
-
-  const toggleChange = (idx: number) => {
-    setProposedChanges((prev) =>
-      prev.map((c, i) => (i === idx ? { ...c, approved: !c.approved } : c))
-    );
   };
 
   const handleSave = () => {
@@ -291,13 +195,12 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
       follow_up_instructions: note.follow_up_instructions || "",
       vital_signs: note.vital_signs as VitalSigns | undefined,
     };
-    const approved = proposedChanges.filter((c) => c.approved);
-    onSave(clinicalNote, approved);
+    onSave(clinicalNote, []);
     onOpenChange(false);
   };
 
-  const updateSoapText = (value: string) => {
-    setNote((prev) => (prev ? parseSoapTextIntoNote(value, prev) : prev));
+  const updateReportText = (value: string) => {
+    setNote((prev) => (prev ? { ...prev, summary: value } : prev));
   };
 
   return (
@@ -322,7 +225,7 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
             {hasSpeechApi ? (
               <div className="text-center py-8">
                 <p className="text-sm text-muted-foreground mb-6">
-                  Click the button to start dictating. AI will transcribe, clean, and format your dictation into a condensed SOAP note.
+                  Click the button to start dictating. AI will transcribe, clean, and generate a consultation report.
                 </p>
                 <Button size="lg" onClick={startRecording} className="gap-2">
                   <Mic className="h-5 w-5" /> Start Dictation
@@ -372,7 +275,7 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
         {stage === "processing" && (
           <div className="text-center py-12 space-y-4">
             <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-            <p className="text-sm text-muted-foreground">AI is summarizing your consultation and detecting record changes...</p>
+            <p className="text-sm text-muted-foreground">AI is generating your consultation report...</p>
             <div className="rounded-lg bg-muted/30 border border-border p-3 mx-auto max-w-md">
               <p className="text-xs text-muted-foreground line-clamp-3">{transcript}</p>
             </div>
@@ -383,105 +286,25 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
         {stage === "review" && note && (
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Review the structured note and proposed record changes below.
+              Review and edit the consultation report below.
             </p>
 
-            {/* Note fields */}
-            <div className="grid gap-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="clinical-label mb-1 block">Note Type</label>
-                  <input value={note.note_type || ""} onChange={(e) => updateNoteField("note_type", e.target.value)} className="w-full h-8 rounded-md border border-input bg-background px-2 text-sm" />
-                </div>
-                <div>
-                  <label className="clinical-label mb-1 block">Chief Complaint</label>
-                  <input value={note.chief_complaint || ""} onChange={(e) => updateNoteField("chief_complaint", e.target.value)} className="w-full h-8 rounded-md border border-input bg-background px-2 text-sm" />
-                </div>
-              </div>
-              <div>
-                <label className="clinical-label mb-1 block">Summary</label>
-                <Textarea value={note.summary || ""} onChange={(e) => updateNoteField("summary", e.target.value)} className="min-h-[160px] text-sm" />
-              </div>
-              <div>
-                <label className="clinical-label mb-1 block">Follow-up Instructions</label>
-                <input value={note.follow_up_instructions || ""} onChange={(e) => updateNoteField("follow_up_instructions", e.target.value)} className="w-full h-8 rounded-md border border-input bg-background px-2 text-sm" />
-              </div>
-              {note.vital_signs && (
-                <div className="rounded-lg bg-muted/30 border border-border p-3">
-                  <label className="clinical-label mb-2 block">Extracted Vital Signs</label>
-                  <div className="flex flex-wrap gap-3 text-xs font-mono">
-                    {note.vital_signs.blood_pressure_systolic && note.vital_signs.blood_pressure_diastolic && (
-                      <span>BP: {note.vital_signs.blood_pressure_systolic}/{note.vital_signs.blood_pressure_diastolic}</span>
-                    )}
-                    {note.vital_signs.heart_rate && <span>HR: {note.vital_signs.heart_rate}</span>}
-                    {note.vital_signs.temperature_fahrenheit && <span>Temp: {note.vital_signs.temperature_fahrenheit}°F</span>}
-                    {note.vital_signs.bmi && <span>BMI: {note.vital_signs.bmi}</span>}
-                  </div>
-                </div>
-              )}
+            <div>
+              <label className="clinical-label mb-1 block">Report de consultation</label>
+              <Textarea
+                value={note.summary || ""}
+                onChange={(e) => updateReportText(e.target.value)}
+                className="min-h-[260px] text-sm"
+              />
             </div>
 
-            {/* Proposed Record Changes */}
-            {proposedChanges.length > 0 && (
-              <div className="space-y-2">
-                <label className="clinical-label block">Detected Record Changes</label>
-                <p className="text-xs text-muted-foreground mb-2">
-                  The AI detected these changes from your dictation. Toggle each to approve or reject before saving.
-                </p>
-                {proposedChanges.map((change, idx) => {
-                  const Icon = CATEGORY_ICONS[change.category] || Stethoscope;
-                  const isApproved = change.approved;
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => toggleChange(idx)}
-                      className={`w-full flex items-center gap-3 rounded-lg border p-3 text-left transition-colors ${
-                        isApproved
-                          ? "border-primary/30 bg-primary/5"
-                          : "border-border bg-muted/30 opacity-60"
-                      }`}
-                    >
-                      <div className={`p-1.5 rounded-md ${isApproved ? "bg-primary/10" : "bg-muted"}`}>
-                        <Icon className={`h-4 w-4 ${isApproved ? "text-primary" : "text-muted-foreground"}`} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className={`text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded ${
-                            change.action === "add" ? "bg-emerald-500/10 text-emerald-600" :
-                            change.action === "remove" ? "bg-red-500/10 text-red-600" :
-                            "bg-amber-500/10 text-amber-600"
-                          }`}>
-                            {ACTION_LABELS[change.action]}
-                          </span>
-                          <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                            {CATEGORY_LABELS[change.category]}
-                          </span>
-                        </div>
-                        <p className="text-sm text-foreground mt-0.5">{change.description}</p>
-                      </div>
-                      <div className={`shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
-                        isApproved ? "border-primary bg-primary" : "border-muted-foreground"
-                      }`}>
-                        {isApproved && <Check className="h-3 w-3 text-primary-foreground" />}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
             <div className="flex justify-end gap-2 pt-2">
-              <Button variant="ghost" onClick={() => { setStage("idle"); setNote(null); setProposedChanges([]); }}>
+              <Button variant="ghost" onClick={() => { setStage("idle"); setNote(null); }}>
                 Discard
               </Button>
               <Button onClick={handleSave} className="gap-2">
                 <Check className="h-4 w-4" />
                 Save to Record
-                {proposedChanges.filter((c) => c.approved).length > 0 && (
-                  <span className="text-xs bg-primary-foreground/20 px-1.5 py-0.5 rounded-full">
-                    +{proposedChanges.filter((c) => c.approved).length} change{proposedChanges.filter((c) => c.approved).length !== 1 ? "s" : ""}
-                  </span>
-                )}
               </Button>
             </div>
           </div>
