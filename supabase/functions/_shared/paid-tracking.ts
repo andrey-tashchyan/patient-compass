@@ -1,11 +1,12 @@
 /**
  * Shared Paid.ai usage tracking utility for all CliniVIEW edge functions.
- * Uses raw fetch with the correct Paid API field names (matching the official SDK).
+ * Sends signals with event_name matching the Paid metric API key ("api_calls")
+ * and external_product_id matching the Paid product ("cliniview_usage").
  */
 
 const PAID_API_URL = "https://api.agentpaid.io/api/v1/usage/v2/signals/bulk";
 
-/** Event names for all CliniVIEW features */
+/** Internal event names for CliniVIEW features (used in metadata only) */
 export type PaidEventName =
   | "consultation_generated"
   | "prescription_checked"
@@ -17,27 +18,16 @@ export type PaidEventName =
 export interface TrackUsageInput {
   eventName: PaidEventName;
   customerId?: string;
-  agentId?: string;
+  quantity?: number;
   data?: Record<string, unknown>;
-}
-
-function agentIdForEvent(eventName: PaidEventName): string {
-  switch (eventName) {
-    case "consultation_generated":
-    case "voice_dictation_processed":
-      return "cliniview-dictation";
-    case "prescription_checked":
-    case "contraindication_detected":
-    case "red_flag_identified":
-      return "cliniview-safety";
-    case "pdf_structured":
-      return "cliniview-pdf";
-  }
 }
 
 /**
  * Send a usage signal to Paid.ai.
- * Uses correct field names: customer_id, agent_id, event_name (matching PaidClient.usage.recordBulk format).
+ * - event_name is ALWAYS "api_calls" to match the Paid metric API key.
+ * - external_product_id is ALWAYS "cliniview_usage" to match the Paid product.
+ * - quantity defaults to 1.
+ * - The original eventName is passed in data.cliniview_event for internal tracking.
  * Fully awaited, with error isolation — never throws to caller.
  */
 export async function trackUsage(input: TrackUsageInput): Promise<void> {
@@ -48,18 +38,21 @@ export async function trackUsage(input: TrackUsageInput): Promise<void> {
   }
 
   const customerId = input.customerId || Deno.env.get("PAID_EXTERNAL_CUSTOMER_ID") || "demo_hospital";
-  const agentId = input.agentId || agentIdForEvent(input.eventName);
 
   const signal = {
-    event_name: input.eventName,
+    event_name: "api_calls",                    // Must match Paid metric API key
     external_customer_id: customerId,
-    external_product_id: agentId,
-    ...(input.data ? { data: input.data } : {}),
+    external_product_id: "cliniview_usage",      // Must match Paid product external ID
+    quantity: input.quantity ?? 1,
+    data: {
+      cliniview_event: input.eventName,          // Original event for internal analytics
+      ...(input.data || {}),
+    },
   };
 
   const body = { signals: [signal] };
 
-  console.log("[trackUsage] Sending to Paid API:", JSON.stringify(body));
+  console.log("[trackUsage] PRE-SEND:", JSON.stringify(body));
 
   try {
     const response = await fetch(PAID_API_URL, {
@@ -74,9 +67,9 @@ export async function trackUsage(input: TrackUsageInput): Promise<void> {
     const responseText = await response.text();
 
     if (!response.ok) {
-      console.error(`[trackUsage] Paid API error (${response.status}):`, responseText);
+      console.error(`[trackUsage] POST-SEND ERROR (${response.status}):`, responseText);
     } else {
-      console.log(`[trackUsage] ✓ ${input.eventName} sent — customer=${customerId} agent=${agentId} — response: ${responseText}`);
+      console.log(`[trackUsage] POST-SEND OK — cliniview_event=${input.eventName} customer=${customerId} — response: ${responseText}`);
     }
   } catch (err) {
     console.error("[trackUsage] Network error:", err);
