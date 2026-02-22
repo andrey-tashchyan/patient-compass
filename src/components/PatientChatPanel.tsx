@@ -100,6 +100,33 @@ function applyChanges(patient: Patient, changes: ProposedChange[]): Patient {
           dx.status = change.data.status as "active" | "resolved" | "chronic";
         }
       }
+    } else if (change.category === "lab_result") {
+      if (change.action === "add" && change.data.test_name) {
+        updated.lab_results.push({
+          test_name: change.data.test_name,
+          result: change.data.result || "",
+          unit: change.data.unit || "",
+          reference_range: change.data.reference_range || "",
+          flagged: change.data.flagged,
+          date_performed: change.data.date_performed || new Date().toISOString().split("T")[0],
+        });
+      } else if (change.action === "remove" && change.data.test_name) {
+        const name = change.data.test_name.toLowerCase();
+        updated.lab_results = updated.lab_results.filter(
+          (l) => !l.test_name.toLowerCase().includes(name)
+        );
+      } else if (change.action === "update" && change.data.test_name) {
+        const name = change.data.test_name.toLowerCase();
+        const lab = updated.lab_results.find(
+          (l) => l.test_name.toLowerCase().includes(name)
+        );
+        if (lab) {
+          if (change.data.result || change.data.new_value) lab.result = change.data.result || change.data.new_value;
+          if (change.data.unit) lab.unit = change.data.unit;
+          if (change.data.reference_range) lab.reference_range = change.data.reference_range;
+          if (change.data.flagged !== undefined) lab.flagged = change.data.flagged;
+        }
+      }
     } else if (change.category === "allergy") {
       if (change.action === "add" && (change.data.allergen || change.data.name)) {
         updated.allergies.push({
@@ -236,8 +263,8 @@ export default function PatientChatPanel({ patient, updatePatient }: Props) {
               if (tc.function?.arguments) toolCalls[idx].args += tc.function.arguments;
             }
           }
-        } catch {
-          // partial JSON
+        } catch (err) {
+          console.warn("SSE parse error:", err, "line:", json);
         }
       };
 
@@ -259,7 +286,14 @@ export default function PatientChatPanel({ patient, updatePatient }: Props) {
         }
       }
 
-      // Process tool calls
+      // Process tool calls — if none, and no text streamed, show error
+      const hasToolCalls = Object.keys(toolCalls).length > 0;
+      if (!hasToolCalls && !assistantText.trim()) {
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", type: "text", content: "Sorry, I couldn't process that request. Please try again." },
+        ]);
+      }
       for (const tc of Object.values(toolCalls)) {
         try {
           const args = JSON.parse(tc.args);
@@ -299,8 +333,8 @@ export default function PatientChatPanel({ patient, updatePatient }: Props) {
               ];
             });
           }
-        } catch {
-          // bad tool call args
+        } catch (err) {
+          console.error("Tool call parse error:", err, "raw args:", tc.args);
         }
       }
     } catch (e) {
