@@ -1,49 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-const PAID_API_KEY = Deno.env.get("PAID_API_KEY");
-const PAID_USAGE_URL = "https://api.agentpaid.io/api/v1/usage/v2/signals/bulk";
-const PAID_EXTERNAL_CUSTOMER_ID = Deno.env.get("PAID_EXTERNAL_CUSTOMER_ID") || "demo_hospital";
-const PAID_EXTERNAL_PRODUCT_ID = Deno.env.get("PAID_EXTERNAL_PRODUCT_ID") || "cliniview-dictation";
-
-async function trackUsage(input: {
-  eventName: string;
-  externalCustomerId?: string;
-  externalProductId?: string;
-  data?: Record<string, unknown>;
-}) {
-  if (!PAID_API_KEY) {
-    console.error("[trackUsage] PAID_API_KEY is NOT set. Skipping.");
-    return;
-  }
-  console.log("[trackUsage] PAID_API_KEY present, length:", PAID_API_KEY.length);
-
-  const body = {
-    signals: [
-      {
-        event_name: input.eventName,
-        external_customer_id: input.externalCustomerId || PAID_EXTERNAL_CUSTOMER_ID,
-        external_product_id: input.externalProductId || PAID_EXTERNAL_PRODUCT_ID,
-        ...(input.data ? { data: input.data } : {}),
-      },
-    ],
-  };
-  console.log("[trackUsage] Sending to Paid:", JSON.stringify(body));
-
-  const response = await fetch(PAID_USAGE_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${PAID_API_KEY}`,
-    },
-    body: JSON.stringify(body),
-  });
-
-  const responseText = await response.text();
-  console.log("[trackUsage] Paid response:", response.status, responseText);
-
-  if (!response.ok) {
-    throw new Error(`Paid usage tracking failed (${response.status}): ${responseText}`);
-  }
-}
+import { trackUsage } from "../_shared/paid-tracking.ts";
 
 // ── Constants ──
 
@@ -788,20 +744,23 @@ serve(async (req) => {
     // ── Build Response ──
     const note = buildNote(reportResult);
 
-    console.log("[structure-dictation] About to call trackUsage...");
-    try {
-      await trackUsage({
-        eventName: "consultation_report_generated",
-        data: {
-          endpoint: "structure-dictation",
-          transcript_length: cleanedTranscript.length,
-          has_patient_context: Boolean(patientContext),
-        },
-      });
-      console.log("[structure-dictation] trackUsage completed successfully.");
-    } catch (trackError) {
-      console.error("[structure-dictation] Paid usage tracking failed:", trackError);
-    }
+    // Track consultation generation
+    await trackUsage({
+      eventName: "consultation_generated",
+      data: {
+        transcript_length: cleanedTranscript.length,
+        has_patient_context: Boolean(patientContext),
+        estimated_time_saved_minutes: 8,
+      },
+    });
+
+    // Track voice dictation processing
+    await trackUsage({
+      eventName: "voice_dictation_processed",
+      data: {
+        transcript_length: cleanedTranscript.length,
+      },
+    });
 
     const agentsSucceeded = agentResults.filter((a) => a.success).length;
     const agentsFailed = agentResults.filter((a) => !a.success).map((a) => a.name);
