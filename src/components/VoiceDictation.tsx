@@ -39,6 +39,23 @@ type Stage = "idle" | "recording" | "processing" | "review";
 
 const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
+const getSummaryFromResponse = (data: any): string => {
+  const note = data?.note || {};
+  if (typeof note.summary === "string" && note.summary.trim()) return note.summary.trim();
+  if (typeof data?.formatted_note === "string" && data.formatted_note.trim()) return data.formatted_note.trim();
+
+  // Backward compatibility if server still returns SOAP sections
+  const parts = [
+    note.chief_complaint ? `Motif: ${note.chief_complaint}` : "",
+    note.subjective ? `S: ${note.subjective}` : "",
+    note.objective ? `O: ${note.objective}` : "",
+    note.assessment ? `A: ${note.assessment}` : "",
+    note.plan ? `P: ${note.plan}` : "",
+  ].filter(Boolean);
+
+  return parts.join("\n\n");
+};
+
 const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDictationProps) => {
   const [stage, setStage] = useState<Stage>("idle");
   const [transcript, setTranscript] = useState("");
@@ -175,7 +192,11 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
       if (fnError) throw new Error(fnError.message);
       if (data?.error) throw new Error(data.error);
 
-      setNote(data.note);
+      const summary = getSummaryFromResponse(data);
+      setNote({
+        ...(data?.note || {}),
+        summary,
+      });
       setStage("review");
     } catch (err: any) {
       setError(err.message || "Failed to structure note");
@@ -290,7 +311,7 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
             </p>
 
             <div>
-              <label className="clinical-label mb-1 block">Report de consultation</label>
+              <label className="clinical-label mb-1 block">Consultation report</label>
               <Textarea
                 value={note.summary || ""}
                 onChange={(e) => updateReportText(e.target.value)}
