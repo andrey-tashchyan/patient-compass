@@ -1,93 +1,80 @@
 
 
-# Fix: Paid.ai Not Receiving Signals
+# AI-Driven Plot Planning Agent
 
-## Root Cause
+## Overview
 
-The `trackUsage()` function in `structure-dictation` has **no success-path logging**. It only logs on error (`console.error`) and on missing key (`console.warn`). Since edge function logs show none of these, one of two things is happening:
+Instead of showing all metrics by default with manual toggle chips, an AI agent will analyze each patient's evolution data and return a **plot plan** -- which parameters matter most for this specific patient, in what order to reveal them, and why. The dashboard will then animate charts in a cinematic sequence guided by the agent's clinical reasoning.
 
-1. `PAID_API_KEY` is not set in Supabase secrets (the `console.warn` may not appear in filtered logs), causing the function to silently return at line 14-16.
-2. The Paid API call succeeds (HTTP 200) but the payload format or API key value is incorrect, so Paid ignores the signal.
+## What Changes
 
-Additionally, there is **no way to distinguish these cases** without adding debug logging.
+### 1. Extend the `generate-evolution-insights` edge function
 
-## Plan
+Add a new `plot_plan` field to the AI tool schema. The agent will return:
 
-### Step 1: Add debug logging to trackUsage (edge function)
-
-**File:** `supabase/functions/structure-dictation/index.ts`
-
-Add `console.log` statements to confirm:
-- Whether PAID_API_KEY is present (log its length, not value)
-- The request URL and payload shape
-- The Paid API response status and body
-
-```typescript
-async function trackUsage(input: { ... }) {
-  if (!PAID_API_KEY) {
-    console.error("[trackUsage] PAID_API_KEY is NOT set. Skipping.");
-    return;
-  }
-  console.log("[trackUsage] PAID_API_KEY present, length:", PAID_API_KEY.length);
-
-  const body = { signals: [{ ... }] };
-  console.log("[trackUsage] Sending to Paid:", JSON.stringify(body));
-
-  const response = await fetch(PAID_USAGE_URL, { ... });
-  const responseText = await response.text();
-  console.log("[trackUsage] Paid response:", response.status, responseText);
-
-  if (!response.ok) {
-    throw new Error(`Paid usage tracking failed (${response.status}): ${responseText}`);
-  }
+```
+plot_plan: {
+  recommended_metrics: ["sbp", "dbp", "hr", ...]   // ordered by clinical relevance
+  focus_metric: "sbp"                                // the "hero" metric to emphasize
+  recommended_date_range: "90d" | "365d" | "all"     // best window for this patient
+  animation_sequence: [                              // staggered reveal order
+    { metric: "sbp", delay_ms: 0, rationale: "Persistent stage 2 HTN..." },
+    { metric: "dbp", delay_ms: 400, rationale: "Diastolic trending down..." },
+    { metric: "hr",  delay_ms: 800, rationale: "Tachycardia correlates..." }
+  ]
+  narrative_headline: "Cardiovascular risk is the dominant story..."
 }
 ```
 
-Also add a log at the call site (line 786-796) to confirm execution reaches trackUsage:
+The system prompt gains a paragraph instructing the model to select parameters based on data availability, clinical significance, and temporal patterns.
 
-```typescript
-console.log("[structure-dictation] About to call trackUsage...");
-try {
-  await trackUsage({ ... });
-  console.log("[structure-dictation] trackUsage completed successfully.");
-} catch (trackError) {
-  console.error("Paid usage tracking failed:", trackError);
-}
-```
+### 2. New type: `PlotPlan`
 
-### Step 2: Redeploy and test
+In `src/types/evolutionInsights.ts`, add:
 
-- Deploy the updated edge function
-- Call it via curl tool to trigger execution
-- Read logs to see exact debug output
-- Determine whether the issue is missing API key, wrong endpoint, or wrong payload
+- `PlotPlan` interface with `recommended_metrics`, `focus_metric`, `recommended_date_range`, `animation_sequence`, and `narrative_headline`
+- `AnimationStep` sub-type with `metric`, `delay_ms`, `rationale`
+- Extend `EvolutionInsights` to include optional `plot_plan`
 
-### Step 3: Fix based on findings
+### 3. Deterministic fallback
 
-If `PAID_API_KEY` is missing or empty: verify secret is set correctly.
-If Paid API returns error: fix URL or payload format.
-If Paid API returns 200 but no signals: check with Paid.ai documentation for correct payload structure.
+In `src/lib/evolutionInsights.ts`, add `generateDeterministicPlotPlan(metrics)` that picks metrics based on data availability (if BP data exists, include sbp/dbp; if HR data exists, include hr; etc.) with default stagger timings.
 
-### Step 4: No frontend changes needed
+### 4. Update `EvolutionDashboard.tsx`
 
-The frontend invocation chain is correct:
-- Uses `VITE_SUPABASE_URL` (production URL)
-- Sends proper `apikey` and `Authorization` headers
-- Calls the right endpoint path
+- On mount, `activeMetrics` starts as an **empty set** (nothing visible)
+- When insights load (AI or deterministic), read `plot_plan.animation_sequence`
+- Use `setTimeout` chain to add each metric to `activeMetrics` one by one at the specified `delay_ms`, creating a cinematic stagger effect
+- Set `dateRangeOption` from `plot_plan.recommended_date_range`
+- Show `narrative_headline` as a brief intro text above the chart
+- The `focus_metric` gets a subtle glow/emphasis treatment in the chart (thicker line, area fill)
+- User can still manually toggle chips after the animation completes
 
-## Files to Change
+### 5. Update `MetricTrendChart.tsx`
+
+- Accept an optional `focusMetric` prop
+- When a series matches `focusMetric`, increase its line width and add area gradient
+- Each series uses `animationDelay` from ECharts to stagger its entrance matching the plan
+
+### 6. No new edge function needed
+
+The existing `generate-evolution-insights` function is extended with the additional `plot_plan` property in the tool schema. One API call returns both annotations and the plot plan.
+
+## Files Changed
 
 | File | Change |
 |------|--------|
-| `supabase/functions/structure-dictation/index.ts` | Add debug logging to `trackUsage()` and its call site |
+| `src/types/evolutionInsights.ts` | Add `PlotPlan`, `AnimationStep` types; extend `EvolutionInsights` |
+| `supabase/functions/generate-evolution-insights/index.ts` | Add `plot_plan` to system prompt and tool schema |
+| `src/lib/evolutionInsights.ts` | Add `generateDeterministicPlotPlan()`, include plot_plan in fallback |
+| `src/components/evolution/EvolutionDashboard.tsx` | Start with empty metrics, animate sequence from plot plan, show headline |
+| `src/components/evolution/MetricTrendChart.tsx` | Accept `focusMetric` prop, apply emphasis styling and per-series animation delay |
 
-## Verification Checklist
+## Technical Details
 
-1. Deploy updated function
-2. Call function via test tool
-3. Check logs for `[trackUsage]` messages
-4. Confirm PAID_API_KEY presence and length
-5. Confirm Paid API response status
-6. Check Paid dashboard for received signal
-7. Remove debug logs once root cause is confirmed and fixed
+- The animation sequence uses React state updates via `setTimeout` to progressively enable metrics, which triggers ECharts re-render with its built-in enter animation
+- The focus metric gets `lineStyle.width: 3` and an area gradient, while non-focus metrics stay at `width: 1.5` with no fill
+- ECharts `animationDelay` per series is set from the plan's `delay_ms` values
+- If the AI call fails, the deterministic fallback picks all available metrics with 300ms stagger intervals
+- User manual toggles override the agent plan at any time -- chips remain interactive
 
