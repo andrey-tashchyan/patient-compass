@@ -1,0 +1,7 @@
+DATE,PATIENT,ENCOUNTER,CODE,DESCRIPTION,BASE_COST,REASONCODE,REASONDESCRIPTION
+2011-03-17T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,9e5d1f34-43c1-4f8f-975c-1ec93f626876,430193006,Medication Reconciliation (procedure),612.57,,
+2014-04-03T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,4e5d914c-fe27-4f40-bb22-f253ad85bf5e,430193006,Medication Reconciliation (procedure),378.64,,
+2015-04-09T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,752b2b50-bb37-4680-bee3-f1e058c0bfd6,430193006,Medication Reconciliation (procedure),580.95,,
+2019-05-02T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,75293bd9-d14a-485a-88ed-f163c7f38a2b,430193006,Medication Reconciliation (procedure),712.43,,
+2021-03-18T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,a656de4c-7f55-47db-8822-dd8fe6c84daf,430193006,Medication Reconciliation (procedure),449.65,,
+2023-09-10T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,96899b6a-7ab3-443b-b3ce-1867d025a609,430193006,Medication Reconciliation (procedure),449.65,,

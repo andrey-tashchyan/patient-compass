@@ -37,8 +37,6 @@ interface VoiceDictationProps {
 
 type Stage = "idle" | "recording" | "processing" | "review";
 
-const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-
 const normalizeConsultationReport = (text: string): string => {
   return text
     .replace(/\r\n/g, "\n")
@@ -71,35 +69,80 @@ const getSummaryFromResponse = (data: any): string => {
   return normalizeConsultationReport(parts.join("\n\n"));
 };
 
+const blobToBase64 = (blob: Blob): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("Failed to read recorded audio."));
+    reader.onloadend = () => {
+      const result = reader.result;
+      if (typeof result !== "string") {
+        reject(new Error("Invalid recorded audio payload."));
+        return;
+      }
+
+      const base64 = result.split(",")[1];
+      if (!base64) {
+        reject(new Error("Recorded audio is empty."));
+        return;
+      }
+
+      resolve(base64);
+    };
+    reader.readAsDataURL(blob);
+  });
+
 const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDictationProps) => {
   const [stage, setStage] = useState<Stage>("idle");
   const [mode, setMode] = useState<"voice" | "demo">("voice");
   const [transcript, setTranscript] = useState("");
-  const [interimText, setInterimText] = useState("");
   const [demoInput, setDemoInput] = useState("");
   const [error, setError] = useState("");
   const [note, setNote] = useState<Partial<ClinicalNote> | null>(null);
 
-  const recognitionRef = useRef<any>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animFrameRef = useRef<number>(0);
   const streamRef = useRef<MediaStream | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
 
-  const hasSpeechApi = !!SpeechRecognition;
+  const hasRecordingApi =
+    typeof window !== "undefined" &&
+    !!window.navigator?.mediaDevices?.getUserMedia &&
+    typeof window.MediaRecorder !== "undefined";
+
+  const releaseAudioResources = useCallback(() => {
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = 0;
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    if (audioCtxRef.current) {
+      void audioCtxRef.current.close();
+      audioCtxRef.current = null;
+    }
+    analyserRef.current = null;
+  }, []);
 
   useEffect(() => {
     if (!open) {
-      stopRecording();
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+      }
+      mediaRecorderRef.current = null;
+      audioChunksRef.current = [];
+      releaseAudioResources();
       setStage("idle");
       setTranscript("");
-      setInterimText("");
       setDemoInput("");
       setError("");
       setNote(null);
     }
-  }, [open]);
+  }, [open, releaseAudioResources]);
 
   // ── Audio visualizer ──
   const drawWaveform = useCallback(() => {
@@ -137,9 +180,15 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
   }, []);
 
   const startRecording = async () => {
+    if (!hasRecordingApi) {
+      setError("This browser does not support microphone recording.");
+      return;
+    }
+
     setError("");
     setTranscript("");
-    setInterimText("");
+    setNote(null);
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
@@ -151,61 +200,93 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
       source.connect(analyser);
       analyserRef.current = analyser;
 
-      if (hasSpeechApi) {
-        const recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.lang = "en-US";
-        let finalTranscript = "";
-        recognition.onresult = (event: any) => {
-          let interim = "";
-          for (let i = event.resultIndex; i < event.results.length; i++) {
-            const result = event.results[i];
-            if (result.isFinal) {
-              finalTranscript += result[0].transcript + " ";
-              setTranscript(finalTranscript.trim());
-            } else {
-              interim += result[0].transcript;
-            }
-          }
-          setInterimText(interim);
-        };
-        recognition.onerror = (event: any) => {
-          if (event.error !== "aborted") setError(`Speech recognition error: ${event.error}`);
-        };
-        recognition.start();
-        recognitionRef.current = recognition;
-      }
+      const preferredMimeTypes = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4"];
+      const mimeType = preferredMimeTypes.find((type) => MediaRecorder.isTypeSupported(type));
+      const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+      audioChunksRef.current = [];
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+      recorder.start(200);
+      mediaRecorderRef.current = recorder;
+
       setStage("recording");
       drawWaveform();
     } catch {
+      releaseAudioResources();
       setError("Could not access microphone. Please check permissions.");
     }
   };
 
-  const stopRecording = () => {
-    if (recognitionRef.current) { recognitionRef.current.stop(); recognitionRef.current = null; }
-    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-    if (streamRef.current) { streamRef.current.getTracks().forEach((t) => t.stop()); streamRef.current = null; }
-    if (audioCtxRef.current) { audioCtxRef.current.close(); audioCtxRef.current = null; }
-    analyserRef.current = null;
+  const stopRecordingAndCollectAudio = useCallback((): Promise<Blob | null> => {
+    const recorder = mediaRecorderRef.current;
+    if (!recorder) {
+      releaseAudioResources();
+      return Promise.resolve(null);
+    }
+
+    return new Promise((resolve) => {
+      const finalize = () => {
+        const chunks = audioChunksRef.current;
+        const recordedBlob =
+          chunks.length > 0 ? new Blob(chunks, { type: recorder.mimeType || "audio/webm" }) : null;
+
+        mediaRecorderRef.current = null;
+        audioChunksRef.current = [];
+        releaseAudioResources();
+        resolve(recordedBlob);
+      };
+
+      recorder.addEventListener("stop", finalize, { once: true });
+      if (recorder.state === "inactive") {
+        recorder.removeEventListener("stop", finalize);
+        finalize();
+        return;
+      }
+      recorder.stop();
+    });
+  }, [releaseAudioResources]);
+
+  const transcribeWithMedAsr = async (audioBlob: Blob): Promise<string> => {
+    const audioBase64 = await blobToBase64(audioBlob);
+    const response = await fetch("/api/medasr-transcribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        audioBase64,
+        mimeType: audioBlob.type,
+      }),
+    });
+
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(payload?.error || "MedASR transcription failed.");
+    }
+
+    const text = typeof payload?.transcript === "string" ? payload.transcript.trim() : "";
+    if (!text) {
+      throw new Error("MedASR returned an empty transcript.");
+    }
+    return text;
   };
 
   const processTranscript = async (input: string) => {
     const finalTranscript = input.trim();
-    if (!finalTranscript.trim()) {
+    if (!finalTranscript) {
       setError("No input detected. Please provide text or speech.");
       setStage("idle");
       return;
     }
+
     setError("");
-    setTranscript(finalTranscript.trim());
-    setInterimText("");
+    setTranscript(finalTranscript);
     setStage("processing");
 
     try {
       const { data, error: fnError } = await supabase.functions.invoke("structure-dictation", {
-        body: { transcript: finalTranscript.trim(), patientContext },
+        body: { transcript: finalTranscript, patientContext },
       });
       if (fnError) throw new Error(fnError.message);
       if (data?.error) throw new Error(data.error);
@@ -223,8 +304,20 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
   };
 
   const handleStopAndProcess = async () => {
-    stopRecording();
-    await processTranscript(transcript || interimText);
+    setError("");
+    setStage("processing");
+
+    try {
+      const audioBlob = await stopRecordingAndCollectAudio();
+      if (!audioBlob) {
+        throw new Error("No audio recorded. Please try again.");
+      }
+      const finalTranscript = await transcribeWithMedAsr(audioBlob);
+      await processTranscript(finalTranscript);
+    } catch (err: any) {
+      setError(err.message || "Failed to process recording");
+      setStage("idle");
+    }
   };
 
   const handleDemoProcess = async () => {
@@ -270,7 +363,7 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
                 {error}
               </div>
             )}
-            {hasSpeechApi && (
+            {hasRecordingApi && (
               <div className="flex items-center gap-2 justify-center">
                 <Button
                   size="sm"
@@ -288,10 +381,10 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
                 </Button>
               </div>
             )}
-            {hasSpeechApi && mode === "voice" ? (
+            {hasRecordingApi && mode === "voice" ? (
               <div className="text-center py-8">
                 <p className="text-sm text-muted-foreground mb-6">
-                  Click the button to start dictating. AI will transcribe, clean, and generate a consultation report.
+                  Click the button to start dictating. MedASR will transcribe your audio, then AI will generate a consultation report.
                 </p>
                 <Button size="lg" onClick={startRecording} className="gap-2">
                   <Mic className="h-5 w-5" /> Start Dictation
@@ -300,7 +393,9 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
             ) : (
               <div className="space-y-3">
                 <p className="text-sm text-muted-foreground">
-                  Type or paste your dictation below to test output instantly in demo mode.
+                  {hasRecordingApi
+                    ? "Type or paste your dictation below to test output instantly in demo mode."
+                    : "Your browser doesn't support microphone recording. Type or paste your dictation below."}
                 </p>
                 <Textarea
                   value={demoInput}
@@ -323,15 +418,11 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
               <canvas ref={canvasRef} width={560} height={80} className="w-full h-20 rounded-lg" />
             </div>
             <div className="min-h-[80px] rounded-lg bg-muted/30 border border-border p-3">
-              <p className="text-sm text-foreground leading-relaxed">
-                {transcript}
-                {interimText && <span className="text-muted-foreground italic"> {interimText}</span>}
-                {!transcript && !interimText && <span className="text-muted-foreground italic">Listening...</span>}
-              </p>
+              <p className="text-sm text-muted-foreground italic">Recording in progress... click stop when done.</p>
             </div>
             <div className="flex justify-center">
               <Button variant="destructive" size="lg" onClick={handleStopAndProcess} className="gap-2">
-                <Square className="h-4 w-4" /> Stop & Process
+                <Square className="h-4 w-4" /> Stop &amp; Process
               </Button>
             </div>
           </div>
@@ -341,19 +432,19 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
         {stage === "processing" && (
           <div className="text-center py-12 space-y-4">
             <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-            <p className="text-sm text-muted-foreground">AI is generating your consultation report...</p>
-            <div className="rounded-lg bg-muted/30 border border-border p-3 mx-auto max-w-md">
-              <p className="text-xs text-muted-foreground line-clamp-3">{transcript}</p>
-            </div>
+            <p className="text-sm text-muted-foreground">Transcribing with MedASR and generating your consultation report...</p>
+            {transcript && (
+              <div className="rounded-lg bg-muted/30 border border-border p-3 mx-auto max-w-md">
+                <p className="text-xs text-muted-foreground line-clamp-3">{transcript}</p>
+              </div>
+            )}
           </div>
         )}
 
         {/* Review */}
         {stage === "review" && note && (
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Review and edit the consultation report below.
-            </p>
+            <p className="text-sm text-muted-foreground">Review and edit the consultation report below.</p>
 
             <div>
               <label className="clinical-label mb-1 block">Consultation report</label>
@@ -365,7 +456,13 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
-              <Button variant="ghost" onClick={() => { setStage("idle"); setNote(null); }}>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setStage("idle");
+                  setNote(null);
+                }}
+              >
                 Discard
               </Button>
               <Button onClick={handleSave} className="gap-2">

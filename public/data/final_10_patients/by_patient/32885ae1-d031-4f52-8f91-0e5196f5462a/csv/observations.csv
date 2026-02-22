@@ -1,0 +1,142 @@
+DATE,PATIENT,ENCOUNTER,CODE,DESCRIPTION,VALUE,UNITS,TYPE
+2010-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,QALY,QALY,30.6,a,numeric
+2010-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,DALY,DALY,0.4,a,numeric
+2010-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,QOLS,QOLS,1.0,{score},numeric
+2011-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,QALY,QALY,31.6,a,numeric
+2011-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,DALY,DALY,0.4,a,numeric
+2011-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,QOLS,QOLS,1.0,{score},numeric
+2012-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,QALY,QALY,32.6,a,numeric
+2012-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,DALY,DALY,0.4,a,numeric
+2012-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,QOLS,QOLS,1.0,{score},numeric
+2013-01-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2d5ddb7b-a9a5-422f-b9a9-797adf0df9dd,8302-2,Body Height,173.4,cm,numeric
+2013-01-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2d5ddb7b-a9a5-422f-b9a9-797adf0df9dd,72514-3,Pain severity - 0-10 verbal numeric rating [Score] - Reported,1.0,{score},numeric
+2013-01-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2d5ddb7b-a9a5-422f-b9a9-797adf0df9dd,29463-7,Body Weight,86.9,kg,numeric
+2013-01-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2d5ddb7b-a9a5-422f-b9a9-797adf0df9dd,39156-5,Body Mass Index,28.9,kg/m2,numeric
+2013-01-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2d5ddb7b-a9a5-422f-b9a9-797adf0df9dd,8462-4,Diastolic Blood Pressure,83.0,mm[Hg],numeric
+2013-01-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2d5ddb7b-a9a5-422f-b9a9-797adf0df9dd,8480-6,Systolic Blood Pressure,111.0,mm[Hg],numeric
+2013-01-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2d5ddb7b-a9a5-422f-b9a9-797adf0df9dd,8867-4,Heart rate,97.0,/min,numeric
+2013-01-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2d5ddb7b-a9a5-422f-b9a9-797adf0df9dd,9279-1,Respiratory rate,14.0,/min,numeric
+2013-01-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2d5ddb7b-a9a5-422f-b9a9-797adf0df9dd,2093-3,Total Cholesterol,175.2,mg/dL,numeric
+2013-01-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2d5ddb7b-a9a5-422f-b9a9-797adf0df9dd,2571-8,Triglycerides,144.8,mg/dL,numeric
+2013-01-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2d5ddb7b-a9a5-422f-b9a9-797adf0df9dd,18262-6,Low Density Lipoprotein Cholesterol,75.9,mg/dL,numeric
+2013-01-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2d5ddb7b-a9a5-422f-b9a9-797adf0df9dd,2085-9,High Density Lipoprotein Cholesterol,70.4,mg/dL,numeric
+2013-01-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2d5ddb7b-a9a5-422f-b9a9-797adf0df9dd,6690-2,Leukocytes [#/volume] in Blood by Automated count,10.3,10*3/uL,numeric
+2013-01-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2d5ddb7b-a9a5-422f-b9a9-797adf0df9dd,789-8,Erythrocytes [#/volume] in Blood by Automated count,5.4,10*6/uL,numeric
+2013-01-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2d5ddb7b-a9a5-422f-b9a9-797adf0df9dd,718-7,Hemoglobin [Mass/volume] in Blood,15.9,g/dL,numeric
+2013-01-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2d5ddb7b-a9a5-422f-b9a9-797adf0df9dd,4544-3,Hematocrit [Volume Fraction] of Blood by Automated count,42.9,%,numeric
+2013-01-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2d5ddb7b-a9a5-422f-b9a9-797adf0df9dd,787-2,MCV [Entitic volume] by Automated count,87.5,fL,numeric
+2013-01-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2d5ddb7b-a9a5-422f-b9a9-797adf0df9dd,785-6,MCH [Entitic mass] by Automated count,29.3,pg,numeric
+2013-01-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2d5ddb7b-a9a5-422f-b9a9-797adf0df9dd,786-4,MCHC [Mass/volume] by Automated count,34.6,g/dL,numeric
+2013-01-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2d5ddb7b-a9a5-422f-b9a9-797adf0df9dd,21000-5,Erythrocyte distribution width [Entitic volume] by Automated count,46.0,fL,numeric
+2013-01-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2d5ddb7b-a9a5-422f-b9a9-797adf0df9dd,777-3,Platelets [#/volume] in Blood by Automated count,341.1,10*3/uL,numeric
+2013-01-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2d5ddb7b-a9a5-422f-b9a9-797adf0df9dd,32207-3,Platelet distribution width [Entitic volume] in Blood by Automated count,169.5,fL,numeric
+2013-01-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2d5ddb7b-a9a5-422f-b9a9-797adf0df9dd,32623-1,Platelet mean volume [Entitic volume] in Blood by Automated count,11.8,fL,numeric
+2013-01-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2d5ddb7b-a9a5-422f-b9a9-797adf0df9dd,72166-2,Tobacco smoking status NHIS,Former smoker,,text
+2013-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,QALY,QALY,33.6,a,numeric
+2013-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,DALY,DALY,0.4,a,numeric
+2013-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,QOLS,QOLS,1.0,{score},numeric
+2014-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,QALY,QALY,34.6,a,numeric
+2014-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,DALY,DALY,0.4,a,numeric
+2014-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,QOLS,QOLS,1.0,{score},numeric
+2015-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,QALY,QALY,35.6,a,numeric
+2015-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,DALY,DALY,0.4,a,numeric
+2015-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,QOLS,QOLS,1.0,{score},numeric
+2016-01-18T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,59e9823a-050f-437f-9677-c7a41c5ffc1f,8302-2,Body Height,173.4,cm,numeric
+2016-01-18T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,59e9823a-050f-437f-9677-c7a41c5ffc1f,72514-3,Pain severity - 0-10 verbal numeric rating [Score] - Reported,2.0,{score},numeric
+2016-01-18T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,59e9823a-050f-437f-9677-c7a41c5ffc1f,29463-7,Body Weight,90.6,kg,numeric
+2016-01-18T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,59e9823a-050f-437f-9677-c7a41c5ffc1f,39156-5,Body Mass Index,30.1,kg/m2,numeric
+2016-01-18T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,59e9823a-050f-437f-9677-c7a41c5ffc1f,8462-4,Diastolic Blood Pressure,85.0,mm[Hg],numeric
+2016-01-18T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,59e9823a-050f-437f-9677-c7a41c5ffc1f,8480-6,Systolic Blood Pressure,103.0,mm[Hg],numeric
+2016-01-18T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,59e9823a-050f-437f-9677-c7a41c5ffc1f,8867-4,Heart rate,86.0,/min,numeric
+2016-01-18T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,59e9823a-050f-437f-9677-c7a41c5ffc1f,9279-1,Respiratory rate,14.0,/min,numeric
+2016-01-18T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,59e9823a-050f-437f-9677-c7a41c5ffc1f,2093-3,Total Cholesterol,195.7,mg/dL,numeric
+2016-01-18T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,59e9823a-050f-437f-9677-c7a41c5ffc1f,2571-8,Triglycerides,100.5,mg/dL,numeric
+2016-01-18T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,59e9823a-050f-437f-9677-c7a41c5ffc1f,18262-6,Low Density Lipoprotein Cholesterol,107.5,mg/dL,numeric
+2016-01-18T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,59e9823a-050f-437f-9677-c7a41c5ffc1f,2085-9,High Density Lipoprotein Cholesterol,68.1,mg/dL,numeric
+2016-01-18T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,59e9823a-050f-437f-9677-c7a41c5ffc1f,72166-2,Tobacco smoking status NHIS,Former smoker,,text
+2016-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,QALY,QALY,36.6,a,numeric
+2016-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,DALY,DALY,0.4,a,numeric
+2016-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,QOLS,QOLS,1.0,{score},numeric
+2017-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,QALY,QALY,37.6,a,numeric
+2017-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,DALY,DALY,0.4,a,numeric
+2017-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,QOLS,QOLS,1.0,{score},numeric
+2018-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,QALY,QALY,38.6,a,numeric
+2018-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,DALY,DALY,0.4,a,numeric
+2018-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,QOLS,QOLS,1.0,{score},numeric
+2018-11-05T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,06569d43-f331-47aa-9852-ff8b81ce483d,8302-2,Body Height,173.4,cm,numeric
+2018-11-05T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,06569d43-f331-47aa-9852-ff8b81ce483d,72514-3,Pain severity - 0-10 verbal numeric rating [Score] - Reported,1.0,{score},numeric
+2018-11-05T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,06569d43-f331-47aa-9852-ff8b81ce483d,29463-7,Body Weight,87.3,kg,numeric
+2018-11-05T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,06569d43-f331-47aa-9852-ff8b81ce483d,39156-5,Body Mass Index,29.0,kg/m2,numeric
+2018-11-05T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,06569d43-f331-47aa-9852-ff8b81ce483d,8462-4,Diastolic Blood Pressure,82.0,mm[Hg],numeric
+2018-11-05T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,06569d43-f331-47aa-9852-ff8b81ce483d,8480-6,Systolic Blood Pressure,135.0,mm[Hg],numeric
+2018-11-05T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,06569d43-f331-47aa-9852-ff8b81ce483d,8867-4,Heart rate,74.0,/min,numeric
+2018-11-05T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,06569d43-f331-47aa-9852-ff8b81ce483d,9279-1,Respiratory rate,14.0,/min,numeric
+2018-11-05T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,06569d43-f331-47aa-9852-ff8b81ce483d,6690-2,Leukocytes [#/volume] in Blood by Automated count,8.7,10*3/uL,numeric
+2018-11-05T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,06569d43-f331-47aa-9852-ff8b81ce483d,789-8,Erythrocytes [#/volume] in Blood by Automated count,5.2,10*6/uL,numeric
+2018-11-05T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,06569d43-f331-47aa-9852-ff8b81ce483d,718-7,Hemoglobin [Mass/volume] in Blood,13.1,g/dL,numeric
+2018-11-05T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,06569d43-f331-47aa-9852-ff8b81ce483d,4544-3,Hematocrit [Volume Fraction] of Blood by Automated count,38.8,%,numeric
+2018-11-05T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,06569d43-f331-47aa-9852-ff8b81ce483d,787-2,MCV [Entitic volume] by Automated count,83.3,fL,numeric
+2018-11-05T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,06569d43-f331-47aa-9852-ff8b81ce483d,785-6,MCH [Entitic mass] by Automated count,30.4,pg,numeric
+2018-11-05T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,06569d43-f331-47aa-9852-ff8b81ce483d,786-4,MCHC [Mass/volume] by Automated count,34.8,g/dL,numeric
+2018-11-05T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,06569d43-f331-47aa-9852-ff8b81ce483d,21000-5,Erythrocyte distribution width [Entitic volume] by Automated count,43.0,fL,numeric
+2018-11-05T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,06569d43-f331-47aa-9852-ff8b81ce483d,777-3,Platelets [#/volume] in Blood by Automated count,151.6,10*3/uL,numeric
+2018-11-05T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,06569d43-f331-47aa-9852-ff8b81ce483d,32207-3,Platelet distribution width [Entitic volume] in Blood by Automated count,288.8,fL,numeric
+2018-11-05T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,06569d43-f331-47aa-9852-ff8b81ce483d,32623-1,Platelet mean volume [Entitic volume] in Blood by Automated count,12.1,fL,numeric
+2018-11-05T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,06569d43-f331-47aa-9852-ff8b81ce483d,72166-2,Tobacco smoking status NHIS,Former smoker,,text
+2019-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,QALY,QALY,39.6,a,numeric
+2019-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,DALY,DALY,0.4,a,numeric
+2019-10-30T10:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,,QOLS,QOLS,1.0,{score},numeric
+2020-03-19T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,813d10a3-b39d-4b26-aafd-a72ad9a51f3f,72514-3,Pain severity - 0-10 verbal numeric rating [Score] - Reported,1.0,{score},numeric
+2020-03-19T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,813d10a3-b39d-4b26-aafd-a72ad9a51f3f,8302-2,Body Height,173.4,cm,numeric
+2020-03-19T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,813d10a3-b39d-4b26-aafd-a72ad9a51f3f,29463-7,Body Weight,92.0,kg,numeric
+2020-03-19T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,813d10a3-b39d-4b26-aafd-a72ad9a51f3f,8480-6,Systolic Blood Pressure,126.0,mm[Hg],numeric
+2020-03-19T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,813d10a3-b39d-4b26-aafd-a72ad9a51f3f,8462-4,Diastolic Blood Pressure,80.0,mm[Hg],numeric
+2020-03-19T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,813d10a3-b39d-4b26-aafd-a72ad9a51f3f,8867-4,Heart rate,76.0,/min,numeric
+2020-03-19T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,813d10a3-b39d-4b26-aafd-a72ad9a51f3f,9279-1,Respiratory rate,14.0,/min,numeric
+2020-03-19T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,813d10a3-b39d-4b26-aafd-a72ad9a51f3f,72166-2,Tobacco smoking status NHIS,Former smoker,,text
+2020-03-19T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,813d10a3-b39d-4b26-aafd-a72ad9a51f3f,2093-3,Total Cholesterol,198.4,mg/dL,numeric
+2020-03-19T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,813d10a3-b39d-4b26-aafd-a72ad9a51f3f,2571-8,Triglycerides,171.0,mg/dL,numeric
+2020-03-19T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,813d10a3-b39d-4b26-aafd-a72ad9a51f3f,18262-6,Low Density Lipoprotein Cholesterol,112.1,mg/dL,numeric
+2020-03-19T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,813d10a3-b39d-4b26-aafd-a72ad9a51f3f,2085-9,High Density Lipoprotein Cholesterol,46.2,mg/dL,numeric
+2020-03-19T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,813d10a3-b39d-4b26-aafd-a72ad9a51f3f,2339-0,Glucose,102.6,mg/dL,numeric
+2020-03-19T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,813d10a3-b39d-4b26-aafd-a72ad9a51f3f,4548-4,Hemoglobin A1c/Hemoglobin.total in Blood,5.8,%,numeric
+2020-03-19T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,813d10a3-b39d-4b26-aafd-a72ad9a51f3f,39156-5,Body Mass Index,30.6,kg/m2,numeric
+2021-01-08T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2a28c74e-f709-45b3-9a60-c919271b621c,72514-3,Pain severity - 0-10 verbal numeric rating [Score] - Reported,3.0,{score},numeric
+2021-01-08T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2a28c74e-f709-45b3-9a60-c919271b621c,8302-2,Body Height,173.4,cm,numeric
+2021-01-08T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2a28c74e-f709-45b3-9a60-c919271b621c,29463-7,Body Weight,92.5,kg,numeric
+2021-01-08T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2a28c74e-f709-45b3-9a60-c919271b621c,8480-6,Systolic Blood Pressure,128.0,mm[Hg],numeric
+2021-01-08T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2a28c74e-f709-45b3-9a60-c919271b621c,8462-4,Diastolic Blood Pressure,81.0,mm[Hg],numeric
+2021-01-08T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2a28c74e-f709-45b3-9a60-c919271b621c,8867-4,Heart rate,82.0,/min,numeric
+2021-01-08T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2a28c74e-f709-45b3-9a60-c919271b621c,9279-1,Respiratory rate,16.0,/min,numeric
+2021-01-08T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2a28c74e-f709-45b3-9a60-c919271b621c,72166-2,Tobacco smoking status NHIS,Former smoker,,text
+2021-01-08T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,2a28c74e-f709-45b3-9a60-c919271b621c,39156-5,Body Mass Index,30.8,kg/m2,numeric
+2022-05-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,5de9f5eb-e6db-43e3-b27b-fc22b216da71,72514-3,Pain severity - 0-10 verbal numeric rating [Score] - Reported,1.0,{score},numeric
+2022-05-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,5de9f5eb-e6db-43e3-b27b-fc22b216da71,8302-2,Body Height,173.4,cm,numeric
+2022-05-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,5de9f5eb-e6db-43e3-b27b-fc22b216da71,29463-7,Body Weight,95.1,kg,numeric
+2022-05-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,5de9f5eb-e6db-43e3-b27b-fc22b216da71,8480-6,Systolic Blood Pressure,130.0,mm[Hg],numeric
+2022-05-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,5de9f5eb-e6db-43e3-b27b-fc22b216da71,8462-4,Diastolic Blood Pressure,84.0,mm[Hg],numeric
+2022-05-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,5de9f5eb-e6db-43e3-b27b-fc22b216da71,8867-4,Heart rate,79.0,/min,numeric
+2022-05-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,5de9f5eb-e6db-43e3-b27b-fc22b216da71,9279-1,Respiratory rate,14.0,/min,numeric
+2022-05-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,5de9f5eb-e6db-43e3-b27b-fc22b216da71,72166-2,Tobacco smoking status NHIS,Former smoker,,text
+2022-05-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,5de9f5eb-e6db-43e3-b27b-fc22b216da71,2093-3,Total Cholesterol,206.0,mg/dL,numeric
+2022-05-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,5de9f5eb-e6db-43e3-b27b-fc22b216da71,2571-8,Triglycerides,186.3,mg/dL,numeric
+2022-05-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,5de9f5eb-e6db-43e3-b27b-fc22b216da71,18262-6,Low Density Lipoprotein Cholesterol,118.9,mg/dL,numeric
+2022-05-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,5de9f5eb-e6db-43e3-b27b-fc22b216da71,2085-9,High Density Lipoprotein Cholesterol,42.7,mg/dL,numeric
+2022-05-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,5de9f5eb-e6db-43e3-b27b-fc22b216da71,2339-0,Glucose,111.4,mg/dL,numeric
+2022-05-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,5de9f5eb-e6db-43e3-b27b-fc22b216da71,4548-4,Hemoglobin A1c/Hemoglobin.total in Blood,6.1,%,numeric
+2022-05-14T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,5de9f5eb-e6db-43e3-b27b-fc22b216da71,39156-5,Body Mass Index,31.6,kg/m2,numeric
+2023-06-20T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,7f2ef558-9a42-475c-9ec8-18e89236e68a,72514-3,Pain severity - 0-10 verbal numeric rating [Score] - Reported,1.0,{score},numeric
+2023-06-20T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,7f2ef558-9a42-475c-9ec8-18e89236e68a,8302-2,Body Height,173.4,cm,numeric
+2023-06-20T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,7f2ef558-9a42-475c-9ec8-18e89236e68a,29463-7,Body Weight,93.6,kg,numeric
+2023-06-20T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,7f2ef558-9a42-475c-9ec8-18e89236e68a,8480-6,Systolic Blood Pressure,127.0,mm[Hg],numeric
+2023-06-20T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,7f2ef558-9a42-475c-9ec8-18e89236e68a,8462-4,Diastolic Blood Pressure,82.0,mm[Hg],numeric
+2023-06-20T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,7f2ef558-9a42-475c-9ec8-18e89236e68a,8867-4,Heart rate,74.0,/min,numeric
+2023-06-20T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,7f2ef558-9a42-475c-9ec8-18e89236e68a,9279-1,Respiratory rate,14.0,/min,numeric
+2023-06-20T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,7f2ef558-9a42-475c-9ec8-18e89236e68a,72166-2,Tobacco smoking status NHIS,Former smoker,,text
+2023-06-20T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,7f2ef558-9a42-475c-9ec8-18e89236e68a,2093-3,Total Cholesterol,199.2,mg/dL,numeric
+2023-06-20T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,7f2ef558-9a42-475c-9ec8-18e89236e68a,2571-8,Triglycerides,171.5,mg/dL,numeric
+2023-06-20T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,7f2ef558-9a42-475c-9ec8-18e89236e68a,18262-6,Low Density Lipoprotein Cholesterol,111.6,mg/dL,numeric
+2023-06-20T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,7f2ef558-9a42-475c-9ec8-18e89236e68a,2085-9,High Density Lipoprotein Cholesterol,45.0,mg/dL,numeric
+2023-06-20T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,7f2ef558-9a42-475c-9ec8-18e89236e68a,2339-0,Glucose,107.9,mg/dL,numeric
+2023-06-20T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,7f2ef558-9a42-475c-9ec8-18e89236e68a,4548-4,Hemoglobin A1c/Hemoglobin.total in Blood,5.9,%,numeric
+2023-06-20T11:08:29Z,32885ae1-d031-4f52-8f91-0e5196f5462a,7f2ef558-9a42-475c-9ec8-18e89236e68a,39156-5,Body Mass Index,31.1,kg/m2,numeric

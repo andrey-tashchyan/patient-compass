@@ -1,0 +1,29 @@
+DATE,PATIENT,ENCOUNTER,CODE,DESCRIPTION,BASE_COST,REASONCODE,REASONDESCRIPTION
+2010-05-06T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,23e4500f-ed6a-4b60-b747-dbfd9dadbec4,703423002,Combined chemotherapy and radiation therapy (procedure),14130.73,363406005,Malignant tumor of colon
+2010-06-07T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,2d3e9f88-de72-4731-b3c5-5ac23c72cb58,703423002,Combined chemotherapy and radiation therapy (procedure),10191.19,363406005,Malignant tumor of colon
+2010-07-08T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,a19bb00f-bc4b-4a5f-863d-38c314a5b215,703423002,Combined chemotherapy and radiation therapy (procedure),13312.47,363406005,Malignant tumor of colon
+2010-08-09T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,e11f6d70-1bad-4373-bb75-2266c4f15586,703423002,Combined chemotherapy and radiation therapy (procedure),13336.61,363406005,Malignant tumor of colon
+2010-09-07T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,20c4d9f5-f5b8-4f69-a834-4cbe5acc4646,703423002,Combined chemotherapy and radiation therapy (procedure),19287.76,363406005,Malignant tumor of colon
+2010-10-09T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,5396be60-a860-421a-8b3c-f43e7bafdb1c,703423002,Combined chemotherapy and radiation therapy (procedure),13676.23,363406005,Malignant tumor of colon
+2010-11-04T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,ce3e7e49-07a0-4477-8711-b5745c63e0e7,430193006,Medication Reconciliation (procedure),551.48,,
+2012-01-20T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,3c9e2292-2949-4a83-95be-343727a0fbe0,23426006,Measurement of respiratory function (procedure),516.65,10509002,Acute bronchitis (disorder)
+2012-11-15T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,abf29f17-7062-45a2-8c9a-2c3e1b9efd6f,430193006,Medication Reconciliation (procedure),638.46,,
+2013-11-21T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,3ace41ff-05f9-478b-9630-ea2332d1b29c,430193006,Medication Reconciliation (procedure),281.67,,
+2014-11-27T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,96404a89-2333-4acd-990e-a5d49888ea74,410006001,Digital examination of rectum,516.65,,
+2014-11-27T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,ff95c87f-5acc-47d4-889f-e3455e02b410,65575008,Biopsy of prostate,516.65,,
+2015-11-27T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,932b3f6b-8cd4-4b24-a406-01f7d248fd51,410006001,Digital examination of rectum,516.65,,
+2015-12-03T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,932b3f6b-8cd4-4b24-a406-01f7d248fd51,430193006,Medication Reconciliation (procedure),725.44,,
+2016-12-08T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,9a3fc5a1-68bd-4b5c-85b4-6fa23ea6b30b,410006001,Digital examination of rectum,516.65,,
+2016-12-08T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,9a3fc5a1-68bd-4b5c-85b4-6fa23ea6b30b,430193006,Medication Reconciliation (procedure),410.05,,
+2017-12-08T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,d25b04c1-a3be-4161-81ae-a91fb6b39a8c,410006001,Digital examination of rectum,516.65,,
+2018-04-12T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,6897d194-c4ae-4b28-aa15-aff4e5c5b5f9,430193006,Medication Reconciliation (procedure),427.38,,
+2018-12-20T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,c599369c-176d-4c31-acce-d1979f37df03,410006001,Digital examination of rectum,516.65,,
+2019-12-20T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,ee2bcc27-e8e2-4140-b9f6-768dffe1c1e7,410006001,Digital examination of rectum,516.65,,
+2019-12-20T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,e7f29a96-97cb-4f68-a407-6b73b81ba628,65575008,Biopsy of prostate,516.65,,
+2019-12-26T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,e7f29a96-97cb-4f68-a407-6b73b81ba628,430193006,Medication Reconciliation (procedure),664.64,,
+2020-12-28T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,df1d7c56-c950-4513-ae4b-dc9f91ff338a,430193006,Medication Reconciliation (procedure),449.65,,
+2021-06-15T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,efb93887-feb4-4a74-b824-2d3b9b4306b7,73761001,Colonoscopy,10644.03,,
+2021-12-30T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,dd02cac8-5869-4a49-839d-73c9d774db96,430193006,Medication Reconciliation (procedure),449.65,,
+2022-12-29T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,49b5daa3-5242-4102-9f86-28f1003c664c,430193006,Medication Reconciliation (procedure),449.65,,
+2023-06-20T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,97ac37ae-43bf-468a-ac00-1ad2781b2b35,73761001,Colonoscopy,10644.03,,
+2023-12-28T07:10:29Z,73ccae2b-09be-48be-b6f8-320bc4df146a,32ecad15-6aaf-4591-b683-8ad132ee886b,430193006,Medication Reconciliation (procedure),449.65,,

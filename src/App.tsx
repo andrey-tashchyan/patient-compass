@@ -9,6 +9,7 @@ import PatientDashboard from "./pages/PatientDashboard";
 import PrescriptionWindow from "./pages/PrescriptionWindow";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import PatientEvolution from "./pages/PatientEvolution";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
         <Routes>
           <Route path="/auth" element={<Auth />} />
           <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+          <Route path="/patient-evolution" element={<ProtectedRoute><PatientEvolution /></ProtectedRoute>} />
           <Route path="/patient/:id" element={<ProtectedRoute><PatientDashboard /></ProtectedRoute>} />
           <Route path="/patient/:id/prescribe" element={<ProtectedRoute><PrescriptionWindow /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />

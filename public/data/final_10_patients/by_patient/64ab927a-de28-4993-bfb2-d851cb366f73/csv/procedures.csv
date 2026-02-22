@@ -1,0 +1,49 @@
+DATE,PATIENT,ENCOUNTER,CODE,DESCRIPTION,BASE_COST,REASONCODE,REASONDESCRIPTION
+2011-03-28T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,6cfc4b86-a47e-40f4-91cf-d3ca25eea9bd,430193006,Medication Reconciliation (procedure),556.27,,
+2013-02-21T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,c9efe078-7db1-4870-8883-ec16db35b7cd,23426006,Measurement of respiratory function (procedure),516.65,10509002,Acute bronchitis (disorder)
+2013-06-19T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,aabd904d-3c73-4a96-8be5-f224eaa47c68,288086009,Suture open wound,5892.50,284551006,Laceration of foot
+2016-06-15T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,357e4beb-a131-4a67-ad9e-83282d3e371e,117015009,Throat culture (procedure),3364.73,195662009,Acute viral pharyngitis (disorder)
+2016-07-04T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,87f77df7-6909-4ba2-81a7-dace873fc7e6,252160004,Standard pregnancy test,8339.40,72892002,Normal pregnancy
+2016-07-04T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,87f77df7-6909-4ba2-81a7-dace873fc7e6,169230002,Ultrasound scan for fetal viability,12607.28,72892002,Normal pregnancy
+2016-07-11T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,83ab0c9c-22eb-415d-9ce0-0d35e8540808,10383002,Counseling for termination of pregnancy,516.65,72892002,Normal pregnancy
+2016-07-11T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,83ab0c9c-22eb-415d-9ce0-0d35e8540808,714812005,Induced termination of pregnancy,10698.11,72892002,Normal pregnancy
+2016-07-18T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,64297f09-685f-418e-bae9-579e10cbd0f7,386394001,Pregnancy termination care,516.65,72892002,Normal pregnancy
+2016-07-18T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,64297f09-685f-418e-bae9-579e10cbd0f7,5880005,Physical exam following abortion,516.65,72892002,Normal pregnancy
+2016-07-18T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,64297f09-685f-418e-bae9-579e10cbd0f7,171207006,Depression screening,516.65,72892002,Normal pregnancy
+2020-03-23T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,eacc3213-ace7-43c6-af8a-6eda6d843bd5,252160004,Standard pregnancy test,3478.00,72892002,Normal pregnancy
+2020-03-23T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,eacc3213-ace7-43c6-af8a-6eda6d843bd5,169230002,Ultrasound scan for fetal viability,9221.76,72892002,Normal pregnancy
+2020-03-23T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,eacc3213-ace7-43c6-af8a-6eda6d843bd5,274804006,Evaluation of uterine fundal height,6554.98,72892002,Normal pregnancy
+2020-03-23T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,eacc3213-ace7-43c6-af8a-6eda6d843bd5,225158009,Auscultation of the fetal heart,4882.26,72892002,Normal pregnancy
+2020-03-23T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,eacc3213-ace7-43c6-af8a-6eda6d843bd5,44608003,Blood typing  RH typing,2241.74,72892002,Normal pregnancy
+2020-03-23T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,eacc3213-ace7-43c6-af8a-6eda6d843bd5,104091002,Hemoglobin / Hematocrit / Platelet count,1804.99,72892002,Normal pregnancy
+2020-03-23T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,eacc3213-ace7-43c6-af8a-6eda6d843bd5,47758006,Hepatitis B Surface Antigen Measurement,1794.28,72892002,Normal pregnancy
+2020-03-23T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,eacc3213-ace7-43c6-af8a-6eda6d843bd5,31676001,Human immunodeficiency virus antigen test,2145.42,72892002,Normal pregnancy
+2020-03-23T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,eacc3213-ace7-43c6-af8a-6eda6d843bd5,310861008,Chlamydia antigen test,2693.11,72892002,Normal pregnancy
+2020-03-23T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,eacc3213-ace7-43c6-af8a-6eda6d843bd5,165829005,Gonorrhea infection test,2887.25,72892002,Normal pregnancy
+2020-03-23T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,eacc3213-ace7-43c6-af8a-6eda6d843bd5,269828009,Syphilis infection test,1583.31,72892002,Normal pregnancy
+2020-03-23T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,eacc3213-ace7-43c6-af8a-6eda6d843bd5,117010004,Urine culture,1981.39,72892002,Normal pregnancy
+2020-03-23T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,eacc3213-ace7-43c6-af8a-6eda6d843bd5,90226004,Cytopathology procedure  preparation of smear  genital source,2677.41,72892002,Normal pregnancy
+2020-03-23T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,eacc3213-ace7-43c6-af8a-6eda6d843bd5,395123002,Urine screening test for diabetes,2082.54,72892002,Normal pregnancy
+2020-03-23T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,eacc3213-ace7-43c6-af8a-6eda6d843bd5,104375008,Hepatitis C antibody test,2419.91,72892002,Normal pregnancy
+2020-03-23T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,eacc3213-ace7-43c6-af8a-6eda6d843bd5,169690007,Rubella screening,1451.18,72892002,Normal pregnancy
+2020-03-23T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,eacc3213-ace7-43c6-af8a-6eda6d843bd5,104326007,Measurement of Varicella-zoster virus antibody,2025.23,72892002,Normal pregnancy
+2020-03-23T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,eacc3213-ace7-43c6-af8a-6eda6d843bd5,28163009,Skin test for tuberculosis,2065.98,72892002,Normal pregnancy
+2020-03-23T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,eacc3213-ace7-43c6-af8a-6eda6d843bd5,167271000,Urine protein test,3888.34,72892002,Normal pregnancy
+2020-03-23T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,eacc3213-ace7-43c6-af8a-6eda6d843bd5,5880005,Physical examination of mother,516.65,72892002,Normal pregnancy
+2020-04-20T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,ab227a63-3c08-4cd3-b0d5-0db24555a649,274804006,Evaluation of uterine fundal height,6043.90,72892002,Normal pregnancy
+2020-04-20T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,ab227a63-3c08-4cd3-b0d5-0db24555a649,225158009,Auscultation of the fetal heart,5938.80,72892002,Normal pregnancy
+2020-04-20T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,ab227a63-3c08-4cd3-b0d5-0db24555a649,443529005,Screening for chromosomal aneuploidy in prenatal amniotic fluid,3022.79,72892002,Normal pregnancy
+2020-05-18T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,85c1310c-4497-4d97-a9f4-d235f0a25514,274804006,Evaluation of uterine fundal height,3876.41,72892002,Normal pregnancy
+2020-05-18T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,85c1310c-4497-4d97-a9f4-d235f0a25514,225158009,Auscultation of the fetal heart,5608.74,72892002,Normal pregnancy
+2020-06-15T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,6b952c71-b9d3-46f0-966d-bf533bbc866d,274804006,Evaluation of uterine fundal height,3876.41,72892002,Normal pregnancy
+2020-06-15T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,6b952c71-b9d3-46f0-966d-bf533bbc866d,225158009,Auscultation of the fetal heart,5608.74,72892002,Normal pregnancy
+2020-07-13T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,fd3d1ed2-2c9c-4432-a834-ec3a3e4a682b,274804006,Evaluation of uterine fundal height,3876.41,72892002,Normal pregnancy
+2020-07-13T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,fd3d1ed2-2c9c-4432-a834-ec3a3e4a682b,225158009,Auscultation of the fetal heart,5608.74,72892002,Normal pregnancy
+2020-08-10T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,6f187f71-50be-454b-a009-6e81a326342a,274804006,Evaluation of uterine fundal height,3876.41,72892002,Normal pregnancy
+2020-08-10T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,6f187f71-50be-454b-a009-6e81a326342a,225158009,Auscultation of the fetal heart,5608.74,72892002,Normal pregnancy
+2020-09-07T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,f20e3747-24b7-4003-a920-bb0ae553cd97,274804006,Evaluation of uterine fundal height,3876.41,72892002,Normal pregnancy
+2020-09-07T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,f20e3747-24b7-4003-a920-bb0ae553cd97,225158009,Auscultation of the fetal heart,5608.74,72892002,Normal pregnancy
+2020-10-05T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,4e6bacb5-0af2-480d-b17f-e6131dcb3b6d,274804006,Evaluation of uterine fundal height,3876.41,72892002,Normal pregnancy
+2020-10-05T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,4e6bacb5-0af2-480d-b17f-e6131dcb3b6d,225158009,Auscultation of the fetal heart,5608.74,72892002,Normal pregnancy
+2020-12-14T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,02e0f5a3-d608-4874-a301-f0c440fa0b14,430193006,Medication Reconciliation (procedure),449.65,,
+2022-04-18T04:10:51Z,64ab927a-de28-4993-bfb2-d851cb366f73,39b70a16-7a8a-4a6c-9a83-230b8f737c5c,430193006,Medication Reconciliation (procedure),449.65,,

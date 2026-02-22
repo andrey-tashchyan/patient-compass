@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.structure-dictation]
 verify_jwt = false
+
+[functions.generate-patient-evolution]
+verify_jwt = false

@@ -1,0 +1,9 @@
+DATE,PATIENT,ENCOUNTER,CODE,DESCRIPTION,BASE_COST,REASONCODE,REASONDESCRIPTION
+2011-05-15T09:28:51Z,5ee76f27-28b9-4eee-992f-fa9e6f04330a,162dd57b-da34-4a1e-bc2c-101eb8b07d52,430193006,Medication Reconciliation (procedure),473.67,,
+2012-05-20T09:28:51Z,5ee76f27-28b9-4eee-992f-fa9e6f04330a,b8fe036b-881b-4465-bddf-506d95be7c62,430193006,Medication Reconciliation (procedure),508.80,,
+2014-06-01T09:28:51Z,5ee76f27-28b9-4eee-992f-fa9e6f04330a,f9adab41-608a-40e2-bb12-e31838c732a6,430193006,Medication Reconciliation (procedure),928.33,,
+2014-06-28T09:28:51Z,5ee76f27-28b9-4eee-992f-fa9e6f04330a,dc158c48-d045-4c3f-bb5d-458e0b128a0c,288086009,Suture open wound,9668.01,370247008,Facial laceration
+2018-06-24T09:28:51Z,5ee76f27-28b9-4eee-992f-fa9e6f04330a,9077581d-b19c-4bd5-82e0-030a5e7ca871,430193006,Medication Reconciliation (procedure),532.95,,
+2020-07-05T09:28:51Z,5ee76f27-28b9-4eee-992f-fa9e6f04330a,9454b80e-9e3a-4987-a525-fd308b3a0e26,430193006,Medication Reconciliation (procedure),449.65,,
+2021-07-11T09:28:51Z,5ee76f27-28b9-4eee-992f-fa9e6f04330a,71fb499f-e1dd-4757-a7b3-4a590c710e5d,430193006,Medication Reconciliation (procedure),449.65,,
+2022-08-14T09:28:51Z,5ee76f27-28b9-4eee-992f-fa9e6f04330a,0a2f27bc-a655-4556-9d57-70a565158a22,430193006,Medication Reconciliation (procedure),449.65,,

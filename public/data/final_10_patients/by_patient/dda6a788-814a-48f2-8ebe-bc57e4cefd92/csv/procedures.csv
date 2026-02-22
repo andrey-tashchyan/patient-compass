@@ -1,0 +1,19 @@
+DATE,PATIENT,ENCOUNTER,CODE,DESCRIPTION,BASE_COST,REASONCODE,REASONDESCRIPTION
+1993-03-25T16:22:51Z,dda6a788-814a-48f2-8ebe-bc57e4cefd92,fb6d5763-9753-4d34-bca1-f42dfbac61e8,68254000,Removal of intrauterine device,12479.00,,
+1994-03-13T16:22:51Z,dda6a788-814a-48f2-8ebe-bc57e4cefd92,0dd8ea8f-14a2-4adb-8ed8-b5509c4749a4,288086009,Suture open wound,9066.59,284551006,Laceration of foot
+1994-03-13T16:22:51Z,dda6a788-814a-48f2-8ebe-bc57e4cefd92,0dd8ea8f-14a2-4adb-8ed8-b5509c4749a4,384700001,Injection of tetanus antitoxin,3444.02,284551006,Laceration of foot
+1994-08-04T16:22:51Z,dda6a788-814a-48f2-8ebe-bc57e4cefd92,321fdb78-0596-4508-8cc8-fd5711c68088,430193006,Medication Reconciliation (procedure),852.68,,
+1995-08-10T16:22:51Z,dda6a788-814a-48f2-8ebe-bc57e4cefd92,bf4ecb59-5c28-4632-9eca-bb48d7907579,430193006,Medication Reconciliation (procedure),660.74,,
+1996-08-15T16:22:51Z,dda6a788-814a-48f2-8ebe-bc57e4cefd92,b77e9831-6f01-4d14-835d-73ead8adaec5,430193006,Medication Reconciliation (procedure),514.43,,
+1997-07-22T16:22:51Z,dda6a788-814a-48f2-8ebe-bc57e4cefd92,7678dde6-4a8a-45a1-83f4-ff2b7d39edc2,73761001,Colonoscopy,17543.45,,
+2000-10-19T16:22:51Z,dda6a788-814a-48f2-8ebe-bc57e4cefd92,721b253a-b68d-4067-94c5-7a31d681c976,40701008,Echocardiography (procedure),1142.67,410429000,Cardiac Arrest
+2000-10-19T16:22:51Z,dda6a788-814a-48f2-8ebe-bc57e4cefd92,721b253a-b68d-4067-94c5-7a31d681c976,447365002,Insertion of biventricular implantable cardioverter defibrillator,40120.69,410429000,Cardiac Arrest
+2000-10-19T16:22:51Z,dda6a788-814a-48f2-8ebe-bc57e4cefd92,721b253a-b68d-4067-94c5-7a31d681c976,18286008,Catheter ablation of tissue of heart,17343.79,410429000,Cardiac Arrest
+2002-07-21T16:22:51Z,dda6a788-814a-48f2-8ebe-bc57e4cefd92,5cb65d77-129c-4808-a4ec-62a8dce6f696,73761001,Colonoscopy,7981.61,,
+2002-08-17T16:22:51Z,dda6a788-814a-48f2-8ebe-bc57e4cefd92,9a3d4909-a2c7-4e3e-b17b-16a4c6bc9e83,434158009,Transthoracic three dimensional ultrasonography of heart (procedure),1401.89,,
+2002-10-12T16:22:51Z,dda6a788-814a-48f2-8ebe-bc57e4cefd92,ca61732f-bf6f-4167-939f-304ffc188915,430193006,Medication Reconciliation (procedure),449.65,,
+2002-12-20T16:22:51Z,dda6a788-814a-48f2-8ebe-bc57e4cefd92,8c4e2a1c-9713-48e9-bad1-82320b9c0eea,430193006,Medication Reconciliation (procedure),449.65,,
+2003-01-18T16:22:51Z,dda6a788-814a-48f2-8ebe-bc57e4cefd92,1cd33e40-e119-472b-9b1c-a34e6687feb9,433236007,Transthoracic echocardiography,516.65,,
+2003-02-13T16:22:51Z,dda6a788-814a-48f2-8ebe-bc57e4cefd92,8b1bfe4e-0aec-4c8e-93ea-fc9dd1713733,399208008,Plain chest X-ray (procedure),10262.26,,
+2003-02-13T16:22:51Z,dda6a788-814a-48f2-8ebe-bc57e4cefd92,c980b1c5-ebf9-48d3-8ace-3b0174229dd5,433236007,Transthoracic echocardiography,516.65,,
+2003-02-13T16:22:51Z,dda6a788-814a-48f2-8ebe-bc57e4cefd92,c980b1c5-ebf9-48d3-8ace-3b0174229dd5,399208008,Plain chest X-ray,12006.57,,

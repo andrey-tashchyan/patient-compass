@@ -71,3 +71,73 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+
+## Patient Evolution Pipeline
+
+This repo now includes a server-side TypeScript pipeline exposed as Supabase Edge Function `generate-patient-evolution`.
+
+### Setup
+
+- Dataset path (read-only input): `public/data/final_10_patients/...`
+- Generated JSON persistence target: Supabase Storage
+- Storage object path format: `final_10_patients/generated/<patient_id>_patient_evolution.json`
+
+### Required env vars
+
+For the Edge Function:
+
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `LOVABLE_API_KEY` (optional but required for AI narrative mode)
+
+Optional overrides:
+
+- `PATIENT_EVOLUTION_STORAGE_BUCKET` (default: `patient-evolution`)
+- `PATIENT_EVOLUTION_AI_MODEL` (default: `google/gemini-3-flash-preview`)
+- `PATIENT_EVOLUTION_AI_GATEWAY_URL` (default: `https://ai.gateway.lovable.dev/v1/chat/completions`)
+
+### Run
+
+```sh
+# frontend
+npm run dev
+
+# tests
+npm run test
+
+# edge function (local, if Supabase CLI is configured)
+supabase functions serve generate-patient-evolution
+```
+
+UI route:
+
+- `/patient-evolution`
+
+### Example request/response
+
+Request body:
+
+```json
+{
+  "identifier": "20c3ca32-ec09-4e7c-abab-9f7711cbe235"
+}
+```
+
+Response shape:
+
+```json
+{
+  "patient_id": "20c3ca32-ec09-4e7c-abab-9f7711cbe235",
+  "storage_bucket": "patient-evolution",
+  "storage_path": "final_10_patients/generated/20c3ca32-ec09-4e7c-abab-9f7711cbe235_patient_evolution.json",
+  "payload": {
+    "patient": {},
+    "timeline": [],
+    "episodes": [],
+    "alerts": [],
+    "identity": {},
+    "narrative": {},
+    "metadata": {}
+  }
+}
+```

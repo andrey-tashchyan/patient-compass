@@ -1,0 +1,18 @@
+DATE,PATIENT,ENCOUNTER,CODE,DESCRIPTION,BASE_COST
+2011-03-17T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,9e5d1f34-43c1-4f8f-975c-1ec93f626876,140,Influenza  seasonal  injectable  preservative free,140.52
+2012-03-22T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,dce58c1f-6d8e-4831-8db1-4480cc4b3164,140,Influenza  seasonal  injectable  preservative free,140.52
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,115,Tdap,140.52
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,140,Influenza  seasonal  injectable  preservative free,140.52
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,62,HPV  quadrivalent,140.52
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,114,meningococcal MCV4P,140.52
+2014-04-03T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,4e5d914c-fe27-4f40-bb22-f253ad85bf5e,140,Influenza  seasonal  injectable  preservative free,140.52
+2014-04-03T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,4e5d914c-fe27-4f40-bb22-f253ad85bf5e,62,HPV  quadrivalent,140.52
+2015-04-09T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,752b2b50-bb37-4680-bee3-f1e058c0bfd6,140,Influenza  seasonal  injectable  preservative free,140.52
+2015-04-09T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,752b2b50-bb37-4680-bee3-f1e058c0bfd6,62,HPV  quadrivalent,140.52
+2016-04-14T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,bde52763-9e77-46be-b48b-c29f68d351cf,140,Influenza  seasonal  injectable  preservative free,140.52
+2017-04-20T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,364e3e61-9e73-465c-abd0-a26ba0e33dac,140,Influenza  seasonal  injectable  preservative free,140.52
+2018-04-26T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,f0e9cf25-74cd-4045-a106-145d857d39a2,140,Influenza  seasonal  injectable  preservative free,140.52
+2018-04-26T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,f0e9cf25-74cd-4045-a106-145d857d39a2,114,meningococcal MCV4P,140.52
+2019-05-02T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,75293bd9-d14a-485a-88ed-f163c7f38a2b,140,Influenza  seasonal  injectable  preservative free,140.52
+2021-03-18T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,a656de4c-7f55-47db-8822-dd8fe6c84daf,140,Influenza  seasonal  injectable  preservative free,140.52
+2023-09-10T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,96899b6a-7ab3-443b-b3ce-1867d025a609,140,Influenza  seasonal  injectable  preservative free,140.52

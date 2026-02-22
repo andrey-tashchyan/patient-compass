@@ -1,0 +1,182 @@
+DATE,PATIENT,ENCOUNTER,CODE,DESCRIPTION,VALUE,UNITS,TYPE
+2010-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,QALY,QALY,7.0,a,numeric
+2010-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,DALY,DALY,0.0,a,numeric
+2010-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,QOLS,QOLS,1.0,{score},numeric
+2011-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,QALY,QALY,8.0,a,numeric
+2011-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,DALY,DALY,0.0,a,numeric
+2011-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,QOLS,QOLS,1.0,{score},numeric
+2011-03-17T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,9e5d1f34-43c1-4f8f-975c-1ec93f626876,8302-2,Body Height,123.7,cm,numeric
+2011-03-17T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,9e5d1f34-43c1-4f8f-975c-1ec93f626876,72514-3,Pain severity - 0-10 verbal numeric rating [Score] - Reported,1.0,{score},numeric
+2011-03-17T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,9e5d1f34-43c1-4f8f-975c-1ec93f626876,29463-7,Body Weight,25.7,kg,numeric
+2011-03-17T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,9e5d1f34-43c1-4f8f-975c-1ec93f626876,39156-5,Body Mass Index,16.8,kg/m2,numeric
+2011-03-17T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,9e5d1f34-43c1-4f8f-975c-1ec93f626876,59576-9,Body mass index (BMI) [Percentile] Per age and gender,58.9,%,numeric
+2011-03-17T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,9e5d1f34-43c1-4f8f-975c-1ec93f626876,8462-4,Diastolic Blood Pressure,88.0,mm[Hg],numeric
+2011-03-17T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,9e5d1f34-43c1-4f8f-975c-1ec93f626876,8480-6,Systolic Blood Pressure,128.0,mm[Hg],numeric
+2011-03-17T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,9e5d1f34-43c1-4f8f-975c-1ec93f626876,8867-4,Heart rate,75.0,/min,numeric
+2011-03-17T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,9e5d1f34-43c1-4f8f-975c-1ec93f626876,9279-1,Respiratory rate,14.0,/min,numeric
+2011-03-17T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,9e5d1f34-43c1-4f8f-975c-1ec93f626876,72166-2,Tobacco smoking status NHIS,Never smoker,,text
+2012-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,QALY,QALY,9.0,a,numeric
+2012-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,DALY,DALY,0.0,a,numeric
+2012-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,QOLS,QOLS,1.0,{score},numeric
+2012-03-22T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,dce58c1f-6d8e-4831-8db1-4480cc4b3164,8302-2,Body Height,128.0,cm,numeric
+2012-03-22T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,dce58c1f-6d8e-4831-8db1-4480cc4b3164,72514-3,Pain severity - 0-10 verbal numeric rating [Score] - Reported,0.0,{score},numeric
+2012-03-22T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,dce58c1f-6d8e-4831-8db1-4480cc4b3164,29463-7,Body Weight,27.4,kg,numeric
+2012-03-22T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,dce58c1f-6d8e-4831-8db1-4480cc4b3164,39156-5,Body Mass Index,16.7,kg/m2,numeric
+2012-03-22T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,dce58c1f-6d8e-4831-8db1-4480cc4b3164,59576-9,Body mass index (BMI) [Percentile] Per age and gender,46.9,%,numeric
+2012-03-22T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,dce58c1f-6d8e-4831-8db1-4480cc4b3164,8462-4,Diastolic Blood Pressure,87.0,mm[Hg],numeric
+2012-03-22T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,dce58c1f-6d8e-4831-8db1-4480cc4b3164,8480-6,Systolic Blood Pressure,132.0,mm[Hg],numeric
+2012-03-22T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,dce58c1f-6d8e-4831-8db1-4480cc4b3164,8867-4,Heart rate,84.0,/min,numeric
+2012-03-22T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,dce58c1f-6d8e-4831-8db1-4480cc4b3164,9279-1,Respiratory rate,14.0,/min,numeric
+2012-03-22T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,dce58c1f-6d8e-4831-8db1-4480cc4b3164,72166-2,Tobacco smoking status NHIS,Never smoker,,text
+2013-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,QALY,QALY,10.0,a,numeric
+2013-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,DALY,DALY,0.0,a,numeric
+2013-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,QOLS,QOLS,1.0,{score},numeric
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,8302-2,Body Height,133.0,cm,numeric
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,72514-3,Pain severity - 0-10 verbal numeric rating [Score] - Reported,2.0,{score},numeric
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,29463-7,Body Weight,30.5,kg,numeric
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,39156-5,Body Mass Index,17.2,kg/m2,numeric
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,59576-9,Body mass index (BMI) [Percentile] Per age and gender,46.2,%,numeric
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,8462-4,Diastolic Blood Pressure,79.0,mm[Hg],numeric
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,8480-6,Systolic Blood Pressure,109.0,mm[Hg],numeric
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,8867-4,Heart rate,65.0,/min,numeric
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,9279-1,Respiratory rate,15.0,/min,numeric
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,6690-2,Leukocytes [#/volume] in Blood by Automated count,9.5,10*3/uL,numeric
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,789-8,Erythrocytes [#/volume] in Blood by Automated count,4.8,10*6/uL,numeric
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,718-7,Hemoglobin [Mass/volume] in Blood,16.9,g/dL,numeric
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,4544-3,Hematocrit [Volume Fraction] of Blood by Automated count,36.1,%,numeric
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,787-2,MCV [Entitic volume] by Automated count,86.0,fL,numeric
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,785-6,MCH [Entitic mass] by Automated count,27.7,pg,numeric
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,786-4,MCHC [Mass/volume] by Automated count,33.0,g/dL,numeric
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,21000-5,Erythrocyte distribution width [Entitic volume] by Automated count,42.3,fL,numeric
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,777-3,Platelets [#/volume] in Blood by Automated count,353.4,10*3/uL,numeric
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,32207-3,Platelet distribution width [Entitic volume] in Blood by Automated count,508.2,fL,numeric
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,32623-1,Platelet mean volume [Entitic volume] in Blood by Automated count,11.9,fL,numeric
+2013-03-28T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,021d6300-d209-4c1c-b643-4b78ce24f82f,72166-2,Tobacco smoking status NHIS,Never smoker,,text
+2014-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,QALY,QALY,11.0,a,numeric
+2014-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,DALY,DALY,0.0,a,numeric
+2014-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,QOLS,QOLS,1.0,{score},numeric
+2014-04-03T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,4e5d914c-fe27-4f40-bb22-f253ad85bf5e,8302-2,Body Height,139.9,cm,numeric
+2014-04-03T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,4e5d914c-fe27-4f40-bb22-f253ad85bf5e,72514-3,Pain severity - 0-10 verbal numeric rating [Score] - Reported,2.0,{score},numeric
+2014-04-03T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,4e5d914c-fe27-4f40-bb22-f253ad85bf5e,29463-7,Body Weight,35.3,kg,numeric
+2014-04-03T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,4e5d914c-fe27-4f40-bb22-f253ad85bf5e,39156-5,Body Mass Index,18.0,kg/m2,numeric
+2014-04-03T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,4e5d914c-fe27-4f40-bb22-f253ad85bf5e,59576-9,Body mass index (BMI) [Percentile] Per age and gender,48.9,%,numeric
+2014-04-03T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,4e5d914c-fe27-4f40-bb22-f253ad85bf5e,8462-4,Diastolic Blood Pressure,87.0,mm[Hg],numeric
+2014-04-03T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,4e5d914c-fe27-4f40-bb22-f253ad85bf5e,8480-6,Systolic Blood Pressure,135.0,mm[Hg],numeric
+2014-04-03T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,4e5d914c-fe27-4f40-bb22-f253ad85bf5e,8867-4,Heart rate,93.0,/min,numeric
+2014-04-03T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,4e5d914c-fe27-4f40-bb22-f253ad85bf5e,9279-1,Respiratory rate,12.0,/min,numeric
+2014-04-03T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,4e5d914c-fe27-4f40-bb22-f253ad85bf5e,72166-2,Tobacco smoking status NHIS,Never smoker,,text
+2015-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,QALY,QALY,12.0,a,numeric
+2015-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,DALY,DALY,0.0,a,numeric
+2015-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,QOLS,QOLS,1.0,{score},numeric
+2015-04-09T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,752b2b50-bb37-4680-bee3-f1e058c0bfd6,8302-2,Body Height,146.5,cm,numeric
+2015-04-09T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,752b2b50-bb37-4680-bee3-f1e058c0bfd6,72514-3,Pain severity - 0-10 verbal numeric rating [Score] - Reported,2.0,{score},numeric
+2015-04-09T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,752b2b50-bb37-4680-bee3-f1e058c0bfd6,29463-7,Body Weight,40.3,kg,numeric
+2015-04-09T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,752b2b50-bb37-4680-bee3-f1e058c0bfd6,39156-5,Body Mass Index,18.8,kg/m2,numeric
+2015-04-09T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,752b2b50-bb37-4680-bee3-f1e058c0bfd6,59576-9,Body mass index (BMI) [Percentile] Per age and gender,50.2,%,numeric
+2015-04-09T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,752b2b50-bb37-4680-bee3-f1e058c0bfd6,8462-4,Diastolic Blood Pressure,81.0,mm[Hg],numeric
+2015-04-09T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,752b2b50-bb37-4680-bee3-f1e058c0bfd6,8480-6,Systolic Blood Pressure,126.0,mm[Hg],numeric
+2015-04-09T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,752b2b50-bb37-4680-bee3-f1e058c0bfd6,8867-4,Heart rate,88.0,/min,numeric
+2015-04-09T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,752b2b50-bb37-4680-bee3-f1e058c0bfd6,9279-1,Respiratory rate,15.0,/min,numeric
+2015-04-09T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,752b2b50-bb37-4680-bee3-f1e058c0bfd6,72166-2,Tobacco smoking status NHIS,Never smoker,,text
+2016-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,QALY,QALY,13.0,a,numeric
+2016-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,DALY,DALY,0.0,a,numeric
+2016-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,QOLS,QOLS,1.0,{score},numeric
+2016-04-14T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,bde52763-9e77-46be-b48b-c29f68d351cf,8302-2,Body Height,150.4,cm,numeric
+2016-04-14T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,bde52763-9e77-46be-b48b-c29f68d351cf,72514-3,Pain severity - 0-10 verbal numeric rating [Score] - Reported,2.0,{score},numeric
+2016-04-14T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,bde52763-9e77-46be-b48b-c29f68d351cf,29463-7,Body Weight,46.2,kg,numeric
+2016-04-14T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,bde52763-9e77-46be-b48b-c29f68d351cf,39156-5,Body Mass Index,20.4,kg/m2,numeric
+2016-04-14T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,bde52763-9e77-46be-b48b-c29f68d351cf,59576-9,Body mass index (BMI) [Percentile] Per age and gender,62.3,%,numeric
+2016-04-14T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,bde52763-9e77-46be-b48b-c29f68d351cf,8462-4,Diastolic Blood Pressure,85.0,mm[Hg],numeric
+2016-04-14T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,bde52763-9e77-46be-b48b-c29f68d351cf,8480-6,Systolic Blood Pressure,132.0,mm[Hg],numeric
+2016-04-14T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,bde52763-9e77-46be-b48b-c29f68d351cf,8867-4,Heart rate,77.0,/min,numeric
+2016-04-14T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,bde52763-9e77-46be-b48b-c29f68d351cf,9279-1,Respiratory rate,14.0,/min,numeric
+2016-04-14T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,bde52763-9e77-46be-b48b-c29f68d351cf,72166-2,Tobacco smoking status NHIS,Never smoker,,text
+2017-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,QALY,QALY,14.0,a,numeric
+2017-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,DALY,DALY,0.0,a,numeric
+2017-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,QOLS,QOLS,1.0,{score},numeric
+2017-04-20T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,364e3e61-9e73-465c-abd0-a26ba0e33dac,8302-2,Body Height,151.9,cm,numeric
+2017-04-20T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,364e3e61-9e73-465c-abd0-a26ba0e33dac,72514-3,Pain severity - 0-10 verbal numeric rating [Score] - Reported,2.0,{score},numeric
+2017-04-20T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,364e3e61-9e73-465c-abd0-a26ba0e33dac,29463-7,Body Weight,48.7,kg,numeric
+2017-04-20T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,364e3e61-9e73-465c-abd0-a26ba0e33dac,39156-5,Body Mass Index,21.1,kg/m2,numeric
+2017-04-20T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,364e3e61-9e73-465c-abd0-a26ba0e33dac,59576-9,Body mass index (BMI) [Percentile] Per age and gender,63.5,%,numeric
+2017-04-20T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,364e3e61-9e73-465c-abd0-a26ba0e33dac,8462-4,Diastolic Blood Pressure,71.0,mm[Hg],numeric
+2017-04-20T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,364e3e61-9e73-465c-abd0-a26ba0e33dac,8480-6,Systolic Blood Pressure,125.0,mm[Hg],numeric
+2017-04-20T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,364e3e61-9e73-465c-abd0-a26ba0e33dac,8867-4,Heart rate,88.0,/min,numeric
+2017-04-20T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,364e3e61-9e73-465c-abd0-a26ba0e33dac,9279-1,Respiratory rate,15.0,/min,numeric
+2017-04-20T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,364e3e61-9e73-465c-abd0-a26ba0e33dac,72166-2,Tobacco smoking status NHIS,Never smoker,,text
+2018-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,QALY,QALY,15.0,a,numeric
+2018-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,DALY,DALY,0.0,a,numeric
+2018-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,QOLS,QOLS,1.0,{score},numeric
+2018-04-26T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,f0e9cf25-74cd-4045-a106-145d857d39a2,8302-2,Body Height,152.6,cm,numeric
+2018-04-26T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,f0e9cf25-74cd-4045-a106-145d857d39a2,72514-3,Pain severity - 0-10 verbal numeric rating [Score] - Reported,2.0,{score},numeric
+2018-04-26T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,f0e9cf25-74cd-4045-a106-145d857d39a2,29463-7,Body Weight,50.9,kg,numeric
+2018-04-26T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,f0e9cf25-74cd-4045-a106-145d857d39a2,39156-5,Body Mass Index,21.9,kg/m2,numeric
+2018-04-26T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,f0e9cf25-74cd-4045-a106-145d857d39a2,59576-9,Body mass index (BMI) [Percentile] Per age and gender,66.0,%,numeric
+2018-04-26T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,f0e9cf25-74cd-4045-a106-145d857d39a2,8462-4,Diastolic Blood Pressure,80.0,mm[Hg],numeric
+2018-04-26T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,f0e9cf25-74cd-4045-a106-145d857d39a2,8480-6,Systolic Blood Pressure,119.0,mm[Hg],numeric
+2018-04-26T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,f0e9cf25-74cd-4045-a106-145d857d39a2,8867-4,Heart rate,62.0,/min,numeric
+2018-04-26T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,f0e9cf25-74cd-4045-a106-145d857d39a2,9279-1,Respiratory rate,14.0,/min,numeric
+2018-04-26T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,f0e9cf25-74cd-4045-a106-145d857d39a2,6690-2,Leukocytes [#/volume] in Blood by Automated count,4.3,10*3/uL,numeric
+2018-04-26T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,f0e9cf25-74cd-4045-a106-145d857d39a2,789-8,Erythrocytes [#/volume] in Blood by Automated count,4.6,10*6/uL,numeric
+2018-04-26T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,f0e9cf25-74cd-4045-a106-145d857d39a2,718-7,Hemoglobin [Mass/volume] in Blood,14.8,g/dL,numeric
+2018-04-26T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,f0e9cf25-74cd-4045-a106-145d857d39a2,4544-3,Hematocrit [Volume Fraction] of Blood by Automated count,38.0,%,numeric
+2018-04-26T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,f0e9cf25-74cd-4045-a106-145d857d39a2,787-2,MCV [Entitic volume] by Automated count,82.2,fL,numeric
+2018-04-26T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,f0e9cf25-74cd-4045-a106-145d857d39a2,785-6,MCH [Entitic mass] by Automated count,28.2,pg,numeric
+2018-04-26T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,f0e9cf25-74cd-4045-a106-145d857d39a2,786-4,MCHC [Mass/volume] by Automated count,35.6,g/dL,numeric
+2018-04-26T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,f0e9cf25-74cd-4045-a106-145d857d39a2,21000-5,Erythrocyte distribution width [Entitic volume] by Automated count,43.8,fL,numeric
+2018-04-26T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,f0e9cf25-74cd-4045-a106-145d857d39a2,777-3,Platelets [#/volume] in Blood by Automated count,417.6,10*3/uL,numeric
+2018-04-26T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,f0e9cf25-74cd-4045-a106-145d857d39a2,32207-3,Platelet distribution width [Entitic volume] in Blood by Automated count,271.9,fL,numeric
+2018-04-26T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,f0e9cf25-74cd-4045-a106-145d857d39a2,32623-1,Platelet mean volume [Entitic volume] in Blood by Automated count,10.5,fL,numeric
+2018-04-26T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,f0e9cf25-74cd-4045-a106-145d857d39a2,72166-2,Tobacco smoking status NHIS,Never smoker,,text
+2019-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,QALY,QALY,16.0,a,numeric
+2019-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,DALY,DALY,0.0,a,numeric
+2019-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,QOLS,QOLS,1.0,{score},numeric
+2019-05-02T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,75293bd9-d14a-485a-88ed-f163c7f38a2b,8302-2,Body Height,152.9,cm,numeric
+2019-05-02T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,75293bd9-d14a-485a-88ed-f163c7f38a2b,72514-3,Pain severity - 0-10 verbal numeric rating [Score] - Reported,0.0,{score},numeric
+2019-05-02T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,75293bd9-d14a-485a-88ed-f163c7f38a2b,29463-7,Body Weight,53.5,kg,numeric
+2019-05-02T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,75293bd9-d14a-485a-88ed-f163c7f38a2b,39156-5,Body Mass Index,22.9,kg/m2,numeric
+2019-05-02T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,75293bd9-d14a-485a-88ed-f163c7f38a2b,59576-9,Body mass index (BMI) [Percentile] Per age and gender,70.6,%,numeric
+2019-05-02T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,75293bd9-d14a-485a-88ed-f163c7f38a2b,8462-4,Diastolic Blood Pressure,78.0,mm[Hg],numeric
+2019-05-02T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,75293bd9-d14a-485a-88ed-f163c7f38a2b,8480-6,Systolic Blood Pressure,118.0,mm[Hg],numeric
+2019-05-02T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,75293bd9-d14a-485a-88ed-f163c7f38a2b,8867-4,Heart rate,83.0,/min,numeric
+2019-05-02T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,75293bd9-d14a-485a-88ed-f163c7f38a2b,9279-1,Respiratory rate,16.0,/min,numeric
+2019-05-02T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,75293bd9-d14a-485a-88ed-f163c7f38a2b,72166-2,Tobacco smoking status NHIS,Never smoker,,text
+2020-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,QALY,QALY,17.0,a,numeric
+2020-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,DALY,DALY,0.0,a,numeric
+2020-03-14T17:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,,QOLS,QOLS,1.0,{score},numeric
+2021-03-18T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,a656de4c-7f55-47db-8822-dd8fe6c84daf,72514-3,Pain severity - 0-10 verbal numeric rating [Score] - Reported,1.0,{score},numeric
+2021-03-18T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,a656de4c-7f55-47db-8822-dd8fe6c84daf,8302-2,Body Height,154.4,cm,numeric
+2021-03-18T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,a656de4c-7f55-47db-8822-dd8fe6c84daf,29463-7,Body Weight,57.9,kg,numeric
+2021-03-18T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,a656de4c-7f55-47db-8822-dd8fe6c84daf,8480-6,Systolic Blood Pressure,119.0,mm[Hg],numeric
+2021-03-18T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,a656de4c-7f55-47db-8822-dd8fe6c84daf,8462-4,Diastolic Blood Pressure,78.0,mm[Hg],numeric
+2021-03-18T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,a656de4c-7f55-47db-8822-dd8fe6c84daf,8867-4,Heart rate,79.0,/min,numeric
+2021-03-18T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,a656de4c-7f55-47db-8822-dd8fe6c84daf,9279-1,Respiratory rate,15.0,/min,numeric
+2021-03-18T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,a656de4c-7f55-47db-8822-dd8fe6c84daf,72166-2,Tobacco smoking status NHIS,Never smoker,,text
+2021-03-18T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,a656de4c-7f55-47db-8822-dd8fe6c84daf,39156-5,Body Mass Index,24.3,kg/m2,numeric
+2022-03-22T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,1251a8c4-65c5-46bb-8c81-3a2b0d3b8cee,72514-3,Pain severity - 0-10 verbal numeric rating [Score] - Reported,0.0,{score},numeric
+2022-03-22T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,1251a8c4-65c5-46bb-8c81-3a2b0d3b8cee,8302-2,Body Height,154.4,cm,numeric
+2022-03-22T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,1251a8c4-65c5-46bb-8c81-3a2b0d3b8cee,29463-7,Body Weight,60.2,kg,numeric
+2022-03-22T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,1251a8c4-65c5-46bb-8c81-3a2b0d3b8cee,8480-6,Systolic Blood Pressure,120.0,mm[Hg],numeric
+2022-03-22T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,1251a8c4-65c5-46bb-8c81-3a2b0d3b8cee,8462-4,Diastolic Blood Pressure,79.0,mm[Hg],numeric
+2022-03-22T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,1251a8c4-65c5-46bb-8c81-3a2b0d3b8cee,8867-4,Heart rate,80.0,/min,numeric
+2022-03-22T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,1251a8c4-65c5-46bb-8c81-3a2b0d3b8cee,9279-1,Respiratory rate,15.0,/min,numeric
+2022-03-22T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,1251a8c4-65c5-46bb-8c81-3a2b0d3b8cee,72166-2,Tobacco smoking status NHIS,Never smoker,,text
+2022-03-22T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,1251a8c4-65c5-46bb-8c81-3a2b0d3b8cee,39156-5,Body Mass Index,25.3,kg/m2,numeric
+2023-02-11T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,c8c862f6-f506-43af-86b9-9fbc8f04618d,72514-3,Pain severity - 0-10 verbal numeric rating [Score] - Reported,3.0,{score},numeric
+2023-02-11T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,c8c862f6-f506-43af-86b9-9fbc8f04618d,8302-2,Body Height,154.4,cm,numeric
+2023-02-11T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,c8c862f6-f506-43af-86b9-9fbc8f04618d,29463-7,Body Weight,61.0,kg,numeric
+2023-02-11T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,c8c862f6-f506-43af-86b9-9fbc8f04618d,8480-6,Systolic Blood Pressure,121.0,mm[Hg],numeric
+2023-02-11T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,c8c862f6-f506-43af-86b9-9fbc8f04618d,8462-4,Diastolic Blood Pressure,80.0,mm[Hg],numeric
+2023-02-11T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,c8c862f6-f506-43af-86b9-9fbc8f04618d,8867-4,Heart rate,86.0,/min,numeric
+2023-02-11T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,c8c862f6-f506-43af-86b9-9fbc8f04618d,9279-1,Respiratory rate,16.0,/min,numeric
+2023-02-11T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,c8c862f6-f506-43af-86b9-9fbc8f04618d,72166-2,Tobacco smoking status NHIS,Never smoker,,text
+2023-02-11T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,c8c862f6-f506-43af-86b9-9fbc8f04618d,39156-5,Body Mass Index,25.6,kg/m2,numeric
+2023-09-10T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,96899b6a-7ab3-443b-b3ce-1867d025a609,72514-3,Pain severity - 0-10 verbal numeric rating [Score] - Reported,1.0,{score},numeric
+2023-09-10T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,96899b6a-7ab3-443b-b3ce-1867d025a609,8302-2,Body Height,154.4,cm,numeric
+2023-09-10T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,96899b6a-7ab3-443b-b3ce-1867d025a609,29463-7,Body Weight,62.4,kg,numeric
+2023-09-10T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,96899b6a-7ab3-443b-b3ce-1867d025a609,8480-6,Systolic Blood Pressure,122.0,mm[Hg],numeric
+2023-09-10T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,96899b6a-7ab3-443b-b3ce-1867d025a609,8462-4,Diastolic Blood Pressure,80.0,mm[Hg],numeric
+2023-09-10T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,96899b6a-7ab3-443b-b3ce-1867d025a609,8867-4,Heart rate,78.0,/min,numeric
+2023-09-10T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,96899b6a-7ab3-443b-b3ce-1867d025a609,9279-1,Respiratory rate,15.0,/min,numeric
+2023-09-10T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,96899b6a-7ab3-443b-b3ce-1867d025a609,72166-2,Tobacco smoking status NHIS,Never smoker,,text
+2023-09-10T18:50:13Z,8bf8631f-2fd4-4dc7-af2b-c400499fedfc,96899b6a-7ab3-443b-b3ce-1867d025a609,39156-5,Body Mass Index,26.2,kg/m2,numeric

@@ -1,0 +1,9 @@
+START,STOP,PATIENT,ENCOUNTER,CODE,DESCRIPTION
+2003-09-20,,64ab927a-de28-4993-bfb2-d851cb366f73,5a66e691-45ff-4941-9294-ebc15aefb6d6,40055000,Chronic sinusitis (disorder)
+2013-02-20,2013-03-06,64ab927a-de28-4993-bfb2-d851cb366f73,c9efe078-7db1-4870-8883-ec16db35b7cd,10509002,Acute bronchitis (disorder)
+2013-06-19,2013-07-03,64ab927a-de28-4993-bfb2-d851cb366f73,aabd904d-3c73-4a96-8be5-f224eaa47c68,284551006,Laceration of foot
+2016-03-08,2016-03-16,64ab927a-de28-4993-bfb2-d851cb366f73,3df3aaae-3d7a-4ae7-94af-d7592cf7b14e,195662009,Acute viral pharyngitis (disorder)
+2016-06-15,2016-06-22,64ab927a-de28-4993-bfb2-d851cb366f73,357e4beb-a131-4a67-ad9e-83282d3e371e,195662009,Acute viral pharyngitis (disorder)
+2016-07-04,2016-07-18,64ab927a-de28-4993-bfb2-d851cb366f73,87f77df7-6909-4ba2-81a7-dace873fc7e6,72892002,Normal pregnancy
+2020-03-23,2020-11-30,64ab927a-de28-4993-bfb2-d851cb366f73,eacc3213-ace7-43c6-af8a-6eda6d843bd5,72892002,Normal pregnancy
+2021-02-10,2021-02-24,64ab927a-de28-4993-bfb2-d851cb366f73,a5795ea2-f146-43bc-a88d-0225f6e41ad6,444814009,Viral sinusitis (disorder)

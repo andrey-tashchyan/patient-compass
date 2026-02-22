@@ -1,0 +1,9 @@
+START,STOP,PATIENT,ENCOUNTER,CODE,DESCRIPTION
+1972-01-07,,73ccae2b-09be-48be-b6f8-320bc4df146a,291c8093-87e7-405c-9b55-96da9d8a7a7c,40055000,Chronic sinusitis (disorder)
+1996-08-15,,73ccae2b-09be-48be-b6f8-320bc4df146a,8fa05489-2394-46dd-8665-11563b8b1083,449868002,Smokes tobacco daily
+2009-02-03,,73ccae2b-09be-48be-b6f8-320bc4df146a,cbc94f4f-f672-4632-a159-48d9453d7bd7,68496003,Polyp of colon
+2010-03-30,,73ccae2b-09be-48be-b6f8-320bc4df146a,9d95d9cf-fe89-4130-9f32-0b25383ca928,713197008,Recurrent rectal polyp
+2010-04-03,2012-06-03,73ccae2b-09be-48be-b6f8-320bc4df146a,42f168f1-bdd6-4f0c-b263-45f9b614fcd5,363406005,Malignant tumor of colon
+2012-01-20,2012-01-27,73ccae2b-09be-48be-b6f8-320bc4df146a,3c9e2292-2949-4a83-95be-343727a0fbe0,10509002,Acute bronchitis (disorder)
+2018-04-07,2018-04-28,73ccae2b-09be-48be-b6f8-320bc4df146a,6897d194-c4ae-4b28-aa15-aff4e5c5b5f9,444814009,Viral sinusitis (disorder)
+2022-03-05,2022-03-19,73ccae2b-09be-48be-b6f8-320bc4df146a,9701b992-3d3d-4dbd-a857-f88ebf22eb1b,444814009,Viral sinusitis (disorder)

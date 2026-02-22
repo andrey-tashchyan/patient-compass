@@ -1,0 +1,13 @@
+DATE,PATIENT,ENCOUNTER,CODE,DESCRIPTION,BASE_COST,REASONCODE,REASONDESCRIPTION
+2004-09-16T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,834f38b4-0d23-45bc-94b2-a7442a6a5798,430193006,Medication Reconciliation (procedure),449.65,,
+2005-09-22T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,fe77084d-ba37-4e6a-b603-136dcebb0067,430193006,Medication Reconciliation (procedure),552.84,,
+2006-03-30T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,d25e513f-4dfb-4ecd-bb1a-79f714821255,288086009,Suture open wound,10510.05,284549007,Laceration of hand
+2008-01-29T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,51e131bf-1bdf-4590-bc9f-57f98b056b4d,73761001,Colonoscopy,10644.03,,
+2013-01-27T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,1a40a13f-6205-4cde-b717-8b9c301d6041,73761001,Colonoscopy,15861.30,,
+2013-07-13T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,b3ac16cd-de1f-4ef2-96ed-ac2d18fee921,434158009,Transthoracic three dimensional ultrasonography of heart (procedure),981.70,,
+2013-09-18T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,e3668558-8a02-436e-b774-5030f522fb0f,430193006,Medication Reconciliation (procedure),449.65,,
+2013-11-07T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,9dcaad51-6689-4d99-bc1e-6ccd9751bd54,430193006,Medication Reconciliation (procedure),537.74,,
+2014-03-02T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,f2a5e68b-12df-4752-9986-c6e80b3d9f55,433236007,Transthoracic echocardiography,516.65,,
+2014-07-08T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,e7b5e4c9-50e2-403f-b205-fd9098c3e5b8,399208008,Plain chest X-ray (procedure),5513.45,,
+2014-07-08T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,bef168d5-72b5-4f4b-92ab-cbdbeac22880,433236007,Transthoracic echocardiography,516.65,,
+2014-07-08T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,bef168d5-72b5-4f4b-92ab-cbdbeac22880,399208008,Plain chest X-ray,5662.89,,

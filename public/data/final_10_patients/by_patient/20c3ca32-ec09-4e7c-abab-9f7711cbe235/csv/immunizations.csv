@@ -1,0 +1,14 @@
+DATE,PATIENT,ENCOUNTER,CODE,DESCRIPTION,BASE_COST
+2004-09-16T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,834f38b4-0d23-45bc-94b2-a7442a6a5798,140,Influenza  seasonal  injectable  preservative free,140.52
+2005-09-22T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,fe77084d-ba37-4e6a-b603-136dcebb0067,140,Influenza  seasonal  injectable  preservative free,140.52
+2005-09-22T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,fe77084d-ba37-4e6a-b603-136dcebb0067,33,pneumococcal polysaccharide vaccine  23 valent,140.52
+2006-09-28T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,fc79c827-b352-4308-8cd1-a3640b04f4f3,140,Influenza  seasonal  injectable  preservative free,140.52
+2007-10-04T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,c7413fcb-b21f-4fbd-ac2a-2239ff190b9b,140,Influenza  seasonal  injectable  preservative free,140.52
+2008-10-09T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,19a23a94-fc7d-4099-8367-fa39e795a657,140,Influenza  seasonal  injectable  preservative free,140.52
+2009-10-15T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,a8eb17ef-7a8c-40e2-ba27-3ebcbf6fa17a,140,Influenza  seasonal  injectable  preservative free,140.52
+2010-10-21T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,f2c91a95-d83d-4fe0-bcf4-777d05f227ca,140,Influenza  seasonal  injectable  preservative free,140.52
+2010-10-21T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,f2c91a95-d83d-4fe0-bcf4-777d05f227ca,113,Td (adult) preservative free,140.52
+2011-10-27T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,d1daa9c0-d966-44ac-aeae-12df6a984a83,140,Influenza  seasonal  injectable  preservative free,140.52
+2012-11-01T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,df4ed990-0bb5-449c-ac7b-175c1dc34e50,140,Influenza  seasonal  injectable  preservative free,140.52
+2013-11-07T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,9dcaad51-6689-4d99-bc1e-6ccd9751bd54,140,Influenza  seasonal  injectable  preservative free,140.52
+2013-11-07T12:08:54Z,20c3ca32-ec09-4e7c-abab-9f7711cbe235,e3668558-8a02-436e-b774-5030f522fb0f,140,Influenza  seasonal  injectable  preservative free,140.52
