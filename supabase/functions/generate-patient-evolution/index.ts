@@ -12,6 +12,7 @@ const corsHeaders = {
 };
 
 const DEFAULT_STORAGE_BUCKET = "patient-evolution";
+const DATA_BUCKET = "patient-evolution-data";
 
 function resolveIdentifier(body: Record<string, unknown>): string {
   const candidate =
@@ -51,6 +52,33 @@ async function ensureBucketExists(
   }
 }
 
+/**
+ * Create a PipelineFileIO that reads files from Supabase Storage.
+ * `dataRoot` is the prefix inside the bucket (e.g. "final_10_patients").
+ * The pipeline calls readText("final_10_patients/patients_list.csv") etc.
+ * We strip the dataRoot prefix and download from the bucket.
+ */
+function createStorageFileIO(
+  supabaseAdmin: ReturnType<typeof createClient>,
+  bucketName: string,
+) {
+  return {
+    readText: async (path: string): Promise<string> => {
+      const { data, error } = await supabaseAdmin.storage
+        .from(bucketName)
+        .download(path);
+
+      if (error || !data) {
+        throw new Error(
+          `Storage read failed for ${bucketName}/${path}: ${error?.message ?? "no data"}`,
+        );
+      }
+
+      return await data.text();
+    },
+  };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -80,12 +108,24 @@ serve(async (req) => {
       );
     }
 
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!supabaseUrl || !serviceRoleKey) {
+      throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be configured");
+    }
+
+    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+
+    // Read input data from Supabase Storage bucket
+    const dataBucket = Deno.env.get("PATIENT_EVOLUTION_DATA_BUCKET") ?? DATA_BUCKET;
+    const storageIO = createStorageFileIO(supabaseAdmin, dataBucket);
+
     const orchestrator = new PatientEvolutionOrchestrator(
+      storageIO,
       {
-        readText: (path: string) => Deno.readTextFile(path),
-      },
-      {
-        dataRoot: "public/data/final_10_patients",
+        dataRoot: "final_10_patients",
         lovableApiKey: Deno.env.get("LOVABLE_API_KEY") ?? null,
         aiGatewayUrl:
           Deno.env.get("PATIENT_EVOLUTION_AI_GATEWAY_URL") ??
@@ -104,25 +144,15 @@ serve(async (req) => {
       throw new Error("Unable to resolve patient id for storage persistence");
     }
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    if (!supabaseUrl || !serviceRoleKey) {
-      throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be configured");
-    }
-
-    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
-
-    const bucketName = Deno.env.get("PATIENT_EVOLUTION_STORAGE_BUCKET") ?? DEFAULT_STORAGE_BUCKET;
-    await ensureBucketExists(supabaseAdmin, bucketName);
+    const outputBucket = Deno.env.get("PATIENT_EVOLUTION_STORAGE_BUCKET") ?? DEFAULT_STORAGE_BUCKET;
+    await ensureBucketExists(supabaseAdmin, outputBucket);
 
     const storagePath = await persistPatientEvolutionOutput({
       patientId: resolvedPatientId,
       payload,
       uploader: {
         upload: async (path, bodyText, options) => {
-          const { error } = await supabaseAdmin.storage.from(bucketName).upload(path, bodyText, {
+          const { error } = await supabaseAdmin.storage.from(outputBucket).upload(path, bodyText, {
             contentType: options.contentType,
             upsert: options.upsert,
           });
@@ -134,7 +164,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         patient_id: resolvedPatientId,
-        storage_bucket: bucketName,
+        storage_bucket: outputBucket,
         storage_path: storagePath,
         payload,
       }),
