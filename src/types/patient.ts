@@ -56,10 +56,7 @@ export interface ClinicalNote {
   date_of_service: string;
   provider_name: string;
   provider_credentials: string;
-  subjective: string;
-  objective: string;
-  assessment: string;
-  plan: string;
+  summary: string;
   chief_complaint?: string;
   vital_signs?: VitalSigns;
   follow_up_instructions?: string;

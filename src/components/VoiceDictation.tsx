@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Mic, Square, Loader2, Check, AlertCircle, ChevronDown, ChevronUp, Pill, Stethoscope, ShieldAlert, CheckCircle2, X } from "lucide-react";
+import { Mic, Square, Loader2, Check, AlertCircle, Pill, Stethoscope, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { ClinicalNote, VitalSigns } from "@/types/patient";
 
@@ -287,10 +287,7 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
       provider_name: note.provider_name || "Dictating Provider",
       provider_credentials: note.provider_credentials || "MD",
       chief_complaint: note.chief_complaint || "",
-      subjective: note.subjective || "",
-      objective: note.objective || "",
-      assessment: note.assessment || "",
-      plan: note.plan || "",
+      summary: note.summary || "",
       follow_up_instructions: note.follow_up_instructions || "",
       vital_signs: note.vital_signs as VitalSigns | undefined,
     };
@@ -309,7 +306,7 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Mic className="h-5 w-5 text-primary" />
-            Voice-to-SOAP Dictation
+            Voice Dictation
           </DialogTitle>
         </DialogHeader>
 
@@ -375,7 +372,7 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
         {stage === "processing" && (
           <div className="text-center py-12 space-y-4">
             <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-            <p className="text-sm text-muted-foreground">AI is cleaning and structuring your dictation into a condensed SOAP note...</p>
+            <p className="text-sm text-muted-foreground">AI is summarizing your consultation and detecting record changes...</p>
             <div className="rounded-lg bg-muted/30 border border-border p-3 mx-auto max-w-md">
               <p className="text-xs text-muted-foreground line-clamp-3">{transcript}</p>
             </div>
@@ -389,13 +386,39 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
               Review the structured note and proposed record changes below.
             </p>
 
-            <div>
-              <label className="clinical-label mb-1 block">Report fo the consultation</label>
-              <Textarea
-                value={formatSoapText(note)}
-                onChange={(e) => updateSoapText(e.target.value)}
-                className="min-h-[260px] text-sm font-mono"
-              />
+            {/* Note fields */}
+            <div className="grid gap-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="clinical-label mb-1 block">Note Type</label>
+                  <input value={note.note_type || ""} onChange={(e) => updateNoteField("note_type", e.target.value)} className="w-full h-8 rounded-md border border-input bg-background px-2 text-sm" />
+                </div>
+                <div>
+                  <label className="clinical-label mb-1 block">Chief Complaint</label>
+                  <input value={note.chief_complaint || ""} onChange={(e) => updateNoteField("chief_complaint", e.target.value)} className="w-full h-8 rounded-md border border-input bg-background px-2 text-sm" />
+                </div>
+              </div>
+              <div>
+                <label className="clinical-label mb-1 block">Summary</label>
+                <Textarea value={note.summary || ""} onChange={(e) => updateNoteField("summary", e.target.value)} className="min-h-[160px] text-sm" />
+              </div>
+              <div>
+                <label className="clinical-label mb-1 block">Follow-up Instructions</label>
+                <input value={note.follow_up_instructions || ""} onChange={(e) => updateNoteField("follow_up_instructions", e.target.value)} className="w-full h-8 rounded-md border border-input bg-background px-2 text-sm" />
+              </div>
+              {note.vital_signs && (
+                <div className="rounded-lg bg-muted/30 border border-border p-3">
+                  <label className="clinical-label mb-2 block">Extracted Vital Signs</label>
+                  <div className="flex flex-wrap gap-3 text-xs font-mono">
+                    {note.vital_signs.blood_pressure_systolic && note.vital_signs.blood_pressure_diastolic && (
+                      <span>BP: {note.vital_signs.blood_pressure_systolic}/{note.vital_signs.blood_pressure_diastolic}</span>
+                    )}
+                    {note.vital_signs.heart_rate && <span>HR: {note.vital_signs.heart_rate}</span>}
+                    {note.vital_signs.temperature_fahrenheit && <span>Temp: {note.vital_signs.temperature_fahrenheit}°F</span>}
+                    {note.vital_signs.bmi && <span>BMI: {note.vital_signs.bmi}</span>}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Proposed Record Changes */}

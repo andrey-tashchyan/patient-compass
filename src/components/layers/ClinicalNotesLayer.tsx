@@ -78,20 +78,8 @@ const NoteCard = ({ note, editing, onChange, onRemove }: NoteCardProps) => {
             </div>
           )}
           <div>
-            <div className="clinical-label mb-1">Subjective (S)</div>
-            <EditableText value={note.subjective} editing={!!editing} onChange={(v) => update("subjective", v)} className="text-data-value leading-relaxed" multiline={editing} />
-          </div>
-          <div>
-            <div className="clinical-label mb-1">Objective (O)</div>
-            <EditableText value={note.objective} editing={!!editing} onChange={(v) => update("objective", v)} className="text-data-value leading-relaxed" multiline={editing} />
-          </div>
-          <div>
-            <div className="clinical-label mb-1">Assessment (A)</div>
-            <EditableText value={note.assessment} editing={!!editing} onChange={(v) => update("assessment", v)} className="text-data-value leading-relaxed" multiline={editing} />
-          </div>
-          <div>
-            <div className="clinical-label mb-1">Plan (P)</div>
-            <EditableText value={note.plan} editing={!!editing} onChange={(v) => update("plan", v)} className="text-data-value leading-relaxed" multiline={editing} />
+            <div className="clinical-label mb-1">Summary</div>
+            <EditableText value={note.summary} editing={!!editing} onChange={(v) => update("summary", v)} className="text-data-value leading-relaxed whitespace-pre-wrap" multiline={editing} />
           </div>
           {note.vital_signs && <VitalsInline vs={note.vital_signs} />}
           {(note.follow_up_instructions || editing) && (
@@ -125,10 +113,7 @@ const ClinicalNotesLayer = ({ notes, editing, onUpdate }: Props) => {
       date_of_service: new Date().toISOString().split("T")[0],
       provider_name: "",
       provider_credentials: "",
-      subjective: "",
-      objective: "",
-      assessment: "",
-      plan: "",
+      summary: "",
     }]);
   };
 
