@@ -268,12 +268,13 @@ export default function EvolutionDashboard({ payload }: Props) {
 
           <div>
             <h3 className="mb-2 text-sm font-semibold text-foreground">
-              Disease Timeline
+              Condition Activity Timeline
             </h3>
+            <p className="mb-3 text-xs text-muted-foreground">
+              Each condition rises when detected and falls when resolved — the total dashed line shows overall sickness burden.
+            </p>
             <DiseaseTimelineChart
               conditionSpans={metrics.conditionSpans}
-              activeConditionTimeline={metrics.activeConditionTimeline}
-              conditionTrajectory={insights?.condition_trajectory ?? []}
               dateRange={dateRange}
             />
           </div>
