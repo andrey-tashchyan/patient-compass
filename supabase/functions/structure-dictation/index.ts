@@ -11,9 +11,22 @@ async function trackUsage(input: {
   data?: Record<string, unknown>;
 }) {
   if (!PAID_API_KEY) {
-    console.warn("PAID_API_KEY is not configured; skipping Paid usage tracking.");
+    console.error("[trackUsage] PAID_API_KEY is NOT set. Skipping.");
     return;
   }
+  console.log("[trackUsage] PAID_API_KEY present, length:", PAID_API_KEY.length);
+
+  const body = {
+    signals: [
+      {
+        event_name: input.eventName,
+        external_customer_id: input.externalCustomerId || PAID_EXTERNAL_CUSTOMER_ID,
+        external_product_id: input.externalProductId || PAID_EXTERNAL_PRODUCT_ID,
+        ...(input.data ? { data: input.data } : {}),
+      },
+    ],
+  };
+  console.log("[trackUsage] Sending to Paid:", JSON.stringify(body));
 
   const response = await fetch(PAID_USAGE_URL, {
     method: "POST",
@@ -21,21 +34,14 @@ async function trackUsage(input: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${PAID_API_KEY}`,
     },
-    body: JSON.stringify({
-      signals: [
-        {
-          event_name: input.eventName,
-          external_customer_id: input.externalCustomerId || PAID_EXTERNAL_CUSTOMER_ID,
-          external_product_id: input.externalProductId || PAID_EXTERNAL_PRODUCT_ID,
-          ...(input.data ? { data: input.data } : {}),
-        },
-      ],
-    }),
+    body: JSON.stringify(body),
   });
 
+  const responseText = await response.text();
+  console.log("[trackUsage] Paid response:", response.status, responseText);
+
   if (!response.ok) {
-    const errText = await response.text();
-    throw new Error(`Paid usage tracking failed (${response.status}): ${errText}`);
+    throw new Error(`Paid usage tracking failed (${response.status}): ${responseText}`);
   }
 }
 
@@ -782,6 +788,7 @@ serve(async (req) => {
     // ── Build Response ──
     const note = buildNote(reportResult);
 
+    console.log("[structure-dictation] About to call trackUsage...");
     try {
       await trackUsage({
         eventName: "consultation_report_generated",
@@ -791,8 +798,9 @@ serve(async (req) => {
           has_patient_context: Boolean(patientContext),
         },
       });
+      console.log("[structure-dictation] trackUsage completed successfully.");
     } catch (trackError) {
-      console.error("Paid usage tracking failed:", trackError);
+      console.error("[structure-dictation] Paid usage tracking failed:", trackError);
     }
 
     const agentsSucceeded = agentResults.filter((a) => a.success).length;
