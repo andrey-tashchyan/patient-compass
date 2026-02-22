@@ -3,7 +3,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Mic, Square, Loader2, Check, AlertCircle } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import type { ClinicalNote, VitalSigns } from "@/types/patient";
 
 export interface ProposedChange {
@@ -90,6 +89,9 @@ const blobToBase64 = (blob: Blob): Promise<string> =>
     };
     reader.readAsDataURL(blob);
   });
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDictationProps) => {
   const [stage, setStage] = useState<Stage>("idle");
@@ -285,11 +287,22 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
     setStage("processing");
 
     try {
-      const { data, error: fnError } = await supabase.functions.invoke("structure-dictation", {
-        body: { transcript: finalTranscript, patientContext },
+      if (!SUPABASE_URL) {
+        throw new Error("VITE_SUPABASE_URL is not configured.");
+      }
+
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/structure-dictation`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(SUPABASE_PUBLISHABLE_KEY ? { apikey: SUPABASE_PUBLISHABLE_KEY } : {}),
+          ...(SUPABASE_PUBLISHABLE_KEY ? { Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}` } : {}),
+        },
+        body: JSON.stringify({ transcript: finalTranscript, patientContext }),
       });
-      if (fnError) throw new Error(fnError.message);
-      if (data?.error) throw new Error(data.error);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error((data as any)?.error || "Failed to call structure-dictation.");
+      if ((data as any)?.error) throw new Error((data as any).error);
 
       const summary = getSummaryFromResponse(data);
       setNote({
