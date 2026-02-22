@@ -142,6 +142,8 @@ export interface Patient {
   admission_date?: string;
   patient_signature?: string;
   signature_date?: string;
+  /** UUID linking to evolution pipeline data (from Synthea dataset) */
+  evolution_uuid?: string;
 }
 
 // ── Helper functions ──

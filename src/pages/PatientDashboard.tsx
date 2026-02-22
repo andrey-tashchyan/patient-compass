@@ -15,6 +15,7 @@ import LabResultsLayer from "@/components/layers/LabResultsLayer";
 import ImagingLayer from "@/components/layers/ImagingLayer";
 import DiagnosticTestsLayer from "@/components/layers/DiagnosticTestsLayer";
 import { usePatient } from "@/hooks/usePatients";
+import EvolutionLayer from "@/components/layers/EvolutionLayer";
 import { useUpdatePatient } from "@/hooks/useUpdatePatient";
 import { Button } from "@/components/ui/button";
 import PatientChatPanel from "@/components/PatientChatPanel";
@@ -176,6 +177,12 @@ const PatientDashboard = () => {
           <AllergiesLayer allergies={current.allergies} editing={editing} onUpdate={(allergies) => updateDraft(d => { d.allergies = allergies; })} />
           <ImagingLayer studies={current.imaging_studies} editing={editing} onUpdate={(studies) => updateDraft(d => { d.imaging_studies = studies; })} />
           <DiagnosticTestsLayer tests={current.diagnostic_tests} editing={editing} onUpdate={(tests) => updateDraft(d => { d.diagnostic_tests = tests; })} />
+          {current.evolution_uuid && !editing && (
+            <EvolutionLayer
+              evolutionUuid={current.evolution_uuid}
+              patientName={`${current.first_name} ${current.last_name}`}
+            />
+          )}
           <DemographicsLayer
             contactInfo={current.contact_info}
             insurance={current.insurance}
