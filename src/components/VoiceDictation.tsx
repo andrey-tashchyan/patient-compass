@@ -73,8 +73,10 @@ const getSummaryFromResponse = (data: any): string => {
 
 const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDictationProps) => {
   const [stage, setStage] = useState<Stage>("idle");
+  const [mode, setMode] = useState<"voice" | "demo">("voice");
   const [transcript, setTranscript] = useState("");
   const [interimText, setInterimText] = useState("");
+  const [demoInput, setDemoInput] = useState("");
   const [error, setError] = useState("");
   const [note, setNote] = useState<Partial<ClinicalNote> | null>(null);
 
@@ -93,6 +95,7 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
       setStage("idle");
       setTranscript("");
       setInterimText("");
+      setDemoInput("");
       setError("");
       setNote(null);
     }
@@ -188,14 +191,14 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
     analyserRef.current = null;
   };
 
-  const handleStopAndProcess = async () => {
-    stopRecording();
-    const finalTranscript = transcript || interimText;
+  const processTranscript = async (input: string) => {
+    const finalTranscript = input.trim();
     if (!finalTranscript.trim()) {
-      setError("No speech detected. Please try again.");
+      setError("No input detected. Please provide text or speech.");
       setStage("idle");
       return;
     }
+    setError("");
     setTranscript(finalTranscript.trim());
     setInterimText("");
     setStage("processing");
@@ -217,6 +220,15 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
       setError(err.message || "Failed to structure note");
       setStage("idle");
     }
+  };
+
+  const handleStopAndProcess = async () => {
+    stopRecording();
+    await processTranscript(transcript || interimText);
+  };
+
+  const handleDemoProcess = async () => {
+    await processTranscript(demoInput);
   };
 
   const handleSave = () => {
@@ -258,7 +270,25 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
                 {error}
               </div>
             )}
-            {hasSpeechApi ? (
+            {hasSpeechApi && (
+              <div className="flex items-center gap-2 justify-center">
+                <Button
+                  size="sm"
+                  variant={mode === "voice" ? "default" : "outline"}
+                  onClick={() => setMode("voice")}
+                >
+                  Voice
+                </Button>
+                <Button
+                  size="sm"
+                  variant={mode === "demo" ? "default" : "outline"}
+                  onClick={() => setMode("demo")}
+                >
+                  Demo
+                </Button>
+              </div>
+            )}
+            {hasSpeechApi && mode === "voice" ? (
               <div className="text-center py-8">
                 <p className="text-sm text-muted-foreground mb-6">
                   Click the button to start dictating. AI will transcribe, clean, and generate a consultation report.
@@ -270,16 +300,16 @@ const VoiceDictation = ({ open, onOpenChange, onSave, patientContext }: VoiceDic
             ) : (
               <div className="space-y-3">
                 <p className="text-sm text-muted-foreground">
-                  Your browser doesn't support voice recognition. Type or paste your dictation below.
+                  Type or paste your dictation below to test output instantly in demo mode.
                 </p>
                 <Textarea
-                  value={transcript}
-                  onChange={(e) => setTranscript(e.target.value)}
-                  placeholder="Type or paste your clinical dictation here..."
+                  value={demoInput}
+                  onChange={(e) => setDemoInput(e.target.value)}
+                  placeholder="Type or paste a demo consultation dictation here..."
                   className="min-h-[120px]"
                 />
-                <Button onClick={handleStopAndProcess} disabled={!transcript.trim()} className="w-full">
-                  Structure with AI
+                <Button onClick={handleDemoProcess} disabled={!demoInput.trim()} className="w-full">
+                  Generate Consultation Report
                 </Button>
               </div>
             )}
